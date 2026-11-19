@@ -1,0 +1,51 @@
+{
+  "general": {
+    "page": "Page {{ page }}",
+    "skip_to_content": "Skip to content",
+    "search": "Search",
+    "cart": "Cart",
+    "404_title": "Page not found",
+    "404_subtext": "The page you were looking for does not exist."
+  },
+  "products": {
+    "variant": "Options",
+    "quantity": "Quantity",
+    "add_to_cart": "Add to cart",
+    "sold_out": "Sold out"
+  },
+  "collections": {
+    "empty": "No products found.",
+    "all_title": "Collections"
+  },
+  "sections": {
+    "featured_collection": {
+      "empty": "Pick a collection for this section in the theme editor."
+    }
+  },
+  "cart": {
+    "title": "Your cart",
+    "product": "Product",
+    "total": "Total",
+    "remove": "Remove",
+    "subtotal": "Subtotal",
+    "update": "Update",
+    "checkout": "Check out",
+    "empty": "Your cart is empty.",
+    "continue_shopping": "Continue shopping"
+  },
+  "search": {
+    "results_count": {
+      "one": "{{ count }} result for \"{{ terms }}\"",
+      "other": "{{ count }} results for \"{{ terms }}\""
+    }
+  },
+  "password": {
+    "label": "Password",
+    "enter": "Enter"
+  },
+  "gift_card": {
+    "title": "Your gift card",
+    "balance": "Balance",
+    "disabled": "This gift card is no longer valid."
+  }
+}

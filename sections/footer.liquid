@@ -1,0 +1,17 @@
+<footer class="site-footer page-width">
+  <nav>
+    {%- for link in section.settings.menu.links -%}
+      <a href="{{ link.url }}">{{ link.title }}</a>
+    {%- endfor -%}
+  </nav>
+  <p>&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}. {{ powered_by_link }}</p>
+</footer>
+
+{% schema %}
+{
+  "name": "Footer",
+  "settings": [
+    { "type": "link_list", "id": "menu", "label": "Menu", "default": "footer" }
+  ]
+}
+{% endschema %}

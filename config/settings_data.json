@@ -1,0 +1,11 @@
+{
+  "current": "Default",
+  "presets": {
+    "Default": {
+      "color_text": "#1a1a1a",
+      "color_background": "#ffffff",
+      "color_accent": "#8a5a44",
+      "page_width": 1200
+    }
+  }
+}

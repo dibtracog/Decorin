@@ -1,0 +1,9 @@
+{%- comment -%} Exposes theme settings (config/settings_schema.json) as CSS variables. {%- endcomment -%}
+<style>
+  :root {
+    --color-text: {{ settings.color_text }};
+    --color-background: {{ settings.color_background }};
+    --color-accent: {{ settings.color_accent }};
+    --page-width: {{ settings.page_width }}px;
+  }
+</style>

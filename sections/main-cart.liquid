@@ -1,0 +1,43 @@
+<section class="cart">
+  <h1>{{ 'cart.title' | t }}</h1>
+
+  {%- if cart.item_count > 0 -%}
+    <form action="{{ routes.cart_url }}" method="post">
+      <table class="cart__table">
+        <thead>
+          <tr>
+            <th>{{ 'cart.product' | t }}</th>
+            <th>{{ 'products.quantity' | t }}</th>
+            <th>{{ 'cart.total' | t }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {%- for item in cart.items -%}
+            <tr>
+              <td>
+                <a href="{{ item.url }}">{{ item.product.title }}</a>
+                {%- unless item.product.has_only_default_variant -%}<br><small>{{ item.variant.title }}</small>{%- endunless -%}
+              </td>
+              <td>
+                <input type="number" name="updates[]" value="{{ item.quantity }}" min="0" aria-label="{{ 'products.quantity' | t }}">
+                <a href="{{ item.url_to_remove }}">{{ 'cart.remove' | t }}</a>
+              </td>
+              <td>{{ item.final_line_price | money }}</td>
+            </tr>
+          {%- endfor -%}
+        </tbody>
+      </table>
+
+      <p class="cart__subtotal">{{ 'cart.subtotal' | t }}: {{ cart.total_price | money_with_currency }}</p>
+      <button type="submit" name="update" class="button button--secondary">{{ 'cart.update' | t }}</button>
+      <button type="submit" name="checkout" class="button">{{ 'cart.checkout' | t }}</button>
+    </form>
+  {%- else -%}
+    <p>{{ 'cart.empty' | t }}</p>
+    <a class="button" href="{{ routes.all_products_collection_url }}">{{ 'cart.continue_shopping' | t }}</a>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{ "name": "Cart", "settings": [] }
+{% endschema %}

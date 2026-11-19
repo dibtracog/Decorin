@@ -1,0 +1,44 @@
+<section class="product">
+  <div class="product__media">
+    {%- for media in product.media -%}
+      {{ media | image_url: width: 1000 | image_tag: loading: 'lazy' }}
+    {%- else -%}
+      {{ 'product-1' | placeholder_svg_tag: 'placeholder' }}
+    {%- endfor -%}
+  </div>
+
+  <div class="product__info">
+    <h1>{{ product.title }}</h1>
+    <p class="product__price">{{ product.selected_or_first_available_variant.price | money }}</p>
+
+    {%- form 'product', product -%}
+      {%- if product.has_only_default_variant -%}
+        <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+      {%- else -%}
+        <label for="Variant-{{ section.id }}">{{ 'products.variant' | t }}</label>
+        <select id="Variant-{{ section.id }}" name="id">
+          {%- for variant in product.variants -%}
+            <option value="{{ variant.id }}"
+              {%- if variant == product.selected_or_first_available_variant %} selected{% endif -%}
+              {%- unless variant.available %} disabled{% endunless -%}>
+              {{ variant.title }} – {{ variant.price | money }}
+            </option>
+          {%- endfor -%}
+        </select>
+      {%- endif -%}
+
+      <label for="Quantity-{{ section.id }}">{{ 'products.quantity' | t }}</label>
+      <input id="Quantity-{{ section.id }}" type="number" name="quantity" value="1" min="1">
+
+      <button type="submit" class="button" {% unless product.available %}disabled{% endunless %}>
+        {%- if product.available -%}{{ 'products.add_to_cart' | t }}{%- else -%}{{ 'products.sold_out' | t }}{%- endif -%}
+      </button>
+    {%- endform -%}
+
+    <div class="product__description">{{ product.description }}</div>
+  </div>
+</section>
+
+{% schema %}
+{ "name": "Product information", "settings": [] }
+{% endschema %}

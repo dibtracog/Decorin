@@ -1,0 +1,7 @@
+{
+  "sections": {
+    "intro": { "type": "rich-text", "settings": {} },
+    "featured": { "type": "featured-collection", "settings": {} }
+  },
+  "order": ["intro", "featured"]
+}
