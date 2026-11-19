@@ -4,18 +4,47 @@
     "skip_to_content": "Skip to content",
     "search": "Search",
     "cart": "Cart",
+    "menu": "Menu",
+    "close": "Close",
+    "home": "Home",
+    "catalogue": "Catalogue",
+    "explore": "Explore",
+    "footer_menu": "Footer",
+    "breadcrumbs": "Breadcrumbs",
+    "pagination": "Pagination",
+    "previous": "Previous page",
+    "next": "Next page",
+    "scroll_down": "Scroll to highlights",
     "404_title": "Page not found",
     "404_subtext": "The page you were looking for does not exist."
+  },
+  "countdown": {
+    "days": "Days",
+    "hours": "Hours",
+    "minutes": "Mins",
+    "seconds": "Secs"
+  },
+  "carousel": {
+    "previous": "Previous slide",
+    "next": "Next slide",
+    "go_to": "Go to slide {{ number }}",
+    "discover": "Discover"
   },
   "products": {
     "variant": "Options",
     "quantity": "Quantity",
     "add_to_cart": "Add to cart",
-    "sold_out": "Sold out"
+    "sold_out": "Sold out",
+    "sale": "Sale",
+    "from": "From"
   },
   "collections": {
-    "empty": "No products found.",
-    "all_title": "Collections"
+    "empty": "New pieces are arriving soon.",
+    "all_title": "Collections",
+    "product_count": {
+      "one": "{{ count }} piece",
+      "other": "{{ count }} pieces"
+    }
   },
   "sections": {
     "featured_collection": {

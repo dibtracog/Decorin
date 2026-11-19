@@ -1,3 +1,4 @@
+<div class="page-width page-section">
 <section class="search">
   <h1>{{ 'general.search' | t }}</h1>
   <form action="{{ routes.search_url }}" method="get" role="search">
@@ -21,6 +22,7 @@
     {%- endpaginate -%}
   {%- endif -%}
 </section>
+</div>
 
 {% schema %}
 { "name": "Search results", "settings": [] }

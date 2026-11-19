@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="{{ settings.color_midnight }}">
     <title>
       {{ page_title }}
       {%- if current_page != 1 %} – {{ 'general.page' | t: page: current_page }}{% endif -%}
@@ -12,17 +13,19 @@
       <meta name="description" content="{{ page_description | escape }}">
     {%- endif -%}
     <link rel="canonical" href="{{ canonical_url }}">
+    <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
 
     {%- render 'css-variables' -%}
     {{ 'base.css' | asset_url | stylesheet_tag }}
+    <script src="{{ 'theme.js' | asset_url }}" defer></script>
 
     {{ content_for_header }}
   </head>
-  <body>
+  <body class="template-{{ template.name }}">
     <a class="skip-link" href="#MainContent">{{ 'general.skip_to_content' | t }}</a>
     {% sections 'header-group' %}
 
-    <main id="MainContent" class="page-width" role="main">
+    <main id="MainContent" role="main" tabindex="-1">
       {{ content_for_layout }}
     </main>
 

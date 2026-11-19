@@ -1,24 +1,83 @@
-<section class="collection">
-  <h1>{{ collection.title }}</h1>
-  {{ collection.description }}
-
-  {%- paginate collection.products by section.settings.products_per_page -%}
-    <div class="product-grid">
-      {%- for product in collection.products -%}
-        {% render 'product-card', product: product %}
-      {%- else -%}
-        <p>{{ 'collections.empty' | t }}</p>
-      {%- endfor -%}
+{%- liquid
+  if collection.handle == 'all' and section.settings.all_heading != blank
+    assign heading = section.settings.all_heading
+  else
+    assign heading = collection.title
+  endif
+-%}
+<section class="catalogue">
+  <div class="catalogue__hero">
+    {% render 'starfield', count: 30 %}
+    <div class="page-width catalogue__hero-content">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="eyebrow eyebrow--light">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      <h1 class="catalogue__title">{{ heading }}</h1>
+      <div class="catalogue__intro">
+        {%- if collection.description != blank -%}
+          {{ collection.description }}
+        {%- else -%}
+          <p>{{ section.settings.intro }}</p>
+        {%- endif -%}
+      </div>
     </div>
-    {{ paginate | default_pagination }}
-  {%- endpaginate -%}
+  </div>
+
+  <div class="page-width">
+    {%- paginate collection.products by section.settings.products_per_page -%}
+      <div class="catalogue__toolbar">
+        <p class="catalogue__count">{{ 'collections.product_count' | t: count: collection.products_count }}</p>
+        {%- comment -%}
+          Reserved for filtering & sorting. Shopify provides collection.filters
+          (Search & Discovery app) and collection.sort_options for this.
+        {%- endcomment -%}
+        <div class="catalogue__controls" data-catalogue-controls></div>
+      </div>
+
+      {%- if collection.products.size > 0 -%}
+        <ul class="product-grid" role="list">
+          {%- for product in collection.products -%}
+            <li>{% render 'product-card', product: product, index: forloop.index %}</li>
+          {%- endfor -%}
+        </ul>
+      {%- else -%}
+        <div class="catalogue__empty">
+          <span aria-hidden="true">✦</span>
+          <p>{{ 'collections.empty' | t }}</p>
+        </div>
+      {%- endif -%}
+
+      {%- if paginate.pages > 1 -%}
+        <nav class="pagination" aria-label="{{ 'general.pagination' | t }}">
+          {%- if paginate.previous -%}
+            <a class="pagination__arrow" href="{{ paginate.previous.url }}">{% render 'icon', name: 'arrow-left' %}<span class="visually-hidden">{{ 'general.previous' | t }}</span></a>
+          {%- endif -%}
+          {%- for part in paginate.parts -%}
+            {%- if part.is_link -%}
+              <a class="pagination__page" href="{{ part.url }}">{{ part.title }}</a>
+            {%- elsif part.title == paginate.current_page -%}
+              <span class="pagination__page is-current" aria-current="page">{{ part.title }}</span>
+            {%- else -%}
+              <span class="pagination__page">{{ part.title }}</span>
+            {%- endif -%}
+          {%- endfor -%}
+          {%- if paginate.next -%}
+            <a class="pagination__arrow" href="{{ paginate.next.url }}">{% render 'icon', name: 'arrow-right' %}<span class="visually-hidden">{{ 'general.next' | t }}</span></a>
+          {%- endif -%}
+        </nav>
+      {%- endif -%}
+    {%- endpaginate -%}
+  </div>
 </section>
 
 {% schema %}
 {
-  "name": "Collection products",
+  "name": "Catalogue",
   "settings": [
-    { "type": "range", "id": "products_per_page", "label": "Products per page", "min": 4, "max": 24, "step": 4, "default": 12 }
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The New Year Collection" },
+    { "type": "text", "id": "all_heading", "label": "Heading for the 'All products' catalogue", "default": "The Full Catalogue" },
+    { "type": "textarea", "id": "intro", "label": "Intro text (used when the collection has no description)", "default": "This new year, decorate your home with pieces that make every corner feel brand new." },
+    { "type": "range", "id": "products_per_page", "label": "Products per page", "min": 8, "max": 48, "step": 4, "default": 24 }
   ]
 }
 {% endschema %}

@@ -1,0 +1,21 @@
+{%- comment -%}
+  Decorative twinkling stars + soft gold glows. Positions are generated
+  deterministically so there is no layout shift and no JS needed.
+  Usage: {% render 'starfield', count: 48 %}
+{%- endcomment -%}
+{%- assign count = count | default: 40 -%}
+<div class="starfield" aria-hidden="true">
+  {%- for i in (1..count) -%}
+    {%- liquid
+      assign x = i | times: 37 | plus: 11 | modulo: 100
+      assign y = i | times: 59 | plus: 7 | modulo: 100
+      assign size = i | modulo: 3 | plus: 1
+      assign delay = i | times: 7 | modulo: 40 | divided_by: 10.0
+      assign duration = i | modulo: 4 | plus: 3
+    -%}
+    <span class="star star--{{ size }}" style="--x:{{ x }}%;--y:{{ y }}%;--delay:{{ delay }}s;--dur:{{ duration }}s"></span>
+  {%- endfor -%}
+  <span class="glow glow--1"></span>
+  <span class="glow glow--2"></span>
+  <span class="glow glow--3"></span>
+</div>

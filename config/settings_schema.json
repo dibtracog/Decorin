@@ -2,7 +2,7 @@
   {
     "name": "theme_info",
     "theme_name": "Decorin",
-    "theme_version": "0.1.0",
+    "theme_version": "0.2.0",
     "theme_author": "Decorin",
     "theme_documentation_url": "https://shopify.dev/docs/storefronts/themes",
     "theme_support_url": "https://help.shopify.com"
@@ -10,15 +10,23 @@
   {
     "name": "Colors",
     "settings": [
-      { "type": "color", "id": "color_text", "label": "Text", "default": "#1a1a1a" },
-      { "type": "color", "id": "color_background", "label": "Background", "default": "#ffffff" },
-      { "type": "color", "id": "color_accent", "label": "Accent (buttons, links)", "default": "#8a5a44" }
+      { "type": "color", "id": "color_midnight", "label": "Midnight (hero, footer, dark sections)", "default": "#0d1330" },
+      { "type": "color", "id": "color_gold", "label": "Gold accent", "default": "#d6b16a" },
+      { "type": "color", "id": "color_ivory", "label": "Page background", "default": "#faf6ef" },
+      { "type": "color", "id": "color_text", "label": "Text", "default": "#1c1b29" }
+    ]
+  },
+  {
+    "name": "Typography",
+    "settings": [
+      { "type": "font_picker", "id": "type_heading_font", "label": "Headings", "default": "playfair_display_n4" },
+      { "type": "font_picker", "id": "type_body_font", "label": "Body", "default": "assistant_n4" }
     ]
   },
   {
     "name": "Layout",
     "settings": [
-      { "type": "range", "id": "page_width", "label": "Page width", "min": 1000, "max": 1600, "step": 100, "unit": "px", "default": 1200 }
+      { "type": "range", "id": "page_width", "label": "Page width", "min": 1000, "max": 1600, "step": 100, "unit": "px", "default": 1300 }
     ]
   }
 ]

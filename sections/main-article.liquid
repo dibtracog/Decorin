@@ -1,3 +1,4 @@
+<div class="page-width page-section">
 <article class="article">
   <h1>{{ article.title }}</h1>
   <small>{{ article.published_at | time_tag: format: 'date' }} · {{ article.author }}</small>
@@ -7,6 +8,7 @@
   <div class="rte">{{ article.content }}</div>
   <a href="{{ blog.url }}">← {{ blog.title }}</a>
 </article>
+</div>
 
 {% schema %}
 { "name": "Blog post", "settings": [] }
