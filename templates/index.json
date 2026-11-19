@@ -1,29 +1,107 @@
 {
   "sections": {
-    "hero": { "type": "hero-newyear", "settings": {} },
+    "hero": {
+      "type": "hero-newyear",
+      "settings": {}
+    },
     "highlights": {
       "type": "highlights-carousel",
       "blocks": {
-        "item-1": { "type": "item", "settings": { "title": "Candles & Lanterns", "text": "Warm light for the first long evenings of the year.", "tag": "New Year Pick" } },
-        "item-2": { "type": "item", "settings": { "title": "Vases & Planters", "text": "Fresh stems and greenery for a fresh beginning.", "tag": "New Year Pick" } },
-        "item-3": { "type": "item", "settings": { "title": "Wall Art & Mirrors", "text": "Give your walls a brand-new story to tell.", "tag": "New Year Pick" } },
-        "item-4": { "type": "item", "settings": { "title": "Cushions & Throws", "text": "Layer in comfort for slow winter mornings.", "tag": "New Year Pick" } }
+        "item-1": {
+          "type": "item",
+          "settings": {
+            "product": "diya-cascade-fountain",
+            "title": "Diya Cascade Fountain",
+            "text": "Four glowing tiers of gently flowing water.",
+            "tag": "New Year Pick"
+          }
+        },
+        "item-2": {
+          "type": "item",
+          "settings": {
+            "title": "Vases & Planters",
+            "text": "Fresh stems and greenery for a fresh beginning.",
+            "tag": "New Year Pick"
+          }
+        },
+        "item-3": {
+          "type": "item",
+          "settings": {
+            "title": "Wall Art & Mirrors",
+            "text": "Give your walls a brand-new story to tell.",
+            "tag": "New Year Pick"
+          }
+        },
+        "item-4": {
+          "type": "item",
+          "settings": {
+            "title": "Cushions & Throws",
+            "text": "Layer in comfort for slow winter mornings.",
+            "tag": "New Year Pick"
+          }
+        }
       },
-      "block_order": ["item-1", "item-2", "item-3", "item-4"],
+      "block_order": [
+        "item-1",
+        "item-2",
+        "item-3",
+        "item-4"
+      ],
       "settings": {}
     },
     "features": {
       "type": "feature-strip",
       "blocks": {
-        "f-1": { "type": "feature", "settings": { "icon": "sparkle", "title": "Curated with care", "text": "Every piece is handpicked." } },
-        "f-2": { "type": "feature", "settings": { "icon": "gift", "title": "Gift-ready", "text": "Beautifully packed for giving." } },
-        "f-3": { "type": "feature", "settings": { "icon": "truck", "title": "Delivered to your door", "text": "Fast, careful shipping." } },
-        "f-4": { "type": "feature", "settings": { "icon": "shield", "title": "Secure checkout", "text": "Shop with total peace of mind." } }
+        "f-1": {
+          "type": "feature",
+          "settings": {
+            "icon": "sparkle",
+            "title": "Curated with care",
+            "text": "Every piece is handpicked."
+          }
+        },
+        "f-2": {
+          "type": "feature",
+          "settings": {
+            "icon": "gift",
+            "title": "Gift-ready",
+            "text": "Beautifully packed for giving."
+          }
+        },
+        "f-3": {
+          "type": "feature",
+          "settings": {
+            "icon": "truck",
+            "title": "Delivered to your door",
+            "text": "Fast, careful shipping."
+          }
+        },
+        "f-4": {
+          "type": "feature",
+          "settings": {
+            "icon": "shield",
+            "title": "Secure checkout",
+            "text": "Shop with total peace of mind."
+          }
+        }
       },
-      "block_order": ["f-1", "f-2", "f-3", "f-4"],
+      "block_order": [
+        "f-1",
+        "f-2",
+        "f-3",
+        "f-4"
+      ],
       "settings": {}
     },
-    "banner": { "type": "newyear-banner", "settings": {} }
+    "banner": {
+      "type": "newyear-banner",
+      "settings": {}
+    }
   },
-  "order": ["hero", "highlights", "features", "banner"]
+  "order": [
+    "hero",
+    "highlights",
+    "features",
+    "banner"
+  ]
 }
