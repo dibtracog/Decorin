@@ -26,7 +26,9 @@ No merchant account or payment gateway needed. It works on every Shopify plan.
    shopify app config link
    shopify app deploy
    ```
-   `config link` asks you to log in and create a new app (name it "DecorIn UPI QR"). It fills in `shopify.app.toml`.
+   `config link` asks you to log in, then create a new app (or **pick the existing "DecorIn UPI QR"**). It fills in `shopify.app.toml`.
+   The `deploy` output must list the extension **upi-qr-payment**. Confirm with **Yes** to release.
+   Check: Dev Dashboard → DecorIn UPI QR → Versions → the Active version should show the extension.
 4. **Install it on your store:** Partner dashboard → Apps → DecorIn UPI QR → **Distribution → Custom distribution**
    → enter your store's `.myshopify.com` domain → open the install link → Install.
 5. **Add the block:** Shopify admin → **Settings → Checkout → Customize** → switch the page dropdown to
