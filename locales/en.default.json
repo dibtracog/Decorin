@@ -84,7 +84,10 @@
     "results_for": "Results for “{{ terms }}”",
     "no_results": "Nothing found for “{{ terms }}”. Try another word, or browse everything.",
     "browse_all": "Browse the full catalogue",
-    "prompt": "Type above to search the catalogue."
+    "prompt": "Type above to search the catalogue.",
+    "live_empty": "Nothing matches “{{ terms }}”. Try a shorter word, like “vase” or “candle”.",
+    "live_count_one": "{count} piece",
+    "live_count_other": "{count} pieces"
   },
   "password": {
     "label": "Password",

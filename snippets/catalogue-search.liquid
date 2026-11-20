@@ -3,7 +3,12 @@
   Usage: {% render 'catalogue-search', terms: search.terms %}
   Must sit outside the [data-results] container so typing never loses focus.
 {%- endcomment -%}
-<form class="facets__search" action="{{ routes.search_url }}" method="get" role="search" data-facets-search data-live-search data-catalogue-url="{{ routes.all_products_collection_url }}"{% if terms != blank %} data-has-results{% endif %}>
+<form class="facets__search" action="{{ routes.search_url }}" method="get" role="search" data-facets-search data-live-search data-catalogue-url="{{ routes.all_products_collection_url }}"
+  data-text-one="{{ 'search.live_count_one' | t | escape }}"
+  data-text-other="{{ 'search.live_count_other' | t | escape }}"
+  data-text-title="{{ 'search.results_for' | t: terms: '{terms}' | escape }}"
+  data-text-empty="{{ 'search.live_empty' | t: terms: '{terms}' | escape }}"
+  data-text-clear="{{ 'facets.clear_search' | t | escape }}"{% if terms != blank %} data-has-results{% endif %}>
   <input type="hidden" name="type" value="product">
   <input type="hidden" name="options[prefix]" value="last">
   <label class="visually-hidden" for="CatalogueSearch">{{ 'facets.search_label' | t }}</label>

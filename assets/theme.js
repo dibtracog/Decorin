@@ -197,62 +197,129 @@
   initFacets();
   document.addEventListener('shopify:section:load', () => initFacets());
 
-  /* ---------- Live search: results update as you type ---------- */
+  /* ---------- Live search: instant, predictable filtering of the catalogue ----------
+     The whole catalogue is loaded once (section "search-index") and filtered in the
+     browser. Every word typed must match the start of a word in the product's title,
+     type or tags, so each extra letter can only narrow the results, never reshuffle
+     them. A trailing "s" is ignored (vases → vase). Order stays in catalogue order,
+     with title matches first. */
+  const normalizeText = (s) => s.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+  const stem = (t) => (t.length > 3 && t.endsWith('s') && !t.endsWith('ss') ? t.slice(0, -1) : t);
+  const queryTokens = (q) => normalizeText(q).split(' ').filter(Boolean).map(stem);
+  const matchesAll = (words, tokens) => tokens.every((t) => words.some((w) => w.startsWith(t)));
+
   const initSearch = () => {
     const form = document.querySelector('[data-facets-search]');
     if (!form || form.dataset.ready) return;
     form.dataset.ready = 'true';
     const input = form.querySelector('[data-search-input]');
     const clear = form.querySelector('[data-search-clear]');
-    const searchUrl = form.getAttribute('action');
     const catalogue = form.dataset.catalogueUrl;
-    const live = form.hasAttribute('data-live-search') && document.querySelector('[data-results]');
-    // Where an empty search returns to: this collection if we started on one, otherwise the full catalogue
-    const onSearchPage = window.location.pathname.startsWith(searchUrl);
-    const restoreUrl = onSearchPage ? catalogue : window.location.pathname;
-    let lastQuery = onSearchPage ? (input.value.trim() || null) : input.value.trim();
-    let controller; let timer;
+    const results = document.querySelector('[data-results]');
+    const titleEl = document.querySelector('[data-results-title]');
+    const introEl = document.querySelector('.catalogue__intro');
+    const onSearchPage = window.location.pathname.startsWith(form.getAttribute('action'));
+    if (!results) return; // plain form fallback (normal submit)
 
-    const run = async (q) => {
-      if (!live) { window.location.href = q ? `${searchUrl}?q=${encodeURIComponent(q)}&type=product&options%5Bprefix%5D=last` : catalogue; return; }
-      if (q === lastQuery) return;
-      lastQuery = q;
-      if (controller) controller.abort();
-      controller = new AbortController();
-      const { signal } = controller;
-      const url = q ? `${searchUrl}?q=${encodeURIComponent(q)}&type=product&options%5Bprefix%5D=last` : restoreUrl;
-      const section = q ? 'main-search' : 'main-collection';
-      form.classList.add('is-searching');
-      setLoading(true);
-      try {
-        const res = await fetch(`${url}${url.includes('?') ? '&' : '?'}section_id=${section}`, { signal });
-        if (!res.ok) throw new Error(res.status);
-        swapResults(await res.text(), url);
-        form.toggleAttribute('data-has-results', !!q);
-      } catch (err) {
-        if (err.name === 'AbortError') return;
-        window.location.href = url;
-      } finally {
-        if (!signal.aborted) { form.classList.remove('is-searching'); setLoading(false); }
+    // Snapshot of the page as it loaded, so clearing the search restores it instantly
+    const original = {
+      html: results.innerHTML,
+      title: titleEl ? titleEl.textContent : '',
+      introHidden: introEl ? introEl.hidden : true,
+    };
+    const basePath = onSearchPage ? catalogue : window.location.pathname;
+    const fill = (text, values) => text.replace(/\{(\w+)\}/g, (_, k) => values[k] ?? '');
+    const escapeHtml = (s) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    let indexPromise = null;
+    const loadIndex = () => {
+      if (!indexPromise) {
+        form.classList.add('is-searching');
+        indexPromise = fetch(`${catalogue}?section_id=search-index`)
+          .then((res) => { if (!res.ok) throw new Error(res.status); return res.text(); })
+          .then((html) => {
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            return Array.from(doc.querySelectorAll('[data-search-item]')).map((el, i) => ({
+              el, i,
+              words: normalizeText(el.dataset.search || '').split(' '),
+              titleWords: normalizeText(el.dataset.searchTitle || '').split(' '),
+            }));
+          })
+          .finally(() => form.classList.remove('is-searching'));
+        indexPromise.catch(() => { indexPromise = null; });
       }
+      return indexPromise;
     };
 
+    const restore = () => {
+      if (onSearchPage) { window.location.href = catalogue; return; }
+      results.innerHTML = original.html;
+      if (titleEl) titleEl.textContent = original.title;
+      if (introEl) introEl.hidden = original.introHidden;
+      history.replaceState({}, '', basePath);
+      form.removeAttribute('data-has-results');
+      initFacets(results);
+    };
+
+    let renderToken = 0;
+    const render = async (q) => {
+      const tokens = queryTokens(q);
+      if (!tokens.length) { restore(); return; }
+      const current = ++renderToken;
+      let index;
+      try { index = await loadIndex(); } catch (e) {
+        window.location.href = `${form.getAttribute('action')}?q=${encodeURIComponent(q)}&type=product&options%5Bprefix%5D=last`;
+        return;
+      }
+      if (current !== renderToken) return; // a newer keystroke already rendered
+
+      const hits = index.filter((item) => matchesAll(item.words, tokens));
+      const inTitle = (item) => matchesAll(item.titleWords, tokens);
+      hits.sort((a, b) => (inTitle(b) - inTitle(a)) || (a.i - b.i));
+
+      const terms = q.trim();
+      const count = fill(hits.length === 1 ? form.dataset.textOne : form.dataset.textOther, { count: hits.length });
+      results.innerHTML = `
+        <div class="search-live__bar">
+          <p class="facets__count" role="status">${escapeHtml(count)}</p>
+          <button type="button" class="facets__reset" data-live-clear>${escapeHtml(form.dataset.textClear)}</button>
+        </div>
+        ${hits.length
+          ? '<ul class="product-grid" role="list"></ul>'
+          : `<div class="catalogue__empty"><span aria-hidden="true">✦</span><p>${escapeHtml(fill(form.dataset.textEmpty, { terms }))}</p></div>`}`;
+      const grid = results.querySelector('.product-grid');
+      if (grid) hits.forEach((item) => grid.appendChild(item.el.cloneNode(true)));
+      results.querySelector('[data-live-clear]').addEventListener('click', () => { input.value = ''; input.focus(); restore(); });
+
+      if (titleEl) titleEl.textContent = fill(form.dataset.textTitle, { terms });
+      if (introEl) introEl.hidden = true;
+      form.setAttribute('data-has-results', '');
+      history.replaceState({}, '', `${basePath}?q=${encodeURIComponent(terms)}`);
+    };
+
+    let timer;
     input.addEventListener('input', () => {
       clearTimeout(timer);
-      timer = setTimeout(() => run(input.value.trim()), 300);
+      timer = setTimeout(() => render(input.value), 120);
     });
+    input.addEventListener('focus', () => { loadIndex().catch(() => {}); }, { once: true }); // warm up
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       clearTimeout(timer);
-      if (!window.matchMedia('(min-width: 990px)').matches) input.blur(); // hide the phone keyboard to reveal results
-      run(input.value.trim());
+      if (!window.matchMedia('(min-width: 990px)').matches) input.blur(); // reveal results on phones
+      render(input.value);
     });
     clear && clear.addEventListener('click', () => {
       input.value = '';
       input.focus();
       clearTimeout(timer);
-      run('');
+      restore();
     });
+
+    // Deep links: /collections/all?q=vase and the header search icon (#search)
+    const params = new URLSearchParams(window.location.search);
+    if (!onSearchPage && params.get('q')) { input.value = params.get('q'); render(input.value); }
+    if (window.location.hash === '#search') { input.focus({ preventScroll: false }); }
   };
   initSearch();
 
