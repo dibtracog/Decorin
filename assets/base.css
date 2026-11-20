@@ -419,11 +419,18 @@ main:focus { outline: none; }
 }
 .feature__icon .icon { width: 22px; height: 22px; }
 .feature__art {
-  position: absolute; z-index: -1; top: 6%; left: 50%; width: 58%; max-width: 170px;
-  transform: translateX(-50%); color: rgba(255,255,255,.42);
-  transition: transform .8s cubic-bezier(.2,.7,.2,1), color .4s ease;
+  position: absolute; z-index: -1; top: 2%; left: 50%; width: 70%; max-width: 210px;
+  transform: translateX(-50%); color: #fff; opacity: .72;
+  transition: transform .8s cubic-bezier(.2,.7,.2,1), opacity .4s ease;
 }
-.feature:hover .feature__art { transform: translateX(-50%) translateY(-4px) scale(1.04); color: rgba(255,255,255,.6); }
+.feature:hover .feature__art { transform: translateX(-50%) translateY(-4px) scale(1.04); opacity: .9; }
+.fa { fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.fa .fa-thin { stroke-width: 1; }
+.fa .fa-fill { fill: currentColor; fill-opacity: .08; }
+.fa .fa-fill-soft { fill: currentColor; fill-opacity: .04; }
+.fa .fa-fill-strong { fill: currentColor; fill-opacity: .16; }
+.fa .fa-spark { fill: currentColor; fill-opacity: .7; stroke: none; }
+.fa .fa-dot { fill: currentColor; stroke: none; }
 .feature__body { position: relative; }
 .feature__index { font-family: var(--font-heading); font-style: italic; color: var(--c-gold-light); font-size: 0.9375rem; }
 .feature__title { font-size: 1.1875rem; line-height: 1.2; margin-top: 2px; }
@@ -431,7 +438,7 @@ main:focus { outline: none; }
 @media (min-width: 750px) {
   .features__list { gap: 20px; }
   .feature { min-height: 300px; padding: 26px; border-radius: 22px; }
-  .feature__art { width: 52%; }
+  .feature__art { width: 62%; }
   .feature__title { font-size: 1.5rem; }
   .feature__text { font-size: 0.9375rem; }
   .feature__icon { width: 54px; height: 54px; }
@@ -439,7 +446,7 @@ main:focus { outline: none; }
 @media (min-width: 990px) {
   .features__list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .feature { min-height: 340px; }
-  .feature__art { top: 9%; width: 56%; }
+  .feature__art { top: 4%; width: 68%; }
 }
 
 /* ---------- New Year banner ---------- */

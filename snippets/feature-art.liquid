@@ -1,45 +1,93 @@
 {%- comment -%}
   Line-art illustrations for the feature cards.
-  Usage: {% render 'feature-art', name: 'gift' %}
-  Names: sparkle (hands holding a heart), gift, truck, shield, leaf, heart
+  Usage: {% render 'feature-art', name: 'gift', uid: block.id %}
+  Names: sparkle (caring hands), gift, truck (front-door delivery), shield (secure checkout), leaf, heart
 {%- endcomment -%}
-<svg class="feature__art" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-  <g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+<svg class="feature__art" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+  <defs>
+    <radialGradient id="FeatureGlow-{{ uid }}">
+      <stop offset="0" stop-color="currentColor" stop-opacity=".24"/>
+      <stop offset="1" stop-color="currentColor" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <g class="fa">
     {%- case name -%}
       {%- when 'gift' -%}
-        {%- comment -%} Gift box with bow {%- endcomment -%}
-        <rect x="27" y="56" width="66" height="46" rx="3"/>
-        <rect x="21" y="43" width="78" height="14" rx="3"/>
-        <path d="M60 43v59"/>
-        <path d="M27 72h66" opacity=".45"/>
-        <path d="M60 43c-5-11-17-18-24-12-5 5 1 12 24 12z"/>
-        <path d="M60 43c5-11 17-18 24-12 5 5-1 12-24 12z"/>
-        <path d="M57 44l-9 11M63 44l9 11"/>
-        <path d="M98 22c.6 3.6 2.4 5.4 6 6-3.6.6-5.4 2.4-6 6-.6-3.6-2.4-5.4-6-6 3.6-.6 5.4-2.4 6-6z"/>
-        <path d="M18 24c.4 2.4 1.6 3.6 4 4-2.4.4-3.6 1.6-4 4-.4-2.4-1.6-3.6-4-4 2.4-.4 3.6-1.6 4-4z"/>
+        <circle cx="78" cy="90" r="42" fill="url(#FeatureGlow-{{ uid }})" stroke="none"/>
+        {%- comment -%} box: front face + right side face {%- endcomment -%}
+        <path class="fa-fill" d="M42 88h56v50H42z"/>
+        <path class="fa-fill-soft" d="M98 88l22-8v48l-22 10z"/>
+        {%- comment -%} lid: top, front band, side band {%- endcomment -%}
+        <path class="fa-fill-strong" d="M37 74l27-10h63l-27 10z"/>
+        <path class="fa-fill" d="M37 74h63v14H37z"/>
+        <path class="fa-fill-soft" d="M100 74l27-10v14l-27 10z"/>
+        {%- comment -%} ribbon: front (vertical), side (horizontal), lid top {%- endcomment -%}
+        <path class="fa-fill-strong" d="M64 74h12v64H64z"/>
+        <path class="fa-fill-strong" d="M100 101l20-7.4v9l-20 7.4z"/>
+        <path class="fa-fill-strong" d="M64 74l27-10h12l-27 10z"/>
+        <path class="fa-thin" d="M37 74h63M98 88h2" opacity=".5"/>
+        {%- comment -%} bow {%- endcomment -%}
+        <path class="fa-fill-strong" d="M83 68c-6-10-19-17-27-13-5.4 2.8-3.6 9.4 4 11.4 7 1.8 15 2 23 1.6z"/>
+        <path class="fa-fill-strong" d="M83 68c4-11 15-20 23-17.4 5.6 1.8 4.6 8.4-2 11.2-6.2 2.6-13.6 4.6-21 6.2z"/>
+        <path class="fa-thin" d="M80 66c-6-3-13-5-19-5M86 66c5-4 11-7 16-8" opacity=".6"/>
+        <path d="M81 70c-3 7-7 12-12 15M84 70c3 6 7 10 12 12"/>
+        <ellipse cx="82.6" cy="68.4" rx="4" ry="3" class="fa-fill-strong"/>
+        {%- comment -%} tag {%- endcomment -%}
+        <path class="fa-thin" d="M118 72c3 6 7 9 12 10"/>
+        <path class="fa-fill" d="M129 80l13 2-1.6 11-13-2z"/>
+        <circle cx="131.6" cy="83.4" r="1" class="fa-dot"/>
+        <path class="fa-spark" d="M40 34c.8 5 3.2 7.4 8 8.2-4.8.8-7.2 3.2-8 8.2-.8-5-3.2-7.4-8-8.2 4.8-.8 7.2-3.2 8-8.2z"/>
+        <path class="fa-spark" d="M122 28c.5 3.2 2 4.7 5 5.2-3 .5-4.5 2-5 5.2-.5-3.2-2-4.7-5-5.2 3-.5 4.5-2 5-5.2z"/>
+        <circle cx="100" cy="36" r="1.2" class="fa-dot"/>
       {%- when 'truck' -%}
-        {%- comment -%} Delivery van with parcel {%- endcomment -%}
-        <path d="M16 40h52v42H16z"/>
-        <path d="M68 54h17l13 15v13H68"/>
-        <path d="M73 58h10l8 10H73z"/>
-        <rect x="29" y="51" width="24" height="19" rx="1.5"/>
-        <path d="M41 51v19M35 51v5h12v-5" opacity=".6"/>
-        <circle cx="31" cy="84" r="8"/><circle cx="31" cy="84" r="2.5"/>
-        <circle cx="84" cy="84" r="8"/><circle cx="84" cy="84" r="2.5"/>
-        <path d="M98 76h4"/>
-        <path d="M3 52h8M1 62h10M5 72h6"/>
-        <path d="M8 100h104" opacity=".5"/>
-        <path d="M96 24c.6 3.6 2.4 5.4 6 6-3.6.6-5.4 2.4-6 6-.6-3.6-2.4-5.4-6-6 3.6-.6 5.4-2.4 6-6z"/>
+        <circle cx="80" cy="80" r="44" fill="url(#FeatureGlow-{{ uid }})" stroke="none"/>
+        {%- comment -%} arched door frame {%- endcomment -%}
+        <path class="fa-fill-soft" d="M46 132V66a34 34 0 0 1 68 0v66"/>
+        <path class="fa-fill" d="M54 132V68a26 26 0 0 1 52 0v64z"/>
+        {%- comment -%} fanlight {%- endcomment -%}
+        <path class="fa-thin" d="M58 64a22 22 0 0 1 44 0z"/>
+        <path class="fa-thin" d="M80 42v22M65 49l15 15M95 49L80 64" opacity=".6"/>
+        {%- comment -%} door panels {%- endcomment -%}
+        <rect x="61" y="72" width="16" height="24" rx="2" class="fa-thin"/>
+        <rect x="83" y="72" width="16" height="24" rx="2" class="fa-thin"/>
+        <rect x="61" y="102" width="16" height="22" rx="2" class="fa-thin"/>
+        <rect x="83" y="102" width="16" height="22" rx="2" class="fa-thin"/>
+        <circle cx="99" cy="99" r="1.8" class="fa-dot"/>
+        {%- comment -%} step {%- endcomment -%}
+        <path d="M36 132h88M40 138h80"/>
+        {%- comment -%} parcel on step {%- endcomment -%}
+        <path class="fa-fill-strong" d="M86 118l14-4 14 4-14 4z"/>
+        <path class="fa-fill" d="M86 118v13l14 4v-13z"/>
+        <path class="fa-fill-soft" d="M100 122v13l14-4v-13z"/>
+        <path class="fa-thin" d="M93 116l14 4v4" opacity=".7"/>
+        {%- comment -%} potted plant {%- endcomment -%}
+        <path class="fa-fill" d="M22 118h18l-3 14H25z"/>
+        <path d="M31 118V96"/>
+        <path class="fa-fill-strong" d="M31 106c-7-1-11-6-12-13 7 1 11 6 12 13z"/>
+        <path class="fa-fill-strong" d="M31 100c6-2 9-7 9-14-6 2-9 7-9 14z"/>
+        <path class="fa-fill-strong" d="M31 112c5 0 9-3 11-8-5 0-9 3-11 8z"/>
+        <path class="fa-spark" d="M128 40c.8 5 3.2 7.4 8 8.2-4.8.8-7.2 3.2-8 8.2-.8-5-3.2-7.4-8-8.2 4.8-.8 7.2-3.2 8-8.2z"/>
+        <circle cx="34" cy="50" r="1.2" class="fa-dot"/><circle cx="122" cy="70" r="1" class="fa-dot"/>
       {%- when 'shield' -%}
-        {%- comment -%} Shield with padlock {%- endcomment -%}
-        <path d="M60 12l34 12v27c0 24-14 40-34 49-20-9-34-25-34-49V24z"/>
-        <path d="M60 20l27 9.5V51c0 19-11 32-27 40-16-8-27-21-27-40V29.5z" opacity=".45"/>
-        <rect x="46" y="52" width="28" height="23" rx="3.5"/>
-        <path d="M51 52v-6a9 9 0 0 1 18 0v6"/>
-        <circle cx="60" cy="61.5" r="3"/>
-        <path d="M60 64.5v5"/>
-        <path d="M102 20c.6 3.6 2.4 5.4 6 6-3.6.6-5.4 2.4-6 6-.6-3.6-2.4-5.4-6-6 3.6-.6 5.4-2.4 6-6z"/>
+        <circle cx="80" cy="86" r="44" fill="url(#FeatureGlow-{{ uid }})" stroke="none"/>
+        {%- comment -%} card behind, tilted {%- endcomment -%}
+        <g transform="rotate(-14 60 100)">
+        <rect x="16" y="82" width="78" height="50" rx="7" class="fa-fill-soft"/>
+        <path d="M16 94h78" stroke-width="5" opacity=".22"/>
+        <rect x="25" y="104" width="13" height="10" rx="2" class="fa-thin"/>
+        <path class="fa-thin" d="M25 122h20M51 122h10" opacity=".6"/>
+        </g>
+        {%- comment -%} padlock in front {%- endcomment -%}
+        <path d="M92 84V68a17 17 0 0 1 34 0v16"/>
+        <path class="fa-thin" d="M99 84V68a10 10 0 0 1 20 0v16"/>
+        <rect x="82" y="84" width="54" height="46" rx="9" class="fa-fill-strong"/>
+        <path class="fa-thin" d="M88 92h42" opacity=".35"/>
+        <circle cx="109" cy="103" r="5.4" class="fa-thin"/>
+        <path class="fa-thin" d="M106.4 107.4l-1.6 10h8.4l-1.6-10"/>
+        <path class="fa-spark" d="M134 34c.8 5 3.2 7.4 8 8.2-4.8.8-7.2 3.2-8 8.2-.8-5-3.2-7.4-8-8.2 4.8-.8 7.2-3.2 8-8.2z"/>
+        <circle cx="44" cy="54" r="1.2" class="fa-dot"/><circle cx="74" cy="42" r="1" class="fa-dot"/>
       {%- when 'leaf' -%}
+        <g transform="translate(20 20)">
         {%- comment -%} Potted plant {%- endcomment -%}
         <path d="M40 74h40l-5 30H45z"/>
         <path d="M37 68h46v6H37z"/>
@@ -48,27 +96,38 @@
         <path d="M60 42c10-3 16-11 17-22-11 2-17 10-17 22z"/>
         <path d="M60 60c8 0 15-5 18-13-9 0-15 5-18 13z"/>
         <path d="M100 26c.6 3.6 2.4 5.4 6 6-3.6.6-5.4 2.4-6 6-.6-3.6-2.4-5.4-6-6 3.6-.6 5.4-2.4 6-6z"/>
+        </g>
       {%- when 'heart' -%}
+        <g transform="translate(20 20)">
         {%- comment -%} Heart with sparkles {%- endcomment -%}
         <path d="M60 96C36 80 22 67 22 50a18 18 0 0 1 38-8 18 18 0 0 1 38 8c0 17-14 30-38 46z"/>
         <path d="M60 84C44 73 34 63 34 51a9 9 0 0 1 9-9" opacity=".45"/>
         <path d="M96 16c.6 3.6 2.4 5.4 6 6-3.6.6-5.4 2.4-6 6-.6-3.6-2.4-5.4-6-6 3.6-.6 5.4-2.4 6-6z"/>
         <path d="M20 20c.4 2.4 1.6 3.6 4 4-2.4.4-3.6 1.6-4 4-.4-2.4-1.6-3.6-4-4 2.4-.4 3.6-1.6 4-4z"/>
+        </g>
       {%- else -%}
-        {%- comment -%} Cupped hands holding a heart (care) {%- endcomment -%}
-        <path d="M60 54c-9-6.5-14-11-14-17a7 7 0 0 1 14-2.6A7 7 0 0 1 74 37c0 6-5 10.5-14 17z"/>
-        <path d="M14 66c3 15 20 28 46 28"/>
-        <path d="M106 66c-3 15-20 28-46 28"/>
-        <path d="M14 66c-1-5 2-8 5.5-8 3 0 5 2.2 5.8 5.2L28 74"/>
-        <path d="M106 66c1-5-2-8-5.5-8-3 0-5 2.2-5.8 5.2L92 74"/>
-        <path d="M25 63c1.5-4 5-6 8.5-5.5 3.5.6 5.2 3.5 4.8 7L37 76"/>
-        <path d="M95 63c-1.5-4-5-6-8.5-5.5-3.5.6-5.2 3.5-4.8 7L83 76"/>
-        <path d="M38 64c2-3 5.5-4 8.5-3 3 1.2 4 4 3.3 7L48 80"/>
-        <path d="M82 64c-2-3-5.5-4-8.5-3-3 1.2-4 4-3.3 7L72 80"/>
-        <path d="M60 94v-8" opacity=".5"/>
-        <path d="M40 92l-4 9M80 92l4 9"/>
-        <path d="M34 24c.6 3.6 2.4 5.4 6 6-3.6.6-5.4 2.4-6 6-.6-3.6-2.4-5.4-6-6 3.6-.6 5.4-2.4 6-6z"/>
-        <path d="M88 18c.4 2.4 1.6 3.6 4 4-2.4.4-3.6 1.6-4 4-.4-2.4-1.6-3.6-4-4 2.4-.4 3.6-1.6 4-4z"/>
+        <circle cx="80" cy="62" r="32" fill="url(#FeatureGlow-{{ uid }})" stroke="none"/>
+        {%- comment -%} heart floating above the hands {%- endcomment -%}
+        <path class="fa-fill-strong" d="M80 82c-12-8.2-19-14.6-19-23.2a9.6 9.6 0 0 1 19-3.8 9.6 9.6 0 0 1 19 3.8C99 67.4 92 73.8 80 82z"/>
+        <path class="fa-thin" d="M68 56a5.4 5.4 0 0 1 5.4-4.6"/>
+        <path class="fa-thin" d="M80 88v4M70 90l-2 3M90 90l2 3" opacity=".6"/>
+        {%- comment -%} left hand: palm cup + fingers curling up {%- endcomment -%}
+        <path class="fa-fill" d="M80 138c-21-1.6-38-11-44.6-26.4-2.6-6.2-.4-11.4 4-12.4 4.2-1 7.4 1.8 9.2 6 4.6 10.6 13.4 17 31.4 19.6"/>
+        <path class="fa-thin" d="M40.4 101.4c-2.6-6.2-2.4-12 .8-14.2 3.4-2.4 7.4.2 8.8 4.8l3.2 10.6"/>
+        <path class="fa-thin" d="M49.6 96.2c-1.4-5.8.2-10.4 3.8-11.2 3.6-.8 6.4 2 7.2 6.4l2 11.4"/>
+        <path class="fa-thin" d="M60.6 93.8c-.2-5 2-8.4 5.4-8.6 3.4-.2 5.4 2.8 5.6 7l.4 12.6"/>
+        <path d="M35.4 111.6c-2.8 7.4-3.4 14-1.6 20.4"/>
+        <g transform="translate(160 0) scale(-1 1)">
+        <path class="fa-fill" d="M80 138c-21-1.6-38-11-44.6-26.4-2.6-6.2-.4-11.4 4-12.4 4.2-1 7.4 1.8 9.2 6 4.6 10.6 13.4 17 31.4 19.6"/>
+        <path class="fa-thin" d="M40.4 101.4c-2.6-6.2-2.4-12 .8-14.2 3.4-2.4 7.4.2 8.8 4.8l3.2 10.6"/>
+        <path class="fa-thin" d="M49.6 96.2c-1.4-5.8.2-10.4 3.8-11.2 3.6-.8 6.4 2 7.2 6.4l2 11.4"/>
+        <path class="fa-thin" d="M60.6 93.8c-.2-5 2-8.4 5.4-8.6 3.4-.2 5.4 2.8 5.6 7l.4 12.6"/>
+        <path d="M35.4 111.6c-2.8 7.4-3.4 14-1.6 20.4"/>
+        </g>
+        <path class="fa-thin" d="M80 126v12" opacity=".5"/>
+        <path class="fa-spark" d="M120 36c.8 5 3.2 7.4 8 8.2-4.8.8-7.2 3.2-8 8.2-.8-5-3.2-7.4-8-8.2 4.8-.8 7.2-3.2 8-8.2z"/>
+        <path class="fa-spark" d="M42 40c.5 3.2 2 4.7 5 5.2-3 .5-4.5 2-5 5.2-.5-3.2-2-4.7-5-5.2 3-.5 4.5-2 5-5.2z"/>
+        <circle cx="104" cy="26" r="1.3" class="fa-dot"/><circle cx="56" cy="24" r="1" class="fa-dot"/>
     {%- endcase -%}
   </g>
 </svg>
