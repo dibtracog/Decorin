@@ -42,6 +42,20 @@ The catalogue and search pages use Shopify's native filtering. Availability and 
 To add more filters (e.g. **Product type**, which our CSV fills in for every product), install the free
 **Shopify Search & Discovery** app → Filters → Add filter → Product type → Save.
 
+## UPI payment page
+
+The cart's checkout button opens a custom payment page showing the order breakdown and a UPI QR for the exact total
+(product cost = price − handling fee, shipping shown struck through as FREE).
+
+**Setup (once):**
+1. Shopify admin → **Online Store → Pages → Add page**. Title: `Payment`, so the URL is `/pages/payment`.
+   In the right sidebar set **Theme template** to `upi-checkout`, then save.
+2. **Customize** → open that page → **UPI payment** section → enter your **UPI ID** (and optionally payee name, fees).
+3. (Optional) In the Cart section settings, pick the page under "UPI payment page", or turn the UPI page off to use Shopify's checkout.
+
+Note: payments made by QR go straight to your UPI account. Shopify does not create an order for them, so match
+incoming payments using the reference (e.g. `DI-K9QMXA`) shown on the page and included in the UPI payment note.
+
 ## Local development (optional)
 
 ```bash

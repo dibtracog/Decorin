@@ -1,0 +1,6 @@
+{
+  "sections": {
+    "main": { "type": "upi-checkout", "settings": {} }
+  },
+  "order": ["main"]
+}

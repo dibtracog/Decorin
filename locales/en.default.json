@@ -72,7 +72,6 @@
     "summary": "Order summary",
     "shipping": "Shipping",
     "estimated_total": "Estimated total",
-    "taxes_note": "Taxes, if any, are calculated at checkout.",
     "start_shopping": "Start shopping",
     "error": "Couldn't update your cart. Please try again.",
     "free": "Free"
@@ -113,5 +112,21 @@
     },
     "clear_search": "Clear search",
     "reset": "Reset filters & sort"
+  },
+  "pay": {
+    "back_to_cart": "Back to cart",
+    "empty": "Add something you love, then come back here to pay.",
+    "amount_to_pay": "Amount to pay",
+    "qr_label": "UPI QR code to pay ₹{{ amount }}",
+    "qr_loading": "Generating QR…",
+    "scan": "Scan with any UPI app",
+    "open_app": "Pay with UPI app",
+    "upi_id": "UPI ID",
+    "copy": "Copy",
+    "copied": "Copied",
+    "reference": "Payment reference",
+    "not_configured": "UPI payments are being set up. Please check back shortly.",
+    "product_cost": "Product cost",
+    "handling": "Handling fee"
   }
 }

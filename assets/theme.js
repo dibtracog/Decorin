@@ -333,6 +333,32 @@
   };
   initCart();
 
+  /* ---------- UPI payment page: QR + copy UPI ID ---------- */
+  const initUpi = () => {
+    const box = document.querySelector('[data-upi-qr]');
+    if (box && !box.dataset.ready) {
+      const draw = () => {
+        if (typeof window.qrcode !== 'function') return false;
+        const qr = window.qrcode(0, 'M');
+        qr.addData(box.dataset.upi);
+        qr.make();
+        box.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+        box.dataset.ready = 'true';
+        return true;
+      };
+      if (!draw()) window.addEventListener('load', draw, { once: true });
+    }
+    document.querySelectorAll('[data-copy]').forEach((btn) => btn.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(btn.dataset.copy); } catch (e) { return; }
+      const label = btn.querySelector('.pay__copy-label');
+      if (!label) return;
+      const original = label.textContent;
+      label.textContent = btn.dataset.copied;
+      setTimeout(() => { label.textContent = original; }, 1600);
+    }));
+  };
+  initUpi();
+
   const initAll = () => document.querySelectorAll('.highlights').forEach(initCarousel);
   initAll();
   // Re-init when sections are edited in the Shopify theme editor
