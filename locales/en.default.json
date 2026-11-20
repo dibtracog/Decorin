@@ -71,13 +71,11 @@
     "quantity_for": "Quantity for {{ product }}",
     "summary": "Order summary",
     "shipping": "Shipping",
-    "at_checkout": "Calculated at checkout",
     "estimated_total": "Estimated total",
-    "taxes_note": "Taxes and shipping are calculated at checkout.",
-    "trust_secure": "Secure, encrypted checkout",
-    "trust_gift": "Gift-ready packaging",
+    "taxes_note": "Taxes, if any, are calculated at checkout.",
     "start_shopping": "Start shopping",
-    "error": "Couldn't update your cart. Please try again."
+    "error": "Couldn't update your cart. Please try again.",
+    "free": "Free"
   },
   "search": {
     "results_count": {

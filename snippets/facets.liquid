@@ -1,11 +1,12 @@
 {%- comment -%}
-  Search box + filters + sorting for collections and search results.
+  Filters + sorting for collections and search results.
   Uses Shopify's native storefront filtering (configure which filters
   appear with the free "Search & Discovery" app).
 
   Usage:
   {% render 'facets', results: collection, section_id: section.id, action_url: collection.url, count: collection.products_count %}
   {% render 'facets', results: search, section_id: section.id, action_url: routes.search_url, count: search.results_count, terms: search.terms %}
+  Pair with {% render 'catalogue-search', terms: search.terms %} placed outside [data-results].
 {%- endcomment -%}
 {%- liquid
   assign sort_by = results.sort_by | default: results.default_sort_by
@@ -32,17 +33,6 @@
 -%}
 <div class="facets" data-facets data-section-id="{{ section_id }}">
   <div class="facets__top">
-    <form class="facets__search" action="{{ routes.search_url }}" method="get" role="search" data-facets-search data-catalogue-url="{{ routes.all_products_collection_url }}"{% if terms != blank %} data-has-results{% endif %}>
-      <input type="hidden" name="type" value="product">
-      <input type="hidden" name="options[prefix]" value="last">
-      <label class="visually-hidden" for="FacetsSearch-{{ section_id }}">{{ 'facets.search_label' | t }}</label>
-      <span class="facets__search-icon">{% render 'icon', name: 'search' %}</span>
-      <input class="facets__search-input" type="search" id="FacetsSearch-{{ section_id }}" name="q" value="{{ terms | escape }}" placeholder="{{ 'facets.search_placeholder' | t }}" autocomplete="off" data-search-input>
-      <button class="facets__search-clear" type="button" data-search-clear>
-        {% render 'icon', name: 'close' %}<span class="visually-hidden">{{ 'facets.clear_search' | t }}</span>
-      </button>
-      <button class="facets__search-submit" type="submit">{{ 'general.search' | t }}</button>
-    </form>
 
     <div class="facets__summary">
       <button type="button" class="facets__open" data-facets-open aria-controls="FacetsDrawer-{{ section_id }}" aria-expanded="false">

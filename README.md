@@ -1,4 +1,4 @@
-# Decorin
+# DecorIn
 
 A minimal Shopify Online Store 2.0 theme, meant as a starting point.
 

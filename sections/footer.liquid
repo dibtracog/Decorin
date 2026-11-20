@@ -9,7 +9,7 @@
 <footer class="site-footer">
   <div class="page-width site-footer__grid">
     <div class="site-footer__brand">
-      <a class="site-footer__logo" href="{{ routes.root_url }}">{{ shop.name }}</a>
+      <a class="site-footer__logo" href="{{ routes.root_url }}">{{ settings.brand_name | default: shop.name }}</a>
       <p>{{ section.settings.tagline }}</p>
     </div>
 
@@ -32,7 +32,7 @@
   </div>
 
   <div class="page-width site-footer__bottom">
-    <p>&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}</p>
+    <p>&copy; {{ 'now' | date: '%Y' }} {{ settings.brand_name | default: shop.name }}</p>
     <p>{{ powered_by_link }}</p>
   </div>
 </footer>

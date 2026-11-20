@@ -97,7 +97,7 @@
           {%- endfor -%}
           <div class="cart-summary__row">
             <dt>{{ 'cart.shipping' | t }}</dt>
-            <dd class="cart-summary__muted">{{ 'cart.at_checkout' | t }}</dd>
+            <dd class="cart-summary__free">{{ 'cart.free' | t }}</dd>
           </div>
           <div class="cart-summary__row cart-summary__row--total">
             <dt>{{ 'cart.estimated_total' | t }}</dt>
@@ -112,11 +112,6 @@
         <noscript>
           <button type="submit" name="update" class="button button--secondary button--full">{{ 'cart.update' | t }}</button>
         </noscript>
-
-        <ul class="cart-summary__trust" role="list">
-          <li>{% render 'icon', name: 'shield' %}{{ 'cart.trust_secure' | t }}</li>
-          <li>{% render 'icon', name: 'gift' %}{{ 'cart.trust_gift' | t }}</li>
-        </ul>
       </aside>
     </form>
   {%- else -%}

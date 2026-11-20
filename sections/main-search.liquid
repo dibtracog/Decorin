@@ -3,7 +3,7 @@
     {% render 'starfield', count: 24 %}
     <div class="page-width catalogue__hero-content">
       <p class="eyebrow eyebrow--light">{{ section.settings.eyebrow }}</p>
-      <h1 class="catalogue__title">
+      <h1 class="catalogue__title" data-results-title>
         {%- if search.performed and search.terms != blank -%}
           {{ 'search.results_for' | t: terms: search.terms }}
         {%- else -%}
@@ -13,7 +13,9 @@
     </div>
   </div>
 
-  <div class="page-width catalogue__results" data-results="{{ section.id }}">
+  <div class="page-width catalogue__results" data-results-root>
+    {% render 'catalogue-search', terms: search.terms %}
+    <div class="catalogue__body" data-results="{{ section.id }}">
     {%- paginate search.results by section.settings.products_per_page -%}
       {% render 'facets', results: search, section_id: section.id, action_url: routes.search_url, count: search.results_count, terms: search.terms %}
 
@@ -47,6 +49,7 @@
 
       {% render 'pagination', paginate: paginate %}
     {%- endpaginate -%}
+    </div>
   </div>
 </section>
 

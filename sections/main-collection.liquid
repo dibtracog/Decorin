@@ -12,7 +12,7 @@
       {%- if section.settings.eyebrow != blank -%}
         <p class="eyebrow eyebrow--light">{{ section.settings.eyebrow }}</p>
       {%- endif -%}
-      <h1 class="catalogue__title">{{ heading }}</h1>
+      <h1 class="catalogue__title" data-results-title>{{ heading }}</h1>
       <div class="catalogue__intro">
         {%- if collection.description != blank -%}
           {{ collection.description }}
@@ -23,7 +23,9 @@
     </div>
   </div>
 
-  <div class="page-width catalogue__results" data-results="{{ section.id }}">
+  <div class="page-width catalogue__results" data-results-root>
+    {% render 'catalogue-search' %}
+    <div class="catalogue__body" data-results="{{ section.id }}">
     {%- paginate collection.products by section.settings.products_per_page -%}
       {% render 'facets', results: collection, section_id: section.id, action_url: collection.url, count: collection.products_count %}
 
@@ -47,6 +49,7 @@
 
       {% render 'pagination', paginate: paginate %}
     {%- endpaginate -%}
+    </div>
   </div>
 </section>
 

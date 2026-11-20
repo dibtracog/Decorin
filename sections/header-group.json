@@ -2,8 +2,22 @@
   "type": "header",
   "name": "Header group",
   "sections": {
-    "announcement": { "type": "announcement-bar", "settings": {} },
-    "header": { "type": "header", "settings": {} }
+    "announcement": {
+      "type": "announcement-bar",
+      "settings": {
+        "text_1": "The New Year Edit is here",
+        "text_2": "Fresh decor for a fresh start",
+        "text_3": "Handpicked for every room",
+        "text_4": ""
+      }
+    },
+    "header": {
+      "type": "header",
+      "settings": {}
+    }
   },
-  "order": ["announcement", "header"]
+  "order": [
+    "announcement",
+    "header"
+  ]
 }

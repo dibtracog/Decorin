@@ -104,7 +104,7 @@ def write(filename, products):
         h = handle(p["title"])
         imgs = p["images"]
         w.writerow({
-            "Handle": h, "Title": p["title"], "Body (HTML)": p["body"], "Vendor": "Decorin",
+            "Handle": h, "Title": p["title"], "Body (HTML)": p["body"], "Vendor": "DecorIn",
             "Type": p["type"], "Tags": p["tags"], "Published": "TRUE",
             "Option1 Name": "Title", "Option1 Value": "Default Title", "Variant SKU": f"DEC-{i:03d}",
             "Variant Grams": p["grams"], "Variant Inventory Policy": "deny",

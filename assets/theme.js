@@ -1,4 +1,4 @@
-/* Decorin theme scripts — no dependencies. */
+/* DecorIn theme scripts — no dependencies. */
 (() => {
   'use strict';
 
@@ -99,6 +99,32 @@
   /* ---------- Catalogue facets: filters, sort, drawer ---------- */
   const desktop = window.matchMedia('(min-width: 990px)');
 
+  const setLoading = (on) => {
+    const root = document.querySelector('[data-results-root]');
+    root && root.classList.toggle('is-loading', on);
+  };
+
+  // Replace the results area (filters, grid, pagination) with freshly rendered HTML
+  const swapResults = (html, url) => {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const fresh = doc.querySelector('[data-results]');
+    const results = document.querySelector('[data-results]');
+    if (!fresh || !results) throw new Error('missing results');
+    results.innerHTML = fresh.innerHTML;
+    results.dataset.results = fresh.dataset.results;
+    const freshTitle = doc.querySelector('[data-results-title]');
+    const title = document.querySelector('[data-results-title]');
+    if (freshTitle && title) title.textContent = freshTitle.textContent.trim();
+    const intro = document.querySelector('.catalogue__intro');
+    if (intro) {
+      const freshIntro = doc.querySelector('.catalogue__intro');
+      intro.hidden = !freshIntro;
+      if (freshIntro) intro.innerHTML = freshIntro.innerHTML;
+    }
+    history.replaceState({}, '', url);
+    initFacets(results);
+  };
+
   const initFacets = (root = document) => {
     root.querySelectorAll('[data-facets]').forEach((facets) => {
       if (facets.dataset.ready) return;
@@ -147,27 +173,23 @@
       }
 
       async function render(url) {
-        const results = document.querySelector(`[data-results="${sectionId}"]`);
+        const results = facets.closest('[data-results]');
+        const sectionId = results ? results.dataset.results : facets.dataset.sectionId;
         const openIndex = details.findIndex((d) => d.open);
-        results && results.classList.add('is-loading');
+        setLoading(true);
         try {
-          const res = await fetch(`${url}${url.includes('?') ? '&' : '?'}section_id=${sectionId}`);
+          const res = await fetch(`${url}${url.includes('?') ? '&' : '?'}section_id=${encodeURIComponent(sectionId)}`);
           if (!res.ok) throw new Error(res.status);
-          const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
-          const fresh = doc.querySelector(`[data-results="${sectionId}"]`);
-          if (!fresh || !results) throw new Error('missing section');
-          results.innerHTML = fresh.innerHTML;
-          results.classList.remove('is-loading');
-          history.replaceState({}, '', url);
+          swapResults(await res.text(), url);
           document.body.classList.remove('facets-open');
-          initFacets(results);
-          initSearch(results);
           if (desktop.matches && openIndex > -1) {
-            const d = results.querySelectorAll('[data-facet]')[openIndex];
+            const d = document.querySelectorAll('[data-results] [data-facet]')[openIndex];
             if (d) d.open = true;
           }
         } catch (err) {
           window.location.href = url; // fall back to a normal page load
+        } finally {
+          setLoading(false);
         }
       }
     });
@@ -175,22 +197,61 @@
   initFacets();
   document.addEventListener('shopify:section:load', () => initFacets());
 
-  /* ---------- Search box: clear button + empty search goes to the catalogue ---------- */
-  const initSearch = (root = document) => {
-    root.querySelectorAll('[data-facets-search]').forEach((form) => {
-      if (form.dataset.ready) return;
-      form.dataset.ready = 'true';
-      const input = form.querySelector('[data-search-input]');
-      const clear = form.querySelector('[data-search-clear]');
-      const catalogue = form.dataset.catalogueUrl;
-      form.addEventListener('submit', (e) => {
-        if (input && input.value.trim() === '') { e.preventDefault(); window.location.href = catalogue; }
-      });
-      clear && clear.addEventListener('click', () => {
-        // On a results page, clearing the search returns to the full catalogue
-        if (form.hasAttribute('data-has-results')) { window.location.href = catalogue; return; }
-        input.value = ''; input.focus();
-      });
+  /* ---------- Live search: results update as you type ---------- */
+  const initSearch = () => {
+    const form = document.querySelector('[data-facets-search]');
+    if (!form || form.dataset.ready) return;
+    form.dataset.ready = 'true';
+    const input = form.querySelector('[data-search-input]');
+    const clear = form.querySelector('[data-search-clear]');
+    const searchUrl = form.getAttribute('action');
+    const catalogue = form.dataset.catalogueUrl;
+    const live = form.hasAttribute('data-live-search') && document.querySelector('[data-results]');
+    // Where an empty search returns to: this collection if we started on one, otherwise the full catalogue
+    const onSearchPage = window.location.pathname.startsWith(searchUrl);
+    const restoreUrl = onSearchPage ? catalogue : window.location.pathname;
+    let lastQuery = onSearchPage ? (input.value.trim() || null) : input.value.trim();
+    let controller; let timer;
+
+    const run = async (q) => {
+      if (!live) { window.location.href = q ? `${searchUrl}?q=${encodeURIComponent(q)}&type=product&options%5Bprefix%5D=last` : catalogue; return; }
+      if (q === lastQuery) return;
+      lastQuery = q;
+      if (controller) controller.abort();
+      controller = new AbortController();
+      const { signal } = controller;
+      const url = q ? `${searchUrl}?q=${encodeURIComponent(q)}&type=product&options%5Bprefix%5D=last` : restoreUrl;
+      const section = q ? 'main-search' : 'main-collection';
+      form.classList.add('is-searching');
+      setLoading(true);
+      try {
+        const res = await fetch(`${url}${url.includes('?') ? '&' : '?'}section_id=${section}`, { signal });
+        if (!res.ok) throw new Error(res.status);
+        swapResults(await res.text(), url);
+        form.toggleAttribute('data-has-results', !!q);
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+        window.location.href = url;
+      } finally {
+        if (!signal.aborted) { form.classList.remove('is-searching'); setLoading(false); }
+      }
+    };
+
+    input.addEventListener('input', () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => run(input.value.trim()), 300);
+    });
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      clearTimeout(timer);
+      if (!window.matchMedia('(min-width: 990px)').matches) input.blur(); // hide the phone keyboard to reveal results
+      run(input.value.trim());
+    });
+    clear && clear.addEventListener('click', () => {
+      input.value = '';
+      input.focus();
+      clearTimeout(timer);
+      run('');
     });
   };
   initSearch();
