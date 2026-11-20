@@ -106,7 +106,8 @@
         </dl>
 
         {%- if section.settings.use_upi_page -%}
-          {%- assign payment_url = section.settings.payment_page.url | default: '/pages/payment' -%}
+          {%- assign payment_url = routes.cart_url | append: '?view=payment' -%}
+          {%- if section.settings.payment_page != blank -%}{%- assign payment_url = section.settings.payment_page.url -%}{%- endif -%}
           <a class="button button--gold button--full cart-summary__checkout" href="{{ payment_url }}">
             {% render 'icon', name: 'lock' %}{{ 'cart.checkout' | t }}
           </a>
@@ -140,7 +141,7 @@
   "settings": [
     { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Almost yours" },
     { "type": "checkbox", "id": "use_upi_page", "label": "Send checkout to the UPI payment page", "default": true, "info": "Turn off to use Shopify's standard checkout instead." },
-    { "type": "page", "id": "payment_page", "label": "UPI payment page", "info": "Pick the page that uses the 'upi-checkout' template. Defaults to /pages/payment." },
+    { "type": "page", "id": "payment_page", "label": "UPI payment page", "info": "Optional. Leave empty to use the built-in payment page (/cart?view=payment)." },
     { "type": "textarea", "id": "empty_text", "label": "Empty cart message", "default": "This new year, find something that makes your home feel brand new." }
   ]
 }

@@ -348,6 +348,15 @@
       };
       if (!draw()) window.addEventListener('load', draw, { once: true });
     }
+    // Save the payment reference on the cart so it carries over to the Shopify order later
+    const pay = document.querySelector('[data-upi-checkout][data-ref]');
+    if (pay && pay.dataset.ref && pay.dataset.cartUpdateUrl) {
+      fetch(`${pay.dataset.cartUpdateUrl}.js`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ attributes: { 'Payment reference': pay.dataset.ref, 'Payment amount': pay.dataset.amount, 'Payment method': 'UPI QR' } }),
+      }).catch(() => {});
+    }
     document.querySelectorAll('[data-copy]').forEach((btn) => btn.addEventListener('click', async () => {
       try { await navigator.clipboard.writeText(btn.dataset.copy); } catch (e) { return; }
       const label = btn.querySelector('.pay__copy-label');

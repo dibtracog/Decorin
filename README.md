@@ -44,17 +44,24 @@ To add more filters (e.g. **Product type**, which our CSV fills in for every pro
 
 ## UPI payment page
 
-The cart's checkout button opens a custom payment page showing the order breakdown and a UPI QR for the exact total
-(product cost = price − handling fee, shipping shown struck through as FREE).
+The cart's checkout button opens the payment page at **`/cart?view=payment`** (template `cart.payment.json`).
+No admin setup is needed. It shows the order breakdown (product cost = price − handling fee, shipping struck
+through as FREE) and a UPI QR for the exact total. On phones, a "Pay with UPI app" button opens the UPI app directly.
 
-**Setup (once):**
-1. Shopify admin → **Online Store → Pages → Add page**. Title: `Payment`, so the URL is `/pages/payment`.
-   In the right sidebar set **Theme template** to `upi-checkout`, then save.
-2. **Customize** → open that page → **UPI payment** section → enter your **UPI ID** (and optionally payee name, fees).
-3. (Optional) In the Cart section settings, pick the page under "UPI payment page", or turn the UPI page off to use Shopify's checkout.
+UPI ID, payee name, note prefix and fees are in **Customize → Cart (payment view) → UPI payment**.
 
-Note: payments made by QR go straight to your UPI account. Shopify does not create an order for them, so match
-incoming payments using the reference (e.g. `DI-K9QMXA`) shown on the page and included in the UPI payment note.
+### Payment reference formula
+
+```
+reference = "DI" + YYMMDD + "-" + UPPER( first 6 hex of sha256( cartToken + ":" + totalInPaise + ":" + itemCount ) )
+UPI note  = "DecorIn " + reference + " Rs" + amount        e.g.  DecorIn DI261120-A9878C Rs499.00
+```
+
+- Unique per cart **and** its contents/amount: if the cart changes, the reference changes.
+- Saved on the Shopify cart as attributes `Payment reference`, `Payment amount`, `Payment method`, so they
+  appear on the order once checkout is connected to Shopify later.
+- Payments by QR go straight to your UPI account; Shopify does not create an order for them yet. Match incoming
+  payments by the reference in the UPI note.
 
 ## Local development (optional)
 

@@ -1,0 +1,22 @@
+{%- comment -%}
+  Payment reference for UPI payments. Outputs e.g. DI261120-3FA9C1
+
+  Formula:
+    DI + YYMMDD + "-" + first 6 hex chars (uppercase) of
+    sha256( cart token + ":" + cart total in paise + ":" + item count )
+
+  - DI      brand prefix (DecorIn)
+  - YYMMDD  date the payment page was shown (store timezone)
+  - code    stable for the same cart & contents; changes whenever the cart
+            changes, so a payment always matches one exact cart/amount.
+
+  The same value is saved to the cart as the "Payment reference" attribute
+  (see assets/theme.js), so it carries over to the Shopify order later.
+  Usage: {%- capture ref -%}{% render 'payment-reference' %}{%- endcapture -%}
+{%- endcomment -%}
+{%- liquid
+  assign seed = cart.token | split: '?' | first | append: ':' | append: cart.total_price | append: ':' | append: cart.item_count
+  assign code = seed | sha256 | slice: 0, 6 | upcase
+  assign day = 'now' | date: '%y%m%d'
+  echo 'DI' | append: day | append: '-' | append: code
+-%}

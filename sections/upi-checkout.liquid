@@ -1,6 +1,6 @@
 {%- comment -%}
   UPI payment page: order summary with fee breakdown + a UPI QR for the exact amount.
-  Assign to a page via the "page.upi-checkout" template.
+  Served at /cart?view=payment (templates/cart.payment.json) - no admin setup needed.
 
   Breakdown (all in paise): product cost = cart total − handling fee, so
   product cost + shipping (FREE) + handling always equals the cart total.
@@ -23,15 +23,16 @@
   endif
   assign upi_amount = rupees | append: '.' | append: paise
 
-  assign token = cart.token | split: '?' | first | remove: '-'
-  assign ref = token | slice: -6, 6 | upcase
-  assign ref = 'DI-' | append: ref
-  assign note = section.settings.note_prefix | append: ' ' | append: ref
+  capture ref
+    render 'payment-reference'
+  endcapture
+  assign ref = ref | strip
+  assign note = section.settings.note_prefix | append: ' ' | append: ref | append: ' Rs' | append: upi_amount
   assign payee_param = payee | url_encode | replace: '+', '%20'
   assign note_param = note | url_encode | replace: '+', '%20'
   assign upi_link = 'upi://pay?pa=' | append: vpa | append: '&pn=' | append: payee_param | append: '&am=' | append: upi_amount | append: '&cu=INR&tn=' | append: note_param
 -%}
-<section class="pay page-width" data-upi-checkout>
+<section class="pay page-width" data-upi-checkout data-ref="{{ ref }}" data-amount="{{ upi_amount }}" data-cart-update-url="{{ routes.cart_update_url }}">
   <div class="pay__head">
     <div>
       <p class="eyebrow">{{ section.settings.eyebrow }}</p>
@@ -152,9 +153,9 @@
   "name": "UPI payment",
   "settings": [
     { "type": "header", "content": "UPI details" },
-    { "type": "text", "id": "upi_id", "label": "UPI ID", "info": "e.g. yourname@okhdfcbank. The QR stays hidden until this is set." },
+    { "type": "text", "id": "upi_id", "label": "UPI ID", "default": "9149296348@ybl", "info": "The QR stays hidden if this is empty." },
     { "type": "text", "id": "payee_name", "label": "Payee name", "info": "Shown in the customer's UPI app. Defaults to the brand name." },
-    { "type": "text", "id": "note_prefix", "label": "Payment note prefix", "default": "DecorIn order", "info": "A unique reference is added after this so you can match payments." },
+    { "type": "text", "id": "note_prefix", "label": "Payment note prefix", "default": "DecorIn", "info": "UPI note = prefix + payment reference + amount, e.g. DecorIn DI261120-3FA9C1 Rs499.00" },
     { "type": "header", "content": "Cost breakdown" },
     { "type": "number", "id": "handling_fee", "label": "Handling fee (₹)", "default": 49, "info": "Included within the product price: product cost = price − handling fee." },
     { "type": "number", "id": "shipping_fee", "label": "Shipping fee shown as struck-through (₹)", "default": 59 },
