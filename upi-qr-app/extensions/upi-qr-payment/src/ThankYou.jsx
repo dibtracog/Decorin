@@ -1,3 +1,4 @@
+/** @jsxImportSource preact */
 /**
  * DecorIn — UPI QR on the Thank you page (checkout UI extension, API 2026-10, Preact).
  *
