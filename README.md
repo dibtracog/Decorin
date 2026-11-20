@@ -33,6 +33,12 @@ To remove the filler later: filter products by tag `sample` → select all → D
 
 The homepage carousel's first slot is linked to the product handle `diya-cascade-fountain`, so it fills in automatically once the product is imported.
 
+## Catalogue filters & sorting
+
+The catalogue and search pages use Shopify's native filtering. Availability and Price work out of the box.
+To add more filters (e.g. **Product type**, which our CSV fills in for every product), install the free
+**Shopify Search & Discovery** app → Filters → Add filter → Product type → Save.
+
 ## Local development (optional)
 
 ```bash

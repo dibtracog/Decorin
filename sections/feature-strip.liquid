@@ -1,21 +1,37 @@
 <section class="features">
-  <ul class="page-width features__list" role="list">
-    {%- for block in section.blocks -%}
-      <li class="feature" {{ block.shopify_attributes }}>
-        <span class="feature__icon">{% render 'icon', name: block.settings.icon %}</span>
-        <div>
-          <h3 class="feature__title">{{ block.settings.title }}</h3>
-          <p class="feature__text">{{ block.settings.text }}</p>
-        </div>
-      </li>
-    {%- endfor -%}
-  </ul>
+  <div class="page-width">
+    {%- if section.settings.heading != blank -%}
+      <div class="features__head">
+        {%- if section.settings.eyebrow != blank -%}
+          <p class="eyebrow">{{ section.settings.eyebrow }}</p>
+        {%- endif -%}
+        <h2 class="section-title">{{ section.settings.heading }}</h2>
+      </div>
+    {%- endif -%}
+
+    <ul class="features__list" role="list">
+      {%- for block in section.blocks -%}
+        <li class="feature gradient-card gradient-card--{{ forloop.index | minus: 1 | modulo: 4 | plus: 1 }}" {{ block.shopify_attributes }}>
+          <span class="feature__icon">{% render 'icon', name: block.settings.icon %}</span>
+          <div class="feature__body">
+            <span class="feature__index">0{{ forloop.index }}</span>
+            <h3 class="feature__title">{{ block.settings.title }}</h3>
+            <p class="feature__text">{{ block.settings.text }}</p>
+          </div>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
 </section>
 
 {% schema %}
 {
-  "name": "Feature strip",
+  "name": "Feature cards",
   "max_blocks": 4,
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Why shop with us" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Little touches, thoughtfully done" }
+  ],
   "blocks": [
     {
       "type": "feature",
@@ -39,7 +55,7 @@
   ],
   "presets": [
     {
-      "name": "Feature strip",
+      "name": "Feature cards",
       "blocks": [
         { "type": "feature", "settings": { "icon": "sparkle", "title": "Curated with care", "text": "Every piece is handpicked." } },
         { "type": "feature", "settings": { "icon": "gift", "title": "Gift-ready", "text": "Beautifully packed for giving." } },

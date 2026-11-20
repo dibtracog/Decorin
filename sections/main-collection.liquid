@@ -23,16 +23,9 @@
     </div>
   </div>
 
-  <div class="page-width">
+  <div class="page-width catalogue__results" data-results="{{ section.id }}">
     {%- paginate collection.products by section.settings.products_per_page -%}
-      <div class="catalogue__toolbar">
-        <p class="catalogue__count">{{ 'collections.product_count' | t: count: collection.products_count }}</p>
-        {%- comment -%}
-          Reserved for filtering & sorting. Shopify provides collection.filters
-          (Search & Discovery app) and collection.sort_options for this.
-        {%- endcomment -%}
-        <div class="catalogue__controls" data-catalogue-controls></div>
-      </div>
+      {% render 'facets', results: collection, section_id: section.id, action_url: collection.url, count: collection.products_count %}
 
       {%- if collection.products.size > 0 -%}
         <ul class="product-grid" role="list">
@@ -43,29 +36,16 @@
       {%- else -%}
         <div class="catalogue__empty">
           <span aria-hidden="true">✦</span>
-          <p>{{ 'collections.empty' | t }}</p>
+          {%- if collection.all_products_count > 0 -%}
+            <p>{{ 'facets.no_matches' | t }}</p>
+            <a class="button button--secondary" href="{{ collection.url }}">{{ 'facets.clear_all' | t }}</a>
+          {%- else -%}
+            <p>{{ 'collections.empty' | t }}</p>
+          {%- endif -%}
         </div>
       {%- endif -%}
 
-      {%- if paginate.pages > 1 -%}
-        <nav class="pagination" aria-label="{{ 'general.pagination' | t }}">
-          {%- if paginate.previous -%}
-            <a class="pagination__arrow" href="{{ paginate.previous.url }}">{% render 'icon', name: 'arrow-left' %}<span class="visually-hidden">{{ 'general.previous' | t }}</span></a>
-          {%- endif -%}
-          {%- for part in paginate.parts -%}
-            {%- if part.is_link -%}
-              <a class="pagination__page" href="{{ part.url }}">{{ part.title }}</a>
-            {%- elsif part.title == paginate.current_page -%}
-              <span class="pagination__page is-current" aria-current="page">{{ part.title }}</span>
-            {%- else -%}
-              <span class="pagination__page">{{ part.title }}</span>
-            {%- endif -%}
-          {%- endfor -%}
-          {%- if paginate.next -%}
-            <a class="pagination__arrow" href="{{ paginate.next.url }}">{% render 'icon', name: 'arrow-right' %}<span class="visually-hidden">{{ 'general.next' | t }}</span></a>
-          {%- endif -%}
-        </nav>
-      {%- endif -%}
+      {% render 'pagination', paginate: paginate %}
     {%- endpaginate -%}
   </div>
 </section>

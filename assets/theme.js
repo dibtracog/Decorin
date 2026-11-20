@@ -96,6 +96,84 @@
     update();
   };
 
+  /* ---------- Catalogue facets: filters, sort, drawer ---------- */
+  const desktop = window.matchMedia('(min-width: 990px)');
+
+  const initFacets = (root = document) => {
+    root.querySelectorAll('[data-facets]').forEach((facets) => {
+      if (facets.dataset.ready) return;
+      facets.dataset.ready = 'true';
+      const sectionId = facets.dataset.sectionId;
+      const form = facets.querySelector('[data-facets-form]');
+      const drawer = facets.querySelector('[data-facets-drawer]');
+      const openBtn = facets.querySelector('[data-facets-open]');
+      const closeBtn = facets.querySelector('[data-facets-close]');
+
+      const openDrawer = () => {
+        facets.classList.add('is-open'); document.body.classList.add('facets-open');
+        openBtn && openBtn.setAttribute('aria-expanded', 'true');
+        facets.querySelectorAll('[data-facet].is-active').forEach((d) => { d.open = true; });
+        closeBtn && closeBtn.focus();
+      };
+      const closeDrawer = () => {
+        facets.classList.remove('is-open'); document.body.classList.remove('facets-open');
+        openBtn && openBtn.setAttribute('aria-expanded', 'false');
+      };
+      openBtn && openBtn.addEventListener('click', openDrawer);
+      closeBtn && closeBtn.addEventListener('click', closeDrawer);
+      facets.addEventListener('click', (e) => { if (e.target === facets) closeDrawer(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeDrawer(); closeDropdowns(); } });
+
+      // Desktop: only one dropdown open at a time, close on outside click
+      const details = Array.from(facets.querySelectorAll('[data-facet]'));
+      const closeDropdowns = (except) => { if (desktop.matches) details.forEach((d) => { if (d !== except) d.open = false; }); };
+      details.forEach((d) => d.addEventListener('toggle', () => { if (d.open) closeDropdowns(d); }));
+      document.addEventListener('click', (e) => { if (desktop.matches && !e.target.closest('[data-facet]')) closeDropdowns(); });
+
+      // Desktop: apply instantly without a page reload. Mobile: apply with the drawer's button.
+      let timer;
+      form.addEventListener('input', (e) => {
+        if (!desktop.matches && !e.target.matches('[data-facets-sort]')) return;
+        clearTimeout(timer);
+        timer = setTimeout(() => render(urlFromForm(form)), e.target.type === 'number' ? 700 : 0);
+      });
+      form.addEventListener('submit', (e) => { e.preventDefault(); closeDrawer(); render(urlFromForm(form)); });
+      facets.querySelectorAll('[data-facets-link]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); render(a.href); }));
+
+      function urlFromForm(f) {
+        const params = new URLSearchParams();
+        new FormData(f).forEach((v, k) => { if (v !== '') params.append(k, v); });
+        return `${f.getAttribute('action').split('?')[0]}?${params.toString()}`;
+      }
+
+      async function render(url) {
+        const results = document.querySelector(`[data-results="${sectionId}"]`);
+        const openIndex = details.findIndex((d) => d.open);
+        results && results.classList.add('is-loading');
+        try {
+          const res = await fetch(`${url}${url.includes('?') ? '&' : '?'}section_id=${sectionId}`);
+          if (!res.ok) throw new Error(res.status);
+          const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+          const fresh = doc.querySelector(`[data-results="${sectionId}"]`);
+          if (!fresh || !results) throw new Error('missing section');
+          results.innerHTML = fresh.innerHTML;
+          results.classList.remove('is-loading');
+          history.replaceState({}, '', url);
+          document.body.classList.remove('facets-open');
+          initFacets(results);
+          if (desktop.matches && openIndex > -1) {
+            const d = results.querySelectorAll('[data-facet]')[openIndex];
+            if (d) d.open = true;
+          }
+        } catch (err) {
+          window.location.href = url; // fall back to a normal page load
+        }
+      }
+    });
+  };
+  initFacets();
+  document.addEventListener('shopify:section:load', () => initFacets());
+
   const initAll = () => document.querySelectorAll('.highlights').forEach(initCarousel);
   initAll();
   // Re-init when sections are edited in the Shopify theme editor

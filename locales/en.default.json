@@ -16,7 +16,8 @@
     "next": "Next page",
     "scroll_down": "Scroll to highlights",
     "404_title": "Page not found",
-    "404_subtext": "The page you were looking for does not exist."
+    "404_subtext": "The page you were looking for does not exist.",
+    "announcement": "Announcements"
   },
   "countdown": {
     "days": "Days",
@@ -66,7 +67,11 @@
     "results_count": {
       "one": "{{ count }} result for \"{{ terms }}\"",
       "other": "{{ count }} results for \"{{ terms }}\""
-    }
+    },
+    "results_for": "Results for “{{ terms }}”",
+    "no_results": "Nothing found for “{{ terms }}”. Try another word, or browse everything.",
+    "browse_all": "Browse the full catalogue",
+    "prompt": "Type above to search the catalogue."
   },
   "password": {
     "label": "Password",
@@ -76,5 +81,21 @@
     "title": "Your gift card",
     "balance": "Balance",
     "disabled": "This gift card is no longer valid."
+  },
+  "facets": {
+    "search_label": "Search the catalogue",
+    "search_placeholder": "Search candles, vases, fountains…",
+    "filter_and_sort": "Filter & sort",
+    "sort_by": "Sort by",
+    "from": "From",
+    "to": "To",
+    "clear_all": "Clear all",
+    "apply": "Apply",
+    "remove": "Remove filter",
+    "no_matches": "No pieces match these filters.",
+    "show_results": {
+      "one": "Show {{ count }} result",
+      "other": "Show {{ count }} results"
+    }
   }
 }

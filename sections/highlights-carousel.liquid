@@ -32,13 +32,12 @@
           assign url = block.settings.link | default: p.url | default: routes.all_products_collection_url
         -%}
         <li class="carousel__slide" {{ block.shopify_attributes }}>
-          <a class="showcase-card showcase-card--{{ forloop.index }}" href="{{ url }}">
+          <a class="showcase-card gradient-card gradient-card--{{ forloop.index }}" href="{{ url }}">
             <div class="showcase-card__media">
               {%- if img -%}
                 {{ img | image_url: width: 1200 | image_tag: loading: 'lazy', sizes: '(min-width: 990px) 33vw, (min-width: 750px) 46vw, 82vw', widths: '400, 600, 800, 1000, 1200', alt: title }}
               {%- else -%}
-                {%- assign placeholder = 'product-' | append: forloop.index -%}
-                {{ placeholder | placeholder_svg_tag: 'showcase-card__placeholder' }}
+                {% render 'placeholder-decor', index: forloop.index, class: 'showcase-card__placeholder' %}
               {%- endif -%}
             </div>
             {%- if block.settings.tag != blank -%}

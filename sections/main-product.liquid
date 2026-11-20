@@ -14,7 +14,7 @@
           {{ media | image_url: width: 1400 | image_tag: loading: 'lazy', sizes: '(min-width: 990px) 55vw, 100vw', widths: '500, 800, 1100, 1400' }}
         </div>
       {%- else -%}
-        <div class="product__media-item">{{ 'product-1' | placeholder_svg_tag: 'product__placeholder' }}</div>
+        <div class="product__media-item">{% render 'placeholder-decor', index: 2, class: 'product__placeholder' %}</div>
       {%- endfor -%}
     </div>
 
