@@ -1,0 +1,13 @@
+{
+  "title": "Pay with UPI to complete your order",
+  "intro": "Your order is reserved. Pay {{amount}} with any UPI app and we'll confirm it shortly.",
+  "pay_button": "Pay {{amount}} with UPI",
+  "scan": "Scan with Google Pay, PhonePe, Paytm or any UPI app",
+  "open_app": "Open UPI app",
+  "upi_id": "UPI ID",
+  "reference": "Payment note",
+  "processing_title": "Processing payment",
+  "processing_body": "Once we receive your payment we'll mark your order as paid and email you. This usually takes a few minutes.",
+  "qr_label": "UPI QR code for {{amount}}",
+  "hide": "Hide QR"
+}

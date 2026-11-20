@@ -1,0 +1,12 @@
+{
+  "name": "decorin-upi-qr-app",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "shopify app dev",
+    "deploy": "shopify app deploy"
+  },
+  "workspaces": [
+    "extensions/*"
+  ]
+}

@@ -42,7 +42,14 @@ The catalogue and search pages use Shopify's native filtering. Availability and 
 To add more filters (e.g. **Product type**, which our CSV fills in for every product), install the free
 **Shopify Search & Discovery** app → Filters → Add filter → Product type → Save.
 
-## UPI payment page
+## UPI payments (recommended setup)
+
+Customers check out through Shopify, choose a manual **UPI** payment method, and the order is created as
+**Payment pending**. On the Thank you page a **Pay with UPI** button reveals a QR for the exact total. That block
+is a small private app in [`upi-qr-app/`](upi-qr-app/README.md), which has the full setup steps. You then confirm,
+cancel, fulfill and mark delivered in Shopify admin.
+
+## Theme UPI payment page (fallback)
 
 The cart's checkout button opens the payment page at **`/cart?view=payment`** (template `cart.payment.json`).
 No admin setup is needed. It shows the order breakdown (product cost = price − handling fee, shipping struck
