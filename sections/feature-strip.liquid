@@ -12,7 +12,7 @@
     <ul class="features__list" role="list">
       {%- for block in section.blocks -%}
         <li class="feature gradient-card gradient-card--{{ forloop.index | minus: 1 | modulo: 4 | plus: 1 }}" {{ block.shopify_attributes }}>
-          <span class="feature__icon">{% render 'icon', name: block.settings.icon %}</span>
+          {% render 'feature-art', name: block.settings.icon %}
           <div class="feature__body">
             <span class="feature__index">0{{ forloop.index }}</span>
             <h3 class="feature__title">{{ block.settings.title }}</h3>
@@ -38,13 +38,13 @@
       "name": "Feature",
       "settings": [
         {
-          "type": "select", "id": "icon", "label": "Icon", "default": "sparkle",
+          "type": "select", "id": "icon", "label": "Illustration", "default": "sparkle",
           "options": [
-            { "value": "sparkle", "label": "Sparkle" },
-            { "value": "gift", "label": "Gift" },
-            { "value": "truck", "label": "Delivery" },
-            { "value": "shield", "label": "Secure" },
-            { "value": "leaf", "label": "Leaf" },
+            { "value": "sparkle", "label": "Caring hands" },
+            { "value": "gift", "label": "Gift box" },
+            { "value": "truck", "label": "Delivery van" },
+            { "value": "shield", "label": "Shield & lock" },
+            { "value": "leaf", "label": "Plant" },
             { "value": "heart", "label": "Heart" }
           ]
         },

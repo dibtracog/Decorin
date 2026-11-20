@@ -1,0 +1,74 @@
+{%- comment -%}
+  Line-art illustrations for the feature cards.
+  Usage: {% render 'feature-art', name: 'gift' %}
+  Names: sparkle (hands holding a heart), gift, truck, shield, leaf, heart
+{%- endcomment -%}
+<svg class="feature__art" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+  <g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+    {%- case name -%}
+      {%- when 'gift' -%}
+        {%- comment -%} Gift box with bow {%- endcomment -%}
+        <rect x="27" y="56" width="66" height="46" rx="3"/>
+        <rect x="21" y="43" width="78" height="14" rx="3"/>
+        <path d="M60 43v59"/>
+        <path d="M27 72h66" opacity=".45"/>
+        <path d="M60 43c-5-11-17-18-24-12-5 5 1 12 24 12z"/>
+        <path d="M60 43c5-11 17-18 24-12 5 5-1 12-24 12z"/>
+        <path d="M57 44l-9 11M63 44l9 11"/>
+        <path d="M98 22c.6 3.6 2.4 5.4 6 6-3.6.6-5.4 2.4-6 6-.6-3.6-2.4-5.4-6-6 3.6-.6 5.4-2.4 6-6z"/>
+        <path d="M18 24c.4 2.4 1.6 3.6 4 4-2.4.4-3.6 1.6-4 4-.4-2.4-1.6-3.6-4-4 2.4-.4 3.6-1.6 4-4z"/>
+      {%- when 'truck' -%}
+        {%- comment -%} Delivery van with parcel {%- endcomment -%}
+        <path d="M16 40h52v42H16z"/>
+        <path d="M68 54h17l13 15v13H68"/>
+        <path d="M73 58h10l8 10H73z"/>
+        <rect x="29" y="51" width="24" height="19" rx="1.5"/>
+        <path d="M41 51v19M35 51v5h12v-5" opacity=".6"/>
+        <circle cx="31" cy="84" r="8"/><circle cx="31" cy="84" r="2.5"/>
+        <circle cx="84" cy="84" r="8"/><circle cx="84" cy="84" r="2.5"/>
+        <path d="M98 76h4"/>
+        <path d="M3 52h8M1 62h10M5 72h6"/>
+        <path d="M8 100h104" opacity=".5"/>
+        <path d="M96 24c.6 3.6 2.4 5.4 6 6-3.6.6-5.4 2.4-6 6-.6-3.6-2.4-5.4-6-6 3.6-.6 5.4-2.4 6-6z"/>
+      {%- when 'shield' -%}
+        {%- comment -%} Shield with padlock {%- endcomment -%}
+        <path d="M60 12l34 12v27c0 24-14 40-34 49-20-9-34-25-34-49V24z"/>
+        <path d="M60 20l27 9.5V51c0 19-11 32-27 40-16-8-27-21-27-40V29.5z" opacity=".45"/>
+        <rect x="46" y="52" width="28" height="23" rx="3.5"/>
+        <path d="M51 52v-6a9 9 0 0 1 18 0v6"/>
+        <circle cx="60" cy="61.5" r="3"/>
+        <path d="M60 64.5v5"/>
+        <path d="M102 20c.6 3.6 2.4 5.4 6 6-3.6.6-5.4 2.4-6 6-.6-3.6-2.4-5.4-6-6 3.6-.6 5.4-2.4 6-6z"/>
+      {%- when 'leaf' -%}
+        {%- comment -%} Potted plant {%- endcomment -%}
+        <path d="M40 74h40l-5 30H45z"/>
+        <path d="M37 68h46v6H37z"/>
+        <path d="M60 68V30"/>
+        <path d="M60 50c-12-2-20-10-22-22 12 1 20 9 22 22z"/>
+        <path d="M60 42c10-3 16-11 17-22-11 2-17 10-17 22z"/>
+        <path d="M60 60c8 0 15-5 18-13-9 0-15 5-18 13z"/>
+        <path d="M100 26c.6 3.6 2.4 5.4 6 6-3.6.6-5.4 2.4-6 6-.6-3.6-2.4-5.4-6-6 3.6-.6 5.4-2.4 6-6z"/>
+      {%- when 'heart' -%}
+        {%- comment -%} Heart with sparkles {%- endcomment -%}
+        <path d="M60 96C36 80 22 67 22 50a18 18 0 0 1 38-8 18 18 0 0 1 38 8c0 17-14 30-38 46z"/>
+        <path d="M60 84C44 73 34 63 34 51a9 9 0 0 1 9-9" opacity=".45"/>
+        <path d="M96 16c.6 3.6 2.4 5.4 6 6-3.6.6-5.4 2.4-6 6-.6-3.6-2.4-5.4-6-6 3.6-.6 5.4-2.4 6-6z"/>
+        <path d="M20 20c.4 2.4 1.6 3.6 4 4-2.4.4-3.6 1.6-4 4-.4-2.4-1.6-3.6-4-4 2.4-.4 3.6-1.6 4-4z"/>
+      {%- else -%}
+        {%- comment -%} Cupped hands holding a heart (care) {%- endcomment -%}
+        <path d="M60 54c-9-6.5-14-11-14-17a7 7 0 0 1 14-2.6A7 7 0 0 1 74 37c0 6-5 10.5-14 17z"/>
+        <path d="M14 66c3 15 20 28 46 28"/>
+        <path d="M106 66c-3 15-20 28-46 28"/>
+        <path d="M14 66c-1-5 2-8 5.5-8 3 0 5 2.2 5.8 5.2L28 74"/>
+        <path d="M106 66c1-5-2-8-5.5-8-3 0-5 2.2-5.8 5.2L92 74"/>
+        <path d="M25 63c1.5-4 5-6 8.5-5.5 3.5.6 5.2 3.5 4.8 7L37 76"/>
+        <path d="M95 63c-1.5-4-5-6-8.5-5.5-3.5.6-5.2 3.5-4.8 7L83 76"/>
+        <path d="M38 64c2-3 5.5-4 8.5-3 3 1.2 4 4 3.3 7L48 80"/>
+        <path d="M82 64c-2-3-5.5-4-8.5-3-3 1.2-4 4-3.3 7L72 80"/>
+        <path d="M60 94v-8" opacity=".5"/>
+        <path d="M40 92l-4 9M80 92l4 9"/>
+        <path d="M34 24c.6 3.6 2.4 5.4 6 6-3.6.6-5.4 2.4-6 6-.6-3.6-2.4-5.4-6-6 3.6-.6 5.4-2.4 6-6z"/>
+        <path d="M88 18c.4 2.4 1.6 3.6 4 4-2.4.4-3.6 1.6-4 4-.4-2.4-1.6-3.6-4-4 2.4-.4 3.6-1.6 4-4z"/>
+    {%- endcase -%}
+  </g>
+</svg>

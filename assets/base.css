@@ -403,8 +403,8 @@ main:focus { outline: none; }
 .features__head { margin-bottom: 32px; }
 .features__list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; list-style: none; margin: 0; padding: 0; }
 .feature {
-  display: flex; flex-direction: column; justify-content: space-between; gap: 28px;
-  min-height: 210px; padding: 18px; border-radius: 20px;
+  display: flex; flex-direction: column; justify-content: flex-end; gap: 28px;
+  min-height: 250px; padding: 18px; border-radius: 20px;
   box-shadow: 0 24px 50px -32px rgba(13, 19, 48, .6);
 }
 .feature::after {
@@ -418,19 +418,28 @@ main:focus { outline: none; }
   color: #fff;
 }
 .feature__icon .icon { width: 22px; height: 22px; }
+.feature__art {
+  position: absolute; z-index: -1; top: 6%; left: 50%; width: 58%; max-width: 170px;
+  transform: translateX(-50%); color: rgba(255,255,255,.42);
+  transition: transform .8s cubic-bezier(.2,.7,.2,1), color .4s ease;
+}
+.feature:hover .feature__art { transform: translateX(-50%) translateY(-4px) scale(1.04); color: rgba(255,255,255,.6); }
+.feature__body { position: relative; }
 .feature__index { font-family: var(--font-heading); font-style: italic; color: var(--c-gold-light); font-size: 0.9375rem; }
 .feature__title { font-size: 1.1875rem; line-height: 1.2; margin-top: 2px; }
 .feature__text { margin-top: 6px; font-size: 0.875rem; line-height: 1.5; color: rgba(255,255,255,.75); }
 @media (min-width: 750px) {
   .features__list { gap: 20px; }
-  .feature { min-height: 260px; padding: 26px; border-radius: 22px; }
+  .feature { min-height: 300px; padding: 26px; border-radius: 22px; }
+  .feature__art { width: 52%; }
   .feature__title { font-size: 1.5rem; }
   .feature__text { font-size: 0.9375rem; }
   .feature__icon { width: 54px; height: 54px; }
 }
 @media (min-width: 990px) {
   .features__list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .feature { min-height: 320px; }
+  .feature { min-height: 340px; }
+  .feature__art { top: 9%; width: 56%; }
 }
 
 /* ---------- New Year banner ---------- */
