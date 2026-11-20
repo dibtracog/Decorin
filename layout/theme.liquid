@@ -23,7 +23,9 @@
   </head>
   <body class="template-{{ template.name }}">
     <a class="skip-link" href="#MainContent">{{ 'general.skip_to_content' | t }}</a>
-    {% sections 'header-group' %}
+    <div class="header-wrapper" data-header-wrapper>
+      {% sections 'header-group' %}
+    </div>
 
     <main id="MainContent" role="main" tabindex="-1">
       {{ content_for_layout }}

@@ -23,17 +23,24 @@
     assign encoded_terms = terms | url_encode
     assign clear_url = routes.search_url | append: '?type=product&q=' | append: encoded_terms
   else
-    assign clear_url = action_url | append: '?sort_by=' | append: sort_by
+    assign clear_url = action_url
+  endif
+  assign is_modified = false
+  if active_count > 0 or sort_by != results.default_sort_by
+    assign is_modified = true
   endif
 -%}
 <div class="facets" data-facets data-section-id="{{ section_id }}">
   <div class="facets__top">
-    <form class="facets__search" action="{{ routes.search_url }}" method="get" role="search">
+    <form class="facets__search" action="{{ routes.search_url }}" method="get" role="search" data-facets-search data-catalogue-url="{{ routes.all_products_collection_url }}"{% if terms != blank %} data-has-results{% endif %}>
       <input type="hidden" name="type" value="product">
       <input type="hidden" name="options[prefix]" value="last">
       <label class="visually-hidden" for="FacetsSearch-{{ section_id }}">{{ 'facets.search_label' | t }}</label>
       <span class="facets__search-icon">{% render 'icon', name: 'search' %}</span>
-      <input class="facets__search-input" type="search" id="FacetsSearch-{{ section_id }}" name="q" value="{{ terms | escape }}" placeholder="{{ 'facets.search_placeholder' | t }}" autocomplete="off">
+      <input class="facets__search-input" type="search" id="FacetsSearch-{{ section_id }}" name="q" value="{{ terms | escape }}" placeholder="{{ 'facets.search_placeholder' | t }}" autocomplete="off" data-search-input>
+      <button class="facets__search-clear" type="button" data-search-clear>
+        {% render 'icon', name: 'close' %}<span class="visually-hidden">{{ 'facets.clear_search' | t }}</span>
+      </button>
       <button class="facets__search-submit" type="submit">{{ 'general.search' | t }}</button>
     </form>
 
@@ -43,7 +50,14 @@
         {{ 'facets.filter_and_sort' | t }}
         {%- if active_count > 0 -%}<span class="facets__badge">{{ active_count }}</span>{%- endif -%}
       </button>
-      <p class="facets__count" role="status">{{ 'collections.product_count' | t: count: count }}</p>
+      <div class="facets__meta">
+        {%- if is_modified -%}
+          <a class="facets__reset" href="{{ clear_url }}" data-facets-link>
+            {% render 'icon', name: 'reset' %}{{ 'facets.reset' | t }}
+          </a>
+        {%- endif -%}
+        <p class="facets__count" role="status">{{ 'collections.product_count' | t: count: count }}</p>
+      </div>
     </div>
   </div>
 

@@ -83,14 +83,24 @@ for title, ptype, price, compare, grams, blurb, (material, size) in FILLER:
         body=f"<p>{blurb}</p>" + details([("Dimensions", size), ("Material", material)]),
     ))
 
+# ---------------- Dev / testing product (tag "test") ----------------
+TEST_PRODUCT = dict(
+    title="Test Item — Dev Only", type="Test", tags="test", price="1", grams=0, images=[], requires_shipping="FALSE",
+    seo="Internal test product for checking cart and checkout. Not for sale.",
+    body="<p>Internal ₹1 product for testing the cart, checkout and payments. Delete before launch.</p>",
+)
+PRODUCTS.append(TEST_PRODUCT)
+
 def handle(title):
     return re.sub(r"-+", "-", re.sub(r"[^a-z0-9]+", "-", title.lower().replace("&", "and"))).strip("-")
 
-out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "products.csv")
-with open(out, "w", newline="", encoding="utf-8") as f:
+def write(filename, products):
+  out = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
+  with open(out, "w", newline="", encoding="utf-8") as f:
     w = csv.DictWriter(f, fieldnames=HEADERS)
     w.writeheader()
-    for i, p in enumerate(PRODUCTS, 1):
+    for p in products:
+        i = PRODUCTS.index(p) + 1
         h = handle(p["title"])
         imgs = p["images"]
         w.writerow({
@@ -99,7 +109,7 @@ with open(out, "w", newline="", encoding="utf-8") as f:
             "Option1 Name": "Title", "Option1 Value": "Default Title", "Variant SKU": f"DEC-{i:03d}",
             "Variant Grams": p["grams"], "Variant Inventory Policy": "deny",
             "Variant Fulfillment Service": "manual", "Variant Price": p["price"],
-            "Variant Compare At Price": p.get("compare", ""), "Variant Requires Shipping": "TRUE",
+            "Variant Compare At Price": p.get("compare", ""), "Variant Requires Shipping": p.get("requires_shipping", "TRUE"),
             "Variant Taxable": "TRUE",
             "Image Src": RAW + imgs[0] if imgs else "", "Image Position": 1 if imgs else "",
             "Image Alt Text": p["title"] if imgs else "", "Gift Card": "FALSE",
@@ -107,4 +117,7 @@ with open(out, "w", newline="", encoding="utf-8") as f:
         })
         for pos, img in enumerate(imgs[1:], 2):
             w.writerow({"Handle": h, "Image Src": RAW + img, "Image Position": pos, "Image Alt Text": p["title"]})
-print(f"Wrote {len(PRODUCTS)} products to {out}")
+  print(f"Wrote {len(products)} products to {out}")
+
+write("products.csv", PRODUCTS)
+write("test-product.csv", [TEST_PRODUCT])

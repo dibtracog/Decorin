@@ -59,9 +59,25 @@
     "remove": "Remove",
     "subtotal": "Subtotal",
     "update": "Update",
-    "checkout": "Check out",
-    "empty": "Your cart is empty.",
-    "continue_shopping": "Continue shopping"
+    "checkout": "Check out securely",
+    "empty": "Your cart is empty",
+    "continue_shopping": "Continue shopping",
+    "item_count": {
+      "one": "({{ count }} item)",
+      "other": "({{ count }} items)"
+    },
+    "decrease": "Decrease quantity for {{ product }}",
+    "increase": "Increase quantity for {{ product }}",
+    "quantity_for": "Quantity for {{ product }}",
+    "summary": "Order summary",
+    "shipping": "Shipping",
+    "at_checkout": "Calculated at checkout",
+    "estimated_total": "Estimated total",
+    "taxes_note": "Taxes and shipping are calculated at checkout.",
+    "trust_secure": "Secure, encrypted checkout",
+    "trust_gift": "Gift-ready packaging",
+    "start_shopping": "Start shopping",
+    "error": "Couldn't update your cart. Please try again."
   },
   "search": {
     "results_count": {
@@ -96,6 +112,8 @@
     "show_results": {
       "one": "Show {{ count }} result",
       "other": "Show {{ count }} results"
-    }
+    },
+    "clear_search": "Clear search",
+    "reset": "Reset filters & sort"
   }
 }

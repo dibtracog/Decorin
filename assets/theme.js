@@ -161,6 +161,7 @@
           history.replaceState({}, '', url);
           document.body.classList.remove('facets-open');
           initFacets(results);
+          initSearch(results);
           if (desktop.matches && openIndex > -1) {
             const d = results.querySelectorAll('[data-facet]')[openIndex];
             if (d) d.open = true;
@@ -173,6 +174,103 @@
   };
   initFacets();
   document.addEventListener('shopify:section:load', () => initFacets());
+
+  /* ---------- Search box: clear button + empty search goes to the catalogue ---------- */
+  const initSearch = (root = document) => {
+    root.querySelectorAll('[data-facets-search]').forEach((form) => {
+      if (form.dataset.ready) return;
+      form.dataset.ready = 'true';
+      const input = form.querySelector('[data-search-input]');
+      const clear = form.querySelector('[data-search-clear]');
+      const catalogue = form.dataset.catalogueUrl;
+      form.addEventListener('submit', (e) => {
+        if (input && input.value.trim() === '') { e.preventDefault(); window.location.href = catalogue; }
+      });
+      clear && clear.addEventListener('click', () => {
+        // On a results page, clearing the search returns to the full catalogue
+        if (form.hasAttribute('data-has-results')) { window.location.href = catalogue; return; }
+        input.value = ''; input.focus();
+      });
+    });
+  };
+  initSearch();
+
+  /* ---------- Cart page: quantity steppers & remove without reloading ---------- */
+  const initCart = () => {
+    const section = document.querySelector('[data-cart-section]');
+    if (!section || section.dataset.ready) return;
+    section.dataset.ready = 'true';
+    const sectionId = section.dataset.cartSection;
+    const changeUrl = `${section.dataset.changeUrl}.js`;
+    let busy = false;
+
+    const showError = (msg) => {
+      const el = section.querySelector('[data-cart-error]');
+      if (el) { el.textContent = msg; el.hidden = false; }
+    };
+
+    const update = async (line, quantity) => {
+      if (busy) return;
+      busy = true;
+      const form = section.querySelector('.cart-layout');
+      form && form.classList.add('is-loading');
+      try {
+        const res = await fetch(changeUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ line, quantity, sections: [sectionId], sections_url: window.location.pathname }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.description || data.message || '');
+        const html = data.sections && data.sections[sectionId];
+        if (html) {
+          const fresh = new DOMParser().parseFromString(html, 'text/html').querySelector('[data-cart-section]');
+          if (fresh) section.innerHTML = fresh.innerHTML;
+        } else {
+          window.location.reload();
+        }
+        document.querySelectorAll('.cart-count').forEach((el) => {
+          el.textContent = data.item_count;
+          el.hidden = data.item_count === 0;
+        });
+      } catch (err) {
+        form && form.classList.remove('is-loading');
+        showError(err.message || section.dataset.errorText || 'Something went wrong.');
+      } finally {
+        busy = false;
+      }
+    };
+
+    section.addEventListener('click', (e) => {
+      const step = e.target.closest('[data-qty-change]');
+      const remove = e.target.closest('[data-cart-remove]');
+      const item = e.target.closest('[data-cart-line]');
+      if (!item) return;
+      const line = Number(item.dataset.cartLine);
+      if (step) {
+        const input = item.querySelector('[data-qty-input]');
+        const next = Math.max(0, Number(input.value || 0) + Number(step.dataset.qtyChange));
+        input.value = next;
+        update(line, next);
+      } else if (remove) {
+        e.preventDefault();
+        update(line, 0);
+      }
+    });
+
+    let timer;
+    section.addEventListener('input', (e) => {
+      if (!e.target.matches('[data-qty-input]')) return;
+      const line = Number(e.target.closest('[data-cart-line]').dataset.cartLine);
+      clearTimeout(timer);
+      timer = setTimeout(() => { if (e.target.value !== '') update(line, Math.max(0, Number(e.target.value))); }, 600);
+    });
+    // Enter in a quantity box updates instead of submitting to checkout
+    section.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && e.target.matches('[data-qty-input]')) { e.preventDefault(); e.target.blur(); e.target.dispatchEvent(new Event('input', { bubbles: true })); }
+    });
+  };
+  initCart();
 
   const initAll = () => document.querySelectorAll('.highlights').forEach(initCarousel);
   initAll();

@@ -31,6 +31,9 @@ Products live in Shopify admin, not in the theme, so the catalogue ships as an i
 **Import:** Shopify admin → **Products → Import** → upload `products.csv`.
 To remove the filler later: filter products by tag `sample` → select all → Delete.
 
+**Test product:** "Test Item — Dev Only" (₹1, tag `test`, no shipping required) is for testing the cart and checkout.
+If you already imported `products.csv`, import `catalogue/test-product.csv` on its own to add just this item. Delete it before launch.
+
 The homepage carousel's first slot is linked to the product handle `diya-cascade-fountain`, so it fills in automatically once the product is imported.
 
 ## Catalogue filters & sorting
