@@ -131,5 +131,44 @@
     "not_configured": "UPI payments are being set up. Please check back shortly.",
     "product_cost": "Product cost",
     "handling": "Handling fee"
+  },
+  "reviews": {
+    "write": "Write a review",
+    "stars_label": "{{ rating }} out of 5 stars",
+    "count": {
+      "one": "{{ count }} review",
+      "other": "{{ count }} reviews"
+    },
+    "based_on": {
+      "one": "Based on {{ count }} review",
+      "other": "Based on {{ count }} reviews"
+    },
+    "show_all": {
+      "one": "Show all {{ count }} review",
+      "other": "Show all {{ count }} reviews"
+    },
+    "be_first": "Be the first to review",
+    "no_reviews": "No reviews yet",
+    "no_reviews_text": "Bought this piece? Tell others how it looks at home.",
+    "empty": "Your review could be the first one here. Share how it looks in your space.",
+    "your_rating": "Your rating",
+    "name": "Name",
+    "email": "Email",
+    "email_note": "Never shown publicly.",
+    "title": "Headline (optional)",
+    "title_placeholder": "e.g. Glows beautifully at night",
+    "body": "Your review",
+    "body_placeholder": "What did you love? How does it look in your room?",
+    "submit": "Submit review",
+    "sending": "Sending…",
+    "moderated_note": "Reviews appear once our team has checked them, usually within a day.",
+    "public_note": "Your review will be posted publicly with your name.",
+    "thanks": "Thank you! Your review has been received and will appear after a quick check.",
+    "error": "Something went wrong. Please try again in a moment.",
+    "pick_rating": "Please choose a star rating.",
+    "hints": "Poor|Fair|Good|Very good|Loved it",
+    "noscript": "Please enable JavaScript to write a review.",
+    "setup_title": "Product reviews — almost ready",
+    "setup_text": "Create a blog with the handle \"reviews\", add a post with the handle \"product-reviews\" and set its comments to \"allowed, pending moderation\". Current path: {{ path }}. Only you see this message in the theme editor."
   }
 }

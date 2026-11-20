@@ -1,0 +1,54 @@
+{%- comment -%}
+  Compact star rating for a product (product cards, product page).
+  Reviews are approved blog comments on the article set in
+  Theme settings → Reviews; each is tagged [[product-handle|rating|title]].
+  Usage: {% render 'review-summary', product: product, style: 'card' %}
+  Renders nothing when the product has no approved reviews.
+{%- endcomment -%}
+{%- liquid
+  assign path = settings.reviews_article | default: 'reviews/product-reviews' | strip
+  assign source = articles[path]
+  assign total = 0
+  assign count = 0
+  if source != blank
+    assign tag_prefix = '[[' | append: product.handle | append: '|'
+    assign prefix_size = tag_prefix | size
+    for comment in source.comments
+      assign raw = comment.content | strip_html | strip
+      assign start = raw | slice: 0, prefix_size
+      if start == tag_prefix
+        assign head = raw | split: ']]' | first
+        assign parts = head | split: '|'
+        assign rating = parts[1] | plus: 0
+        if rating >= 1 and rating <= 5
+          assign total = total | plus: rating
+          assign count = count | plus: 1
+        endif
+      endif
+    endfor
+  endif
+-%}
+{%- if count > 0 -%}
+  {%- liquid
+    assign percent = total | times: 20 | divided_by: count
+    assign avg = total | times: 1.0 | divided_by: count | round: 1
+    assign label = 'reviews.stars_label' | t: rating: avg
+  -%}
+  {%- if style == 'card' -%}
+    <span class="rating-chip">
+      {% render 'stars', percent: percent, label: label, size: 'xs' %}
+      <span class="rating-chip__count">({{ count }})</span>
+    </span>
+  {%- else -%}
+    <a class="rating-inline" href="#reviews" data-reviews-jump>
+      {% render 'stars', percent: percent, label: label, size: 'sm' %}
+      <span class="rating-inline__avg">{{ avg }}</span>
+      <span class="rating-inline__count">{{ 'reviews.count' | t: count: count }}</span>
+    </a>
+  {%- endif -%}
+{%- elsif style != 'card' and source.comments_enabled? -%}
+  <a class="rating-inline rating-inline--empty" href="#reviews" data-reviews-jump>
+    {% render 'stars', percent: 0, label: '', size: 'sm' %}
+    <span class="rating-inline__count">{{ 'reviews.be_first' | t }}</span>
+  </a>
+{%- endif -%}

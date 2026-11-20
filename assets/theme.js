@@ -472,6 +472,117 @@
   };
   initUpi();
 
+  // ---------- Product reviews (stored as blog comments) ----------
+  const RETURN_KEY = 'decorin:reviewReturn';
+  // After a non-AJAX submit Shopify lands on the blog post; send the shopper back.
+  try {
+    const back = sessionStorage.getItem(RETURN_KEY);
+    if (back && document.body.classList.contains('template-article')) {
+      sessionStorage.removeItem(RETURN_KEY);
+      const url = new URL(back, location.origin);
+      url.searchParams.set('review', 'thanks');
+      url.hash = 'reviews';
+      location.replace(url.toString());
+    }
+  } catch (e) { /* storage blocked */ }
+
+  const initReviews = (root) => {
+    if (!root || root.dataset.ready) return;
+    root.dataset.ready = 'true';
+    const panel = root.querySelector('[data-review-panel]');
+    const openBtn = root.querySelector('[data-review-open]');
+    const form = root.querySelector('[data-review-form]');
+    const thanks = root.querySelector('[data-review-thanks]');
+    const text = (k, d) => root.dataset[k] || d;
+    const showThanks = () => {
+      if (panel) panel.hidden = true;
+      if (openBtn) { openBtn.hidden = true; openBtn.setAttribute('aria-expanded', 'false'); }
+      if (thanks) { thanks.querySelector('p').textContent = text('textThanks', 'Thank you!'); thanks.hidden = false; }
+    };
+
+    if (openBtn && panel) openBtn.addEventListener('click', () => {
+      const open = panel.hidden;
+      panel.hidden = !open;
+      openBtn.setAttribute('aria-expanded', String(open));
+      if (open) {
+        panel.classList.remove('is-entering'); void panel.offsetWidth; panel.classList.add('is-entering');
+        const first = panel.querySelector('[data-star-input] label:last-of-type');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        if (first) first.focus?.();
+      }
+    });
+
+    const more = root.querySelector('[data-review-more]');
+    if (more) more.addEventListener('click', () => {
+      root.querySelectorAll('.review.is-collapsed').forEach((r) => r.classList.remove('is-collapsed'));
+      more.remove();
+    });
+
+    // Star hint ("Loved it", ...)
+    const hints = text('textHints', 'Poor|Fair|Good|Very good|Loved it').split('|');
+    const hint = root.querySelector('[data-star-hint]');
+    root.querySelectorAll('[data-review-rating]').forEach((r) => r.addEventListener('change', () => {
+      if (hint) { hint.textContent = hints[Number(r.value) - 1] || ''; hint.classList.remove('is-error'); }
+    }));
+
+    if (new URLSearchParams(location.search).get('review') === 'thanks') {
+      showThanks();
+      const url = new URL(location.href); url.searchParams.delete('review');
+      history.replaceState(null, '', url.toString());
+    }
+
+    if (!form) return;
+    const status = form.querySelector('[data-review-status]');
+    const submit = form.querySelector('[data-review-submit]');
+    const clean = (v) => String(v || '').replace(/[\[\]|]/g, ' ').replace(/\s+/g, ' ').trim();
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const picked = form.querySelector('[data-review-rating]:checked');
+      if (!picked) {
+        if (hint) { hint.textContent = text('textPick', 'Please choose a star rating.'); hint.classList.add('is-error'); }
+        form.querySelector('[data-star-input]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      const handle = form.dataset.reviewForm;
+      const title = clean(form.querySelector('[data-review-title]')?.value).slice(0, 80);
+      const body = String(form.querySelector('[data-review-body]')?.value || '').trim();
+      form.querySelector('[data-review-composed]').value = `[[${handle}|${picked.value}|${title}]] ${body}`;
+
+      const label = submit.textContent;
+      submit.disabled = true; submit.textContent = text('textSending', 'Sending…');
+      if (status) status.hidden = true;
+      const nativeSubmit = () => {
+        try { sessionStorage.setItem(RETURN_KEY, location.pathname); } catch (e) { /* ignore */ }
+        HTMLFormElement.prototype.submit.call(form);
+      };
+      try {
+        const res = await fetch(form.action, { method: 'POST', body: new FormData(form), credentials: 'same-origin' });
+        // Shopify may ask for a spam check (hCaptcha); let the browser handle it normally.
+        if (res.redirected && /\/challenge/.test(res.url)) { nativeSubmit(); return; }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        form.reset();
+        if (hint) hint.textContent = '';
+        showThanks();
+        thanks?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch (err) {
+        console.warn('[DecorIn reviews]', err);
+        if (status) { status.textContent = text('textError', 'Something went wrong.'); status.hidden = false; }
+      } finally {
+        submit.disabled = false; submit.textContent = label;
+      }
+    });
+  };
+  document.querySelectorAll('[data-reviews]').forEach(initReviews);
+  document.addEventListener('shopify:section:load', (e) => initReviews(e.target.querySelector('[data-reviews]')));
+  document.addEventListener('click', (e) => {
+    const jump = e.target.closest('[data-reviews-jump]');
+    const target = jump && document.getElementById('reviews');
+    if (!target) return;
+    e.preventDefault();
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
   const initAll = () => document.querySelectorAll('.highlights').forEach(initCarousel);
   initAll();
   // Re-init when sections are edited in the Shopify theme editor

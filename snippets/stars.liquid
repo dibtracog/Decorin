@@ -1,0 +1,13 @@
+{%- comment -%}
+  Five-star meter with partial fill.
+  Usage: {% render 'stars', percent: 84, label: '4.2 out of 5 stars', size: 'sm' %}
+  percent: 0–100 (share of the five stars that is filled)
+{%- endcomment -%}
+{%- liquid
+  assign percent = percent | default: 0
+  assign star = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.6l2.83 6.08 6.67.78-4.93 4.56 1.32 6.58L12 17.3l-5.89 3.3 1.32-6.58L2.5 9.46l6.67-.78L12 2.6z"/></svg>'
+-%}
+<span class="stars{% if size %} stars--{{ size }}{% endif %}" role="img" aria-label="{{ label | escape }}">
+  <span class="stars__base">{{ star }}{{ star }}{{ star }}{{ star }}{{ star }}</span>
+  <span class="stars__fill" style="width: {{ percent }}%">{{ star }}{{ star }}{{ star }}{{ star }}{{ star }}</span>
+</span>

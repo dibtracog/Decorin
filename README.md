@@ -77,3 +77,38 @@ npm install -g @shopify/cli
 shopify theme dev --store your-store.myshopify.com
 shopify theme check
 ```
+
+## Product reviews (no app needed)
+
+Every product page has a **Reviews** section, with star ratings under the product title and on catalogue cards.
+Reviews are stored as **comments on one blog post** and approved in Shopify admin.
+
+One-time setup in Shopify admin:
+1. **Online Store → Blog posts → Manage blogs → Add blog**. Title: `Reviews`.
+   Under *Comments*, choose **"Comments are allowed, pending moderation"**.
+   Make sure the blog's URL handle is `reviews`.
+2. **Blog posts → Add blog post**. Title: `Product reviews`, Blog: `Reviews`, Visibility: **Visible**.
+   Its handle must be `product-reviews`; check the SEO section at the bottom.
+3. That's it. To approve or delete reviews, go to **Online Store → Blog posts → Manage comments**.
+   Each comment starts with a tag like `[[diya-cascade-fountain|5|Glows beautifully]]`, which shows the product, rating and headline. Don't edit the tag.
+
+The blog post path can be changed in **Theme settings → Reviews**. Card stars can also be switched off there.
+Only the 50 most recent approved reviews (across all products) are counted. For a larger volume, switch to a reviews app such as Judge.me.
+
+## Branded checkout
+
+Shopify's checkout can't be styled by the theme. Brand it in **Settings → Checkout → Customize → Settings (brush icon)**.
+Ready-made images are in `catalogue/checkout/`:
+
+| Editor setting | Value |
+| --- | --- |
+| Logo | `checkout-logo-light.png` when using the banner, otherwise `checkout-logo-dark.png` |
+| Header → Banner / background image | `checkout-banner.png` |
+| Main area background color | `#FAF6EF` (ivory) |
+| Order summary background color | `#F1E7D6` (sand) |
+| Accent color | `#9A7430` (deep gold) |
+| Button color | `#0D1330` (midnight) |
+| Errors color | `#B3261E` |
+| Heading font | Playfair Display |
+| Body font | Assistant |
+| Corner radius | Large / rounded |

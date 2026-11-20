@@ -79,5 +79,27 @@
         "default": 1300
       }
     ]
+  },
+  {
+    "name": "Reviews",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Reviews are stored as comments on one blog post, so you approve them in Online Store → Blog posts → Manage comments."
+      },
+      {
+        "type": "text",
+        "id": "reviews_article",
+        "label": "Reviews blog post",
+        "info": "Format: blog-handle/post-handle",
+        "default": "reviews/product-reviews"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_card_ratings",
+        "label": "Show star ratings on product cards",
+        "default": true
+      }
+    ]
   }
 ]
