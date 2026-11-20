@@ -228,25 +228,58 @@
       introHidden: introEl ? introEl.hidden : true,
     };
     const basePath = onSearchPage ? catalogue : window.location.pathname;
-    const fill = (text, values) => text.replace(/\{(\w+)\}/g, (_, k) => values[k] ?? '');
+    const fill = (text, values) => String(text || '').replace(/\{(\w+)\}/g, (_, k) => values[k] ?? '');
     const escapeHtml = (s) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    // Build the search index. Preferred source: the theme's search-index section (same cards as
+    // the catalogue). Fallback: Shopify's public products.json feed, rendered with a simple card.
+    const toItem = (el, i) => ({
+      el, i,
+      words: normalizeText(el.dataset.search || '').split(' '),
+      titleWords: normalizeText(el.dataset.searchTitle || '').split(' '),
+    });
+    const fromSection = async () => {
+      const res = await fetch(`${catalogue}?section_id=search-index`, { headers: { Accept: 'text/html' } });
+      if (!res.ok) throw new Error(`search-index section: HTTP ${res.status}`);
+      const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+      const items = Array.from(doc.querySelectorAll('[data-search-item]')).map(toItem);
+      if (!items.length) throw new Error('search-index section: no products in response');
+      return items;
+    };
+    const money = (value) => `₹${Number(value).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const fromJson = async () => {
+      const res = await fetch(`${catalogue}/products.json?limit=250`, { headers: { Accept: 'application/json' } });
+      if (!res.ok) throw new Error(`products.json: HTTP ${res.status}`);
+      const { products = [] } = await res.json();
+      if (!products.length) throw new Error('products.json: no products');
+      return products.map((p, i) => {
+        const v = (p.variants && p.variants[0]) || {};
+        const img = p.images && p.images[0];
+        const tags = Array.isArray(p.tags) ? p.tags.join(' ') : (p.tags || '');
+        const li = document.createElement('li');
+        li.dataset.searchTitle = (p.title || '').toLowerCase();
+        li.dataset.search = `${p.title || ''} ${p.product_type || ''} ${tags}`.toLowerCase();
+        const compare = v.compare_at_price && Number(v.compare_at_price) > Number(v.price);
+        li.innerHTML = `
+          <div class="product-card"><a class="product-card__link" href="/products/${encodeURIComponent(p.handle)}">
+            <div class="product-card__media">${img ? `<img class="product-card__img" loading="lazy" src="${img.src}${img.src.includes('?') ? '&' : '?'}width=600" alt="${escapeHtml(p.title || '')}">` : ''}</div>
+            <div class="product-card__info">
+              <h3 class="product-card__title">${escapeHtml(p.title || '')}</h3>
+              <p class="product-card__price">${v.price ? money(v.price) : ''}${compare ? ` <s class="product-card__compare">${money(v.compare_at_price)}</s>` : ''}</p>
+            </div>
+          </a></div>`;
+        return toItem(li, i);
+      });
+    };
 
     let indexPromise = null;
     const loadIndex = () => {
       if (!indexPromise) {
         form.classList.add('is-searching');
-        indexPromise = fetch(`${catalogue}?section_id=search-index`)
-          .then((res) => { if (!res.ok) throw new Error(res.status); return res.text(); })
-          .then((html) => {
-            const doc = new DOMParser().parseFromString(html, 'text/html');
-            return Array.from(doc.querySelectorAll('[data-search-item]')).map((el, i) => ({
-              el, i,
-              words: normalizeText(el.dataset.search || '').split(' '),
-              titleWords: normalizeText(el.dataset.searchTitle || '').split(' '),
-            }));
-          })
+        indexPromise = fromSection()
+          .catch((err) => { console.warn('[DecorIn search] falling back to products.json:', err.message); return fromJson(); })
           .finally(() => form.classList.remove('is-searching'));
-        indexPromise.catch(() => { indexPromise = null; });
+        indexPromise.catch((err) => { console.error('[DecorIn search] could not load catalogue:', err.message); indexPromise = null; });
       }
       return indexPromise;
     };
@@ -261,16 +294,20 @@
       initFacets(results);
     };
 
+    const shopifySearch = (q) => {
+      window.location.href = `${form.getAttribute('action')}?q=${encodeURIComponent(q)}&type=product&options%5Bprefix%5D=last`;
+    };
     let renderToken = 0;
-    const render = async (q) => {
+    const render = (q) => renderResults(q).catch((err) => {
+      console.error('[DecorIn search] live search failed, using Shopify search:', err);
+      if (q.trim()) shopifySearch(q.trim());
+    });
+    const renderResults = async (q) => {
       const tokens = queryTokens(q);
       if (!tokens.length) { restore(); return; }
       const current = ++renderToken;
       let index;
-      try { index = await loadIndex(); } catch (e) {
-        window.location.href = `${form.getAttribute('action')}?q=${encodeURIComponent(q)}&type=product&options%5Bprefix%5D=last`;
-        return;
-      }
+      try { index = await loadIndex(); } catch (e) { shopifySearch(q.trim()); return; }
       if (current !== renderToken) return; // a newer keystroke already rendered
 
       const hits = index.filter((item) => matchesAll(item.words, tokens));
@@ -278,11 +315,11 @@
       hits.sort((a, b) => (inTitle(b) - inTitle(a)) || (a.i - b.i));
 
       const terms = q.trim();
-      const count = fill(hits.length === 1 ? form.dataset.textOne : form.dataset.textOther, { count: hits.length });
+      const count = fill((hits.length === 1 ? form.dataset.textOne : form.dataset.textOther) || '{count} pieces', { count: hits.length });
       results.innerHTML = `
         <div class="search-live__bar">
           <p class="facets__count" role="status">${escapeHtml(count)}</p>
-          <button type="button" class="facets__reset" data-live-clear>${escapeHtml(form.dataset.textClear)}</button>
+          <button type="button" class="facets__reset" data-live-clear>${escapeHtml(form.dataset.textClear || 'Clear search')}</button>
         </div>
         ${hits.length
           ? '<ul class="product-grid" role="list"></ul>'
