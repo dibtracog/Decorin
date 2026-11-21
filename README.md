@@ -93,7 +93,9 @@ One-time setup in Shopify admin:
    Each comment starts with a tag like `[[diya-cascade-fountain|5|Glows beautifully]]`, which shows the product, rating and headline. Don't edit the tag.
 
 The blog post path can be changed in **Theme settings → Reviews**. Card stars can also be switched off there.
-Only the 50 most recent approved reviews (across all products) are counted. For a larger volume, switch to a reviews app such as Judge.me.
+Approved reviews are read from the blog post page itself (`sections/review-data.liquid`), up to 500 in total.
+
+**Troubleshooting:** open any product page with `?reviews_debug=1` added to the URL. A line under the reviews section tells you what it found, for example "HTTP 404 … does the blog post exist and is it visible?" or "Reviews OK: 3 approved in total".
 
 ## Branded checkout
 

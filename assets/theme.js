@@ -473,7 +473,11 @@
   initUpi();
 
   // ---------- Product reviews (stored as blog comments) ----------
+  // Approved reviews are comments on one blog post. The theme reads them from
+  // that post via the Section Rendering API (sections/review-data.liquid).
   const RETURN_KEY = 'decorin:reviewReturn';
+  const REVIEWS_DEBUG = /[?&]reviews_debug/.test(location.search);
+  const rlog = (...a) => console.info('[DecorIn reviews]', ...a);
   // After a non-AJAX submit Shopify lands on the blog post; send the shopper back.
   try {
     const back = sessionStorage.getItem(RETURN_KEY);
@@ -486,99 +490,232 @@
     }
   } catch (e) { /* storage blocked */ }
 
-  const initReviews = (root) => {
+  const STAR = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.6l2.83 6.08 6.67.78-4.93 4.56 1.32 6.58L12 17.3l-5.89 3.3 1.32-6.58L2.5 9.46l6.67-.78L12 2.6z"/></svg>';
+  const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const starsHtml = (percent, label, size) => `<span class="stars stars--${size}" role="img" aria-label="${esc(label)}"><span class="stars__base">${STAR.repeat(5)}</span><span class="stars__fill" style="width:${Math.max(0, Math.min(100, percent))}%">${STAR.repeat(5)}</span></span>`;
+  const plural = (pair, n) => { const [one, other] = String(pair).split('|'); return (n === 1 ? one : (other || one)).replace('{n}', n); };
+  const TAG_RE = /^\s*\[\[([^|\]]+)\|([1-5])(?:\|([^\]]*))?\]\]\s*/;
+
+  const htmlToText = (html) => {
+    const doc = new DOMParser().parseFromString(`<div>${html}</div>`, 'text/html');
+    doc.querySelectorAll('br').forEach((br) => br.replaceWith('\n'));
+    doc.querySelectorAll('p').forEach((p) => p.append('\n\n'));
+    return doc.body.textContent.replace(/\n{3,}/g, '\n\n').trim();
+  };
+
+  let reviewStore = null;
+  const loadReviews = () => {
+    if (reviewStore) return reviewStore;
+    const base = document.body.dataset.reviewsUrl;
+    reviewStore = (async () => {
+      if (!base) throw new Error('no reviews url');
+      const cacheKey = `decorin:reviews:${base}`;
+      try {
+        const cached = JSON.parse(sessionStorage.getItem(cacheKey) || 'null');
+        if (cached && Date.now() - cached.t < 120000 && !REVIEWS_DEBUG) return cached.v;
+      } catch (e) { /* ignore */ }
+      const out = { ok: false, enabled: false, moderated: true, action: `${base}/comments`, reviews: [] };
+      for (let page = 1; page <= 10; page++) {
+        const url = `${base}?section_id=review-data&page=${page}`;
+        const res = await fetch(url, { credentials: 'same-origin' });
+        rlog('GET', url, res.status);
+        if (!res.ok) { out.reason = `HTTP ${res.status} for ${base} (does the blog post exist and is it visible?)`; break; }
+        const html = await res.text();
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const node = doc.querySelector('[data-review-data]');
+        if (!node) { out.reason = 'review-data section missing from response'; break; }
+        const data = JSON.parse(node.textContent);
+        if (!data.ok) { out.reason = data.reason || 'not ok'; break; }
+        Object.assign(out, { ok: true, enabled: data.enabled, moderated: data.moderated, action: data.action || out.action });
+        for (const c of data.comments || []) {
+          const text = htmlToText(c.c);
+          const m = text.match(TAG_RE);
+          if (!m) continue;
+          out.reviews.push({ handle: m[1].trim(), rating: Number(m[2]), title: (m[3] || '').trim(), body: text.slice(m[0].length).trim(), author: c.a, date: c.d });
+        }
+        if (!data.next) break;
+      }
+      rlog('loaded', out);
+      if (out.ok) { try { sessionStorage.setItem(cacheKey, JSON.stringify({ t: Date.now(), v: out })); } catch (e) { /* ignore */ } }
+      return out;
+    })();
+    return reviewStore;
+  };
+  const statsFor = (data, handle) => {
+    const list = data.reviews.filter((r) => r.handle === handle);
+    const total = list.reduce((a, r) => a + r.rating, 0);
+    return { list, count: list.length, avg: list.length ? Math.round((total / list.length) * 10) / 10 : 0, percent: list.length ? (total / list.length) * 20 : 0 };
+  };
+
+  const paintRatings = (data) => {
+    document.querySelectorAll('[data-rating-chip]').forEach((el) => {
+      const s = statsFor(data, el.dataset.ratingChip);
+      if (!s.count) { el.hidden = true; return; }
+      el.innerHTML = `${starsHtml(s.percent, `${s.avg} / 5`, 'xs')}<span class="rating-chip__count">(${s.count})</span>`;
+      el.hidden = false;
+    });
+    document.querySelectorAll('[data-rating-inline]').forEach((el) => {
+      const s = statsFor(data, el.dataset.ratingInline);
+      const label = (el.dataset.textStars || '{n} out of 5 stars').replace('{n}', s.avg);
+      if (s.count) {
+        el.classList.remove('rating-inline--empty');
+        el.innerHTML = `${starsHtml(s.percent, label, 'sm')}<span class="rating-inline__avg">${s.avg}</span><span class="rating-inline__count">${esc(plural(el.dataset.textCounts || '{n} review|{n} reviews', s.count))}</span>`;
+        el.hidden = false;
+      } else if (data.enabled) {
+        el.classList.add('rating-inline--empty');
+        el.innerHTML = `${starsHtml(0, '', 'sm')}<span class="rating-inline__count">${esc(el.dataset.textFirst || 'Be the first to review')}</span>`;
+        el.hidden = false;
+      }
+    });
+  };
+
+  const initReviews = (root, data) => {
     if (!root || root.dataset.ready) return;
     root.dataset.ready = 'true';
+    const text = (k, d) => root.dataset[k] || d;
+    const debug = root.querySelector('[data-review-debug]');
+    const design = root.dataset.designMode === 'true';
+    if (!data.ok) {
+      if (design || REVIEWS_DEBUG) { root.hidden = false; root.querySelector('[data-review-layout]').hidden = true; root.querySelector('[data-review-setup]').hidden = false; }
+      if (REVIEWS_DEBUG && debug) { debug.hidden = false; debug.textContent = `Reviews not loaded: ${data.reason || 'unknown'}`; }
+      return;
+    }
+    const s = statsFor(data, root.dataset.handle);
+    if (!s.count && !data.enabled) { if (REVIEWS_DEBUG && debug) { root.hidden = false; debug.hidden = false; debug.textContent = 'Blog post found but comments are disabled and there are no reviews.'; } return; }
+    root.hidden = false;
+    if (REVIEWS_DEBUG && debug) { debug.hidden = false; debug.textContent = `Reviews OK: ${data.reviews.length} approved in total, ${s.count} for this product. Comments ${data.enabled ? 'enabled' : 'disabled'}${data.moderated ? ', moderated' : ''}.`; }
+
+    // Summary card
+    const summary = root.querySelector('[data-review-summary]');
+    if (s.count) {
+      const bars = [5, 4, 3, 2, 1].map((n) => {
+        const c = s.list.filter((r) => r.rating === n).length;
+        return `<li class="reviews__bar"><span class="reviews__bar-label">${n}★</span><span class="reviews__bar-track"><span style="width:${Math.round((c / s.count) * 100)}%"></span></span><span class="reviews__bar-num">${c}</span></li>`;
+      }).join('');
+      summary.innerHTML = `<p class="reviews__avg">${s.avg}<span>/5</span></p>${starsHtml(s.percent, text('textStars', '{n} out of 5 stars').replace('{n}', s.avg), 'lg')}<p class="reviews__based">${esc(plural(text('textBased', 'Based on {n} review|Based on {n} reviews'), s.count))}</p><ul class="reviews__bars" role="list">${bars}</ul>`;
+    } else {
+      summary.innerHTML = `<p class="reviews__avg reviews__avg--empty">${esc(text('textNoReviews', 'No reviews yet'))}</p>${starsHtml(0, '', 'lg')}<p class="reviews__based">${esc(text('textNoReviewsText', ''))}</p>`;
+    }
+
+    // List
+    const perPage = Number(root.dataset.perPage) || 6;
+    const list = root.querySelector('[data-review-list]');
+    const fmt = (d) => { const dt = new Date(`${d}T00:00:00`); return isNaN(dt) ? d : dt.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' }); };
+    list.innerHTML = s.list.map((r, i) => `
+      <li class="review${i >= perPage ? ' is-collapsed' : ''}">
+        <div class="review__top">${starsHtml(r.rating * 20, text('textStars', '{n} out of 5 stars').replace('{n}', r.rating), 'sm')}<time class="review__date" datetime="${esc(r.date)}">${esc(fmt(r.date))}</time></div>
+        ${r.title ? `<h3 class="review__title">${esc(r.title)}</h3>` : ''}
+        <div class="review__body">${r.body.split(/\n{2,}/).map((p) => `<p>${esc(p).replace(/\n/g, '<br>')}</p>`).join('')}</div>
+        <p class="review__author"><span class="review__avatar" aria-hidden="true">${esc((r.author || '?').trim().charAt(0).toUpperCase())}</span><span>${esc(r.author)}</span></p>
+      </li>`).join('');
+    root.querySelector('[data-review-empty]').hidden = s.count > 0;
+    const more = root.querySelector('[data-review-more]');
+    if (s.count > perPage) {
+      more.textContent = text('textShowAll', 'Show all {n} reviews').replace('{n}', s.count);
+      more.hidden = false;
+      more.addEventListener('click', () => { list.querySelectorAll('.is-collapsed').forEach((r) => r.classList.remove('is-collapsed')); more.hidden = true; });
+    }
+
+    // Form
     const panel = root.querySelector('[data-review-panel]');
     const openBtn = root.querySelector('[data-review-open]');
     const form = root.querySelector('[data-review-form]');
     const thanks = root.querySelector('[data-review-thanks]');
-    const text = (k, d) => root.dataset[k] || d;
     const showThanks = () => {
-      if (panel) panel.hidden = true;
-      if (openBtn) { openBtn.hidden = true; openBtn.setAttribute('aria-expanded', 'false'); }
-      if (thanks) { thanks.querySelector('p').textContent = text('textThanks', 'Thank you!'); thanks.hidden = false; }
+      panel.hidden = true;
+      openBtn.hidden = true; openBtn.setAttribute('aria-expanded', 'false');
+      thanks.querySelector('p').textContent = text('textThanks', 'Thank you!');
+      thanks.hidden = false;
     };
-
-    if (openBtn && panel) openBtn.addEventListener('click', () => {
-      const open = panel.hidden;
-      panel.hidden = !open;
-      openBtn.setAttribute('aria-expanded', String(open));
-      if (open) {
-        panel.classList.remove('is-entering'); void panel.offsetWidth; panel.classList.add('is-entering');
-        const first = panel.querySelector('[data-star-input] label:last-of-type');
-        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        if (first) first.focus?.();
-      }
-    });
-
-    const more = root.querySelector('[data-review-more]');
-    if (more) more.addEventListener('click', () => {
-      root.querySelectorAll('.review.is-collapsed').forEach((r) => r.classList.remove('is-collapsed'));
-      more.remove();
-    });
-
-    // Star hint ("Loved it", ...)
-    const hints = text('textHints', 'Poor|Fair|Good|Very good|Loved it').split('|');
-    const hint = root.querySelector('[data-star-hint]');
-    root.querySelectorAll('[data-review-rating]').forEach((r) => r.addEventListener('change', () => {
-      if (hint) { hint.textContent = hints[Number(r.value) - 1] || ''; hint.classList.remove('is-error'); }
-    }));
-
     if (new URLSearchParams(location.search).get('review') === 'thanks') {
       showThanks();
       const url = new URL(location.href); url.searchParams.delete('review');
       history.replaceState(null, '', url.toString());
     }
+    if (!data.enabled) return;
+    form.action = data.action;
+    root.querySelector('[data-review-note]').textContent = data.moderated ? text('textModerated', '') : text('textPublic', '');
+    if (thanks.hidden) openBtn.hidden = false;
+    openBtn.addEventListener('click', () => {
+      const open = panel.hidden;
+      panel.hidden = !open;
+      openBtn.setAttribute('aria-expanded', String(open));
+      if (open) {
+        panel.classList.remove('is-entering'); void panel.offsetWidth; panel.classList.add('is-entering');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
 
-    if (!form) return;
+    const hints = text('textHints', 'Poor|Fair|Good|Very good|Loved it').split('|');
+    const hint = root.querySelector('[data-star-hint]');
+    root.querySelectorAll('[data-review-rating]').forEach((r) => r.addEventListener('change', () => {
+      hint.textContent = hints[Number(r.value) - 1] || ''; hint.classList.remove('is-error');
+    }));
+
     const status = form.querySelector('[data-review-status]');
     const submit = form.querySelector('[data-review-submit]');
     const clean = (v) => String(v || '').replace(/[\[\]|]/g, ' ').replace(/\s+/g, ' ').trim();
-
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       const picked = form.querySelector('[data-review-rating]:checked');
       if (!picked) {
-        if (hint) { hint.textContent = text('textPick', 'Please choose a star rating.'); hint.classList.add('is-error'); }
-        form.querySelector('[data-star-input]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        hint.textContent = text('textPick', 'Please choose a star rating.'); hint.classList.add('is-error');
         return;
       }
-      const handle = form.dataset.reviewForm;
-      const title = clean(form.querySelector('[data-review-title]')?.value).slice(0, 80);
-      const body = String(form.querySelector('[data-review-body]')?.value || '').trim();
-      form.querySelector('[data-review-composed]').value = `[[${handle}|${picked.value}|${title}]] ${body}`;
+      for (const el of form.querySelectorAll('[required]')) { if (!el.checkValidity()) { el.reportValidity(); return; } }
+      const title = clean(form.querySelector('[data-review-title]').value).slice(0, 80);
+      const body = form.querySelector('[data-review-body]').value.trim();
+      form.querySelector('[data-review-composed]').value = `[[${form.dataset.reviewForm}|${picked.value}|${title}]] ${body}`;
 
       const label = submit.textContent;
       submit.disabled = true; submit.textContent = text('textSending', 'Sending…');
-      if (status) status.hidden = true;
+      status.hidden = true;
       const nativeSubmit = () => {
         try { sessionStorage.setItem(RETURN_KEY, location.pathname); } catch (e) { /* ignore */ }
         HTMLFormElement.prototype.submit.call(form);
       };
       try {
-        const res = await fetch(form.action, { method: 'POST', body: new FormData(form), credentials: 'same-origin' });
+        const res = await fetch(form.action, { method: 'POST', body: new URLSearchParams(new FormData(form)), credentials: 'same-origin' });
+        rlog('POST', form.action, res.status, res.url);
         // Shopify may ask for a spam check (hCaptcha); let the browser handle it normally.
-        if (res.redirected && /\/challenge/.test(res.url)) { nativeSubmit(); return; }
+        if (/\/challenge/.test(res.url)) { nativeSubmit(); return; }
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        form.reset();
-        if (hint) hint.textContent = '';
+        form.reset(); hint.textContent = '';
         showThanks();
-        thanks?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        thanks.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } catch (err) {
         console.warn('[DecorIn reviews]', err);
-        if (status) { status.textContent = text('textError', 'Something went wrong.'); status.hidden = false; }
+        status.textContent = text('textError', 'Something went wrong.'); status.hidden = false;
       } finally {
         submit.disabled = false; submit.textContent = label;
       }
     });
   };
-  document.querySelectorAll('[data-reviews]').forEach(initReviews);
-  document.addEventListener('shopify:section:load', (e) => initReviews(e.target.querySelector('[data-reviews]')));
+
+  const bootReviews = () => {
+    const needs = document.querySelector('[data-reviews], [data-rating-chip], [data-rating-inline]');
+    if (!needs) return;
+    loadReviews().then((data) => {
+      paintRatings(data);
+      document.querySelectorAll('[data-reviews]').forEach((r) => initReviews(r, data));
+    }).catch((err) => {
+      console.warn('[DecorIn reviews] could not load', err);
+      document.querySelectorAll('[data-reviews]').forEach((r) => initReviews(r, { ok: false, reason: String(err) }));
+    });
+  };
+  window.DecorInPaintRatings = () => { if (reviewStore) reviewStore.then(paintRatings).catch(() => {}); else bootReviews(); };
+  bootReviews();
+  document.addEventListener('shopify:section:load', bootReviews);
+  // Cards added later (filters, live search) get their stars too.
+  let paintTimer;
+  new MutationObserver((muts) => {
+    if (!muts.some((m) => [...m.addedNodes].some((n) => n.nodeType === 1 && (n.matches?.('[data-rating-chip]') || n.querySelector?.('[data-rating-chip]'))))) return;
+    clearTimeout(paintTimer); paintTimer = setTimeout(window.DecorInPaintRatings, 50);
+  }).observe(document.body, { childList: true, subtree: true });
   document.addEventListener('click', (e) => {
     const jump = e.target.closest('[data-reviews-jump]');
     const target = jump && document.getElementById('reviews');
-    if (!target) return;
+    if (!target || target.hidden) return;
     e.preventDefault();
     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });

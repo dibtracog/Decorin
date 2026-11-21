@@ -169,6 +169,10 @@
     "hints": "Poor|Fair|Good|Very good|Loved it",
     "noscript": "Please enable JavaScript to write a review.",
     "setup_title": "Product reviews — almost ready",
-    "setup_text": "Create a blog with the handle \"reviews\", add a post with the handle \"product-reviews\" and set its comments to \"allowed, pending moderation\". Current path: {{ path }}. Only you see this message in the theme editor."
+    "setup_text": "Create a blog with the handle \"reviews\" (comments: allowed, pending moderation) and a visible post in it with the handle \"product-reviews\". Looking for: {{ path }}. Only you see this message in the theme editor.",
+    "js_counts": "{n} review|{n} reviews",
+    "js_stars": "{n} out of 5 stars",
+    "js_based": "Based on {n} review|Based on {n} reviews",
+    "js_show_all": "Show all {n} reviews"
   }
 }

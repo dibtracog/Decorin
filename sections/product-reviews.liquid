@@ -2,260 +2,117 @@
   Ratings & reviews for the current product — no app needed.
 
   How it works:
-  - Reviews are stored as comments on ONE blog post (default
-    blog "reviews", post "product-reviews"; change it in
-    Theme settings → Reviews).
+  - Reviews are stored as comments on ONE blog post (default blog "reviews",
+    post "product-reviews"; change it in Theme settings → Reviews).
   - The form posts a comment whose text starts with a small tag:
     [[product-handle|rating|title]] followed by the review.
-  - With "Comments are allowed, pending moderation" switched on for the
-    blog, every review waits for your approval in
-    Online Store → Blog posts → Manage comments.
+  - With "Comments are allowed, pending moderation" on the blog, every review
+    waits for approval in Online Store → Blog posts → Manage comments.
+  - Approved reviews are read from the blog post itself
+    (sections/review-data.liquid) and drawn here by assets/theme.js.
 {%- endcomment -%}
-{%- liquid
-  assign path = settings.reviews_article | default: 'reviews/product-reviews' | strip
-  assign source = articles[path]
-  assign total = 0
-  assign count = 0
-  assign c5 = 0
-  assign c4 = 0
-  assign c3 = 0
-  assign c2 = 0
-  assign c1 = 0
-  assign per_page = section.settings.per_page | default: 6
--%}
-
-{%- if source != blank -%}
-  {%- capture list_html -%}
-    {%- liquid
-      assign tag_prefix = '[[' | append: product.handle | append: '|'
-      assign prefix_size = tag_prefix | size
-    -%}
-    {%- for comment in source.comments -%}
-      {%- liquid
-        assign valid = false
-        assign raw = comment.content | strip_html | strip
-        assign start = raw | slice: 0, prefix_size
-        assign head = raw | split: ']]' | first
-        assign parts = head | split: '|'
-        assign rating = parts[1] | plus: 0
-        if start == tag_prefix and rating >= 1 and rating <= 5
-          assign valid = true
-        endif
-      -%}
-      {%- if valid -%}
-      {%- liquid
-        assign title = parts[2] | strip
-        assign tag_text = head | append: ']]'
-        assign body = comment.content | remove_first: tag_text | strip
-        assign total = total | plus: rating
-        assign count = count | plus: 1
-        case rating
-          when 5
-            assign c5 = c5 | plus: 1
-          when 4
-            assign c4 = c4 | plus: 1
-          when 3
-            assign c3 = c3 | plus: 1
-          when 2
-            assign c2 = c2 | plus: 1
-          else
-            assign c1 = c1 | plus: 1
-        endcase
-        assign stars_label = 'reviews.stars_label' | t: rating: rating
-        assign initial = comment.author | strip | slice: 0 | upcase
-        assign rating_percent = rating | times: 20
-      -%}
-      <li class="review{% if count > per_page %} is-collapsed{% endif %}" data-review>
-        <div class="review__top">
-          {% render 'stars', percent: rating_percent, label: stars_label, size: 'sm' %}
-          <time class="review__date" datetime="{{ comment.created_at | date: '%Y-%m-%d' }}">{{ comment.created_at | date: '%d %b %Y' }}</time>
-        </div>
-        {%- if title != blank -%}<h3 class="review__title">{{ title }}</h3>{%- endif -%}
-        <div class="review__body">{{ body }}</div>
-        <p class="review__author">
-          <span class="review__avatar" aria-hidden="true">{{ initial }}</span>
-          <span>{{ comment.author }}</span>
-        </p>
-      </li>
-      {%- endif -%}
-    {%- endfor -%}
-  {%- endcapture -%}
-{%- endif -%}
-
-{%- liquid
-  if count > 0
-    assign percent = total | times: 20 | divided_by: count
-    assign avg = total | times: 1.0 | divided_by: count | round: 1
-    assign avg_label = 'reviews.stars_label' | t: rating: avg
-  endif
-  assign can_write = false
-  if source.comments_enabled?
-    assign can_write = true
-  endif
--%}
-
-{%- if source != blank and count > 0 or can_write -%}
+{%- assign path = settings.reviews_article | default: 'reviews/product-reviews' | strip -%}
 <section class="reviews page-width" id="reviews" data-reviews
+  data-handle="{{ product.handle | escape }}"
+  data-per-page="{{ section.settings.per_page }}"
+  data-design-mode="{{ request.design_mode }}"
   data-text-thanks="{{ 'reviews.thanks' | t | escape }}"
   data-text-error="{{ 'reviews.error' | t | escape }}"
   data-text-sending="{{ 'reviews.sending' | t | escape }}"
   data-text-pick="{{ 'reviews.pick_rating' | t | escape }}"
-  data-text-hints="{{ 'reviews.hints' | t | escape }}">
+  data-text-hints="{{ 'reviews.hints' | t | escape }}"
+  data-text-stars="{{ 'reviews.js_stars' | t | escape }}"
+  data-text-counts="{{ 'reviews.js_counts' | t | escape }}"
+  data-text-based="{{ 'reviews.js_based' | t | escape }}"
+  data-text-show-all="{{ 'reviews.js_show_all' | t | escape }}"
+  data-text-moderated="{{ 'reviews.moderated_note' | t | escape }}"
+  data-text-public="{{ 'reviews.public_note' | t | escape }}"
+  data-text-no-reviews="{{ 'reviews.no_reviews' | t | escape }}"
+  data-text-no-reviews-text="{{ 'reviews.no_reviews_text' | t | escape }}"
+  hidden>
   <div class="reviews__head">
     <div>
       <p class="eyebrow">{{ section.settings.eyebrow }}</p>
       <h2 class="reviews__heading">{{ section.settings.heading }}</h2>
     </div>
-    {%- if can_write -%}
-      <button type="button" class="button button--dark reviews__write" data-review-open aria-expanded="false" aria-controls="ReviewForm-{{ section.id }}">
-        {% render 'icon', name: 'pen' %}{{ 'reviews.write' | t }}
-      </button>
-    {%- endif -%}
+    <button type="button" class="button button--dark reviews__write" data-review-open aria-expanded="false" aria-controls="ReviewForm-{{ section.id }}" hidden>
+      {% render 'icon', name: 'pen' %}{{ 'reviews.write' | t }}
+    </button>
   </div>
 
-  <div class="reviews__layout">
+  <div class="reviews__setup" data-review-setup hidden>
+    <h2>{{ 'reviews.setup_title' | t }}</h2>
+    <p>{{ 'reviews.setup_text' | t: path: path }}</p>
+  </div>
+
+  <div class="reviews__layout" data-review-layout>
     <aside class="reviews__summary gradient-card">
       {%- render 'starfield', count: 14 -%}
-      {%- if count > 0 -%}
-        <p class="reviews__avg">{{ avg }}<span>/5</span></p>
-        {% render 'stars', percent: percent, label: avg_label, size: 'lg' %}
-        <p class="reviews__based">{{ 'reviews.based_on' | t: count: count }}</p>
-        <ul class="reviews__bars" role="list">
-          {%- for n in (1..5) reversed -%}
-            {%- liquid
-              case n
-                when 5
-                  assign c = c5
-                when 4
-                  assign c = c4
-                when 3
-                  assign c = c3
-                when 2
-                  assign c = c2
-                else
-                  assign c = c1
-              endcase
-              assign share = c | times: 100 | divided_by: count
-            -%}
-            <li class="reviews__bar">
-              <span class="reviews__bar-label">{{ n }}★</span>
-              <span class="reviews__bar-track"><span style="width: {{ share }}%"></span></span>
-              <span class="reviews__bar-num">{{ c }}</span>
-            </li>
-          {%- endfor -%}
-        </ul>
-      {%- else -%}
-        <p class="reviews__avg reviews__avg--empty">{{ 'reviews.no_reviews' | t }}</p>
-        {% render 'stars', percent: 0, label: '', size: 'lg' %}
-        <p class="reviews__based">{{ 'reviews.no_reviews_text' | t }}</p>
-      {%- endif -%}
+      <div data-review-summary></div>
     </aside>
 
     <div class="reviews__main">
-      {%- if can_write -%}
-        <div class="review-form" id="ReviewForm-{{ section.id }}" data-review-panel hidden>
-          {%- form 'new_comment', source, class: 'review-form__form', data-review-form: product.handle -%}
-            <input type="hidden" name="comment[body]" value="" data-review-composed>
-            <fieldset class="review-form__rating">
-              <legend>{{ 'reviews.your_rating' | t }}</legend>
-              <div class="star-input" data-star-input>
-                {%- for n in (1..5) reversed -%}
-                  <input type="radio" id="Star{{ n }}-{{ section.id }}" name="review-rating-{{ section.id }}" value="{{ n }}" data-review-rating required>
-                  {%- assign n_label = 'reviews.stars_label' | t: rating: n -%}
-                  <label for="Star{{ n }}-{{ section.id }}" title="{{ n_label }}">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.83 6.08 6.67.78-4.93 4.56 1.32 6.58L12 17.3l-5.89 3.3 1.32-6.58L2.5 9.46l6.67-.78L12 2.6z"/></svg>
-                    <span class="visually-hidden">{{ n_label }}</span>
-                  </label>
-                {%- endfor -%}
-              </div>
-              <span class="review-form__hint" data-star-hint aria-live="polite"></span>
-            </fieldset>
+      <div class="review-form" id="ReviewForm-{{ section.id }}" data-review-panel hidden>
+        <form method="post" action="" accept-charset="UTF-8" class="review-form__form" data-review-form="{{ product.handle | escape }}" novalidate>
+          <input type="hidden" name="form_type" value="new_comment">
+          <input type="hidden" name="utf8" value="✓">
+          <input type="hidden" name="comment[body]" value="" data-review-composed>
+          <fieldset class="review-form__rating">
+            <legend>{{ 'reviews.your_rating' | t }}</legend>
+            <div class="star-input" data-star-input>
+              {%- for n in (1..5) reversed -%}
+                {%- assign n_label = 'reviews.stars_label' | t: rating: n -%}
+                <input type="radio" id="Star{{ n }}-{{ section.id }}" name="review-rating-{{ section.id }}" value="{{ n }}" data-review-rating>
+                <label for="Star{{ n }}-{{ section.id }}" title="{{ n_label }}">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.83 6.08 6.67.78-4.93 4.56 1.32 6.58L12 17.3l-5.89 3.3 1.32-6.58L2.5 9.46l6.67-.78L12 2.6z"/></svg>
+                  <span class="visually-hidden">{{ n_label }}</span>
+                </label>
+              {%- endfor -%}
+            </div>
+            <span class="review-form__hint" data-star-hint aria-live="polite"></span>
+          </fieldset>
 
-            <div class="review-form__row">
-              <div class="field">
-                <label for="ReviewName-{{ section.id }}">{{ 'reviews.name' | t }}</label>
-                <input id="ReviewName-{{ section.id }}" type="text" name="comment[author]" autocomplete="name" maxlength="60" required>
-              </div>
-              <div class="field">
-                <label for="ReviewEmail-{{ section.id }}">{{ 'reviews.email' | t }}</label>
-                <input id="ReviewEmail-{{ section.id }}" type="email" name="comment[email]" autocomplete="email" required>
-                <small>{{ 'reviews.email_note' | t }}</small>
-              </div>
+          <div class="review-form__row">
+            <div class="field">
+              <label for="ReviewName-{{ section.id }}">{{ 'reviews.name' | t }}</label>
+              <input id="ReviewName-{{ section.id }}" type="text" name="comment[author]" autocomplete="name" maxlength="60" required>
             </div>
             <div class="field">
-              <label for="ReviewTitle-{{ section.id }}">{{ 'reviews.title' | t }}</label>
-              <input id="ReviewTitle-{{ section.id }}" type="text" maxlength="80" data-review-title placeholder="{{ 'reviews.title_placeholder' | t }}">
+              <label for="ReviewEmail-{{ section.id }}">{{ 'reviews.email' | t }}</label>
+              <input id="ReviewEmail-{{ section.id }}" type="email" name="comment[email]" autocomplete="email" required>
+              <small>{{ 'reviews.email_note' | t }}</small>
             </div>
-            <div class="field">
-              <label for="ReviewBody-{{ section.id }}">{{ 'reviews.body' | t }}</label>
-              <textarea id="ReviewBody-{{ section.id }}" rows="4" maxlength="1500" required data-review-body placeholder="{{ 'reviews.body_placeholder' | t }}"></textarea>
-            </div>
-            <div class="review-form__foot">
-              <p class="review-form__note">
-                {%- if source.moderated? -%}{{ 'reviews.moderated_note' | t }}{%- else -%}{{ 'reviews.public_note' | t }}{%- endif -%}
-              </p>
-              <button type="submit" class="button button--dark" data-review-submit>{{ 'reviews.submit' | t }}</button>
-            </div>
-            <p class="review-form__status" data-review-status role="status" hidden></p>
-          {%- endform -%}
-          <noscript><p class="review-form__note">{{ 'reviews.noscript' | t }}</p></noscript>
-        </div>
-      {%- endif -%}
+          </div>
+          <div class="field">
+            <label for="ReviewTitle-{{ section.id }}">{{ 'reviews.title' | t }}</label>
+            <input id="ReviewTitle-{{ section.id }}" type="text" maxlength="80" data-review-title placeholder="{{ 'reviews.title_placeholder' | t }}">
+          </div>
+          <div class="field">
+            <label for="ReviewBody-{{ section.id }}">{{ 'reviews.body' | t }}</label>
+            <textarea id="ReviewBody-{{ section.id }}" rows="4" maxlength="1500" required data-review-body placeholder="{{ 'reviews.body_placeholder' | t }}"></textarea>
+          </div>
+          <div class="review-form__foot">
+            <p class="review-form__note" data-review-note></p>
+            <button type="submit" class="button button--dark" data-review-submit>{{ 'reviews.submit' | t }}</button>
+          </div>
+          <p class="review-form__status" data-review-status role="status" hidden></p>
+        </form>
+      </div>
 
       <div class="reviews__thanks" data-review-thanks hidden>
         {% render 'icon', name: 'check' %}
         <p></p>
       </div>
 
-      {%- if count > 0 -%}
-        <ul class="reviews__list" role="list" data-review-list>{{ list_html }}</ul>
-        {%- if count > per_page -%}
-          <button type="button" class="button button--secondary reviews__more" data-review-more>{{ 'reviews.show_all' | t: count: count }}</button>
-        {%- endif -%}
-      {%- else -%}
-        <div class="reviews__empty">
-          <p>{{ 'reviews.empty' | t }}</p>
-        </div>
-      {%- endif -%}
+      <ul class="reviews__list" role="list" data-review-list></ul>
+      <button type="button" class="button button--secondary reviews__more" data-review-more hidden></button>
+      <div class="reviews__empty" data-review-empty hidden>
+        <p>{{ 'reviews.empty' | t }}</p>
+      </div>
     </div>
   </div>
+  <p class="reviews__debug" data-review-debug hidden></p>
 </section>
-
-{%- if count > 0 -%}
-<script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    "name": {{ product.title | json }},
-    "url": {{ request.origin | append: product.url | json }},
-    {%- if product.featured_image -%}"image": {{ product.featured_image | image_url: width: 1200 | prepend: 'https:' | json }},{%- endif -%}
-    "description": {{ product.description | strip_html | strip | truncate: 500 | json }},
-    "brand": { "@type": "Brand", "name": {{ settings.brand_name | default: shop.name | json }} },
-    "offers": {
-      "@type": "Offer",
-      "price": {{ product.price | divided_by: 100.0 | json }},
-      "priceCurrency": {{ cart.currency.iso_code | json }},
-      "availability": "https://schema.org/{% if product.available %}InStock{% else %}OutOfStock{% endif %}"
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": {{ avg | json }},
-      "reviewCount": {{ count | json }},
-      "bestRating": 5,
-      "worstRating": 1
-    }
-  }
-</script>
-{%- endif -%}
-
-{%- elsif request.design_mode -%}
-<section class="reviews page-width">
-  <div class="reviews__setup">
-    <h2>{{ 'reviews.setup_title' | t }}</h2>
-    <p>{{ 'reviews.setup_text' | t: path: path }}</p>
-  </div>
-</section>
-{%- endif -%}
 
 {% schema %}
 {
