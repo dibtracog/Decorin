@@ -2,13 +2,16 @@
   JSON feed of approved reviews. Not placed on any page; the theme fetches it with
   /blogs/reviews/product-reviews?section_id=review-data&page=N
   In that context the blog post (article) and its comments are loaded natively.
+  "k" is the first 4 hex characters of sha256(reviewer email/phone): enough to
+  spot a repeat review from the same number, far too little to recover it.
 {%- endcomment -%}
 {%- if article -%}
   {%- paginate article.comments by 50 -%}
     <script type="application/json" data-review-data>
       {"ok":true,"enabled":{% if article.comments_enabled? %}true{% else %}false{% endif %},"moderated":{% if article.moderated? %}true{% else %}false{% endif %},"action":{{ article.url | append: '/comments' | json }},"next":{% if paginate.next %}true{% else %}false{% endif %},"comments":[
         {%- for c in article.comments -%}
-          {"a":{{ c.author | json }},"d":{{ c.created_at | date: '%Y-%m-%d' | json }},"c":{{ c.content | json }}}{% unless forloop.last %},{% endunless %}
+          {%- assign k = c.email | downcase | strip | sha256 | slice: 0, 4 -%}
+          {"a":{{ c.author | json }},"d":{{ c.created_at | date: '%Y-%m-%d' | json }},"k":{{ k | json }},"c":{{ c.content | json }}}{% unless forloop.last %},{% endunless %}
         {%- endfor -%}
       ]}
     </script>

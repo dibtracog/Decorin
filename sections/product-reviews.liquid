@@ -21,6 +21,8 @@
   data-text-sending="{{ 'reviews.sending' | t | escape }}"
   data-text-pick="{{ 'reviews.pick_rating' | t | escape }}"
   data-text-phone="{{ 'reviews.phone_invalid' | t | escape }}"
+  data-text-todo="{{ 'reviews.todo' | t | escape }}"
+  data-text-todo-items="{{ 'reviews.todo_items' | t | escape }}"
   data-text-hints="{{ 'reviews.hints' | t | escape }}"
   data-text-stars="{{ 'reviews.js_stars' | t | escape }}"
   data-text-counts="{{ 'reviews.js_counts' | t | escape }}"
@@ -54,8 +56,8 @@
 
     <div class="reviews__main">
       <div class="review-form" id="ReviewForm-{{ section.id }}" data-review-panel hidden>
-        <form method="post" action="" accept-charset="UTF-8" class="review-form__form" data-review-form="{{ product.handle | escape }}" novalidate>
-          <input type="hidden" name="form_type" value="new_comment">
+        {%- comment -%} No action/form_type until the script has checked every field, so an incomplete review can never be posted. {%- endcomment -%}
+        <form method="post" accept-charset="UTF-8" class="review-form__form" data-review-form="{{ product.handle | escape }}" novalidate onsubmit="return false">
           <input type="hidden" name="utf8" value="✓">
           <input type="hidden" name="comment[body]" value="" data-review-composed>
           <fieldset class="review-form__rating">
@@ -71,17 +73,21 @@
               {%- endfor -%}
             </div>
             <span class="review-form__hint" data-star-hint aria-live="polite"></span>
+            <p class="review-form__error" data-error-for="rating" hidden>{{ 'reviews.pick_rating' | t }}</p>
           </fieldset>
 
           <div class="review-form__row">
             <div class="field">
               <label for="ReviewName-{{ section.id }}">{{ 'reviews.name' | t }}</label>
-              <input id="ReviewName-{{ section.id }}" type="text" name="comment[author]" autocomplete="name" maxlength="60" required>
+              <input id="ReviewName-{{ section.id }}" type="text" name="comment[author]" autocomplete="name" maxlength="60" required data-review-name>
+              <p class="review-form__error" data-error-for="name" hidden>{{ 'reviews.name_missing' | t }}</p>
             </div>
             <div class="field">
               <label for="ReviewPhone-{{ section.id }}">{{ 'reviews.phone' | t }}</label>
               <input id="ReviewPhone-{{ section.id }}" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" required data-review-phone placeholder="98765 43210">
               <input type="hidden" name="comment[email]" value="" data-review-email>
+              <p class="review-form__error" data-error-for="phone" hidden>{{ 'reviews.phone_invalid' | t }}</p>
+              <p class="review-form__error" data-error-for="duplicate" hidden>{{ 'reviews.duplicate' | t }}</p>
               <small>{{ 'reviews.phone_note' | t }}</small>
             </div>
           </div>
@@ -92,10 +98,14 @@
           <div class="field">
             <label for="ReviewBody-{{ section.id }}">{{ 'reviews.body' | t }}</label>
             <textarea id="ReviewBody-{{ section.id }}" rows="4" maxlength="1500" required data-review-body placeholder="{{ 'reviews.body_placeholder' | t }}"></textarea>
+            <p class="review-form__error" data-error-for="body" hidden>{{ 'reviews.body_missing' | t }}</p>
           </div>
           <div class="review-form__foot">
             <p class="review-form__note" data-review-note></p>
-            <button type="submit" class="button button--dark" data-review-submit>{{ 'reviews.submit' | t }}</button>
+            <div class="review-form__submit">
+              <button type="submit" class="button button--dark" data-review-submit aria-disabled="true">{{ 'reviews.submit' | t }}</button>
+              <p class="review-form__todo" data-review-todo aria-live="polite"></p>
+            </div>
           </div>
           <p class="review-form__status" data-review-status role="status" hidden></p>
         </form>

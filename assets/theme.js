@@ -513,6 +513,51 @@
     return doc.body.textContent.replace(/\n{3,}/g, '\n\n').trim();
   };
 
+  // Compact SHA-256 (used when crypto.subtle isn't available, e.g. non-https previews).
+  const sha256Hex = (str) => {
+    const K = [];
+    let n = 2;
+    const isPrime = (x) => { for (let i = 2; i * i <= x; i++) if (x % i === 0) return false; return true; };
+    const frac = (x) => ((x - Math.floor(x)) * 4294967296) >>> 0;
+    const H = [];
+    while (K.length < 64) { if (isPrime(n)) { if (H.length < 8) H.push(frac(Math.pow(n, 1 / 2))); K.push(frac(Math.pow(n, 1 / 3))); } n++; }
+    const bytes = [...new TextEncoder().encode(str)];
+    const bitLen = bytes.length * 8;
+    bytes.push(0x80);
+    while (bytes.length % 64 !== 56) bytes.push(0);
+    for (let i = 7; i >= 0; i--) bytes.push(i > 3 ? 0 : (bitLen >>> (i * 8)) & 255);
+    const rotr = (x, r) => (x >>> r) | (x << (32 - r));
+    for (let off = 0; off < bytes.length; off += 64) {
+      const w = new Array(64);
+      for (let i = 0; i < 16; i++) w[i] = (bytes[off + i * 4] << 24) | (bytes[off + i * 4 + 1] << 16) | (bytes[off + i * 4 + 2] << 8) | bytes[off + i * 4 + 3];
+      for (let i = 16; i < 64; i++) {
+        const s0 = rotr(w[i - 15], 7) ^ rotr(w[i - 15], 18) ^ (w[i - 15] >>> 3);
+        const s1 = rotr(w[i - 2], 17) ^ rotr(w[i - 2], 19) ^ (w[i - 2] >>> 10);
+        w[i] = (w[i - 16] + s0 + w[i - 7] + s1) | 0;
+      }
+      let [a, b, c, d, e, f, g, h] = H;
+      for (let i = 0; i < 64; i++) {
+        const t1 = (h + (rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25)) + ((e & f) ^ (~e & g)) + K[i] + w[i]) | 0;
+        const t2 = ((rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22)) + ((a & b) ^ (a & c) ^ (b & c))) | 0;
+        h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = b; b = a; a = (t1 + t2) | 0;
+      }
+      [a, b, c, d, e, f, g, h].forEach((v, i) => { H[i] = (H[i] + v) | 0; });
+    }
+    return H.map((v) => (v >>> 0).toString(16).padStart(8, '0')).join('');
+  };
+  const sha256Short = async (value) => {
+    const input = String(value).trim().toLowerCase();
+    try {
+      if (window.crypto && crypto.subtle) {
+        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
+        return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('').slice(0, 4);
+      }
+    } catch (e) { /* fall back below */ }
+    return sha256Hex(input).slice(0, 4);
+  };
+  const DONE_KEY = (handle) => `decorin:reviewed:${handle}`;
+  const doneList = (handle) => { try { return JSON.parse(localStorage.getItem(DONE_KEY(handle)) || '[]'); } catch (e) { return []; } };
+
   let reviewStore = null;
   const loadReviews = () => {
     if (reviewStore) return reviewStore;
@@ -541,7 +586,7 @@
           const text = htmlToText(c.c);
           const m = text.match(TAG_RE);
           if (!m) continue;
-          out.reviews.push({ handle: m[1].trim(), rating: Number(m[2]), title: (m[3] || '').trim(), body: text.slice(m[0].length).trim(), author: c.a, date: c.d });
+          out.reviews.push({ k: c.k || '', handle: m[1].trim(), rating: Number(m[2]), title: (m[3] || '').trim(), body: text.slice(m[0].length).trim(), author: c.a, date: c.d });
         }
         if (!data.next) break;
       }
@@ -643,7 +688,7 @@
       history.replaceState(null, '', url.toString());
     }
     if (!data.enabled) return;
-    form.action = data.action;
+    form.dataset.action = data.action;
     root.querySelector('[data-review-note]').textContent = data.moderated ? text('textModerated', '') : text('textPublic', '');
     if (thanks.hidden) openBtn.hidden = false;
     openBtn.addEventListener('click', () => {
@@ -661,29 +706,102 @@
     root.querySelectorAll('[data-review-rating]').forEach((r) => r.addEventListener('change', () => {
       hint.textContent = hints[Number(r.value) - 1] || ''; hint.classList.remove('is-error');
     }));
-    form.querySelector('[data-review-phone]').addEventListener('input', (e) => e.currentTarget.setCustomValidity(''));
 
     const status = form.querySelector('[data-review-status]');
     const submit = form.querySelector('[data-review-submit]');
     const clean = (v) => String(v || '').replace(/[\[\]|]/g, ' ').replace(/\s+/g, ' ').trim();
+    // ---- Validation: every field is checked before anything can be sent ----
+    const fields = {
+      name: form.querySelector('[data-review-name]'),
+      phone: form.querySelector('[data-review-phone]'),
+      body: form.querySelector('[data-review-body]'),
+    };
+    const phoneDigits = () => {
+      let d = fields.phone.value.replace(/\D/g, '');
+      if (d.length === 12 && d.startsWith('91')) d = d.slice(2);
+      if (d.length === 11 && d.startsWith('0')) d = d.slice(1);
+      return d;
+    };
+    const rating = () => {
+      const r = form.querySelector('[data-review-rating]:checked');
+      const n = r ? Number(r.value) : 0;
+      return n >= 1 && n <= 5 ? n : 0;
+    };
+    const problems = () => {
+      const out = [];
+      if (!rating()) out.push('rating');
+      if (fields.name.value.trim().length < 2) out.push('name');
+      if (!/^[6-9]\d{9}$/.test(phoneDigits())) out.push('phone');
+      if (fields.body.value.trim().length < 10) out.push('body');
+      return out;
+    };
+    const todo = form.querySelector('[data-review-todo]');
+    const todoNames = text('textTodoItems', 'star rating|name|phone number|review').split('|');
+    const ORDER = ['rating', 'name', 'phone', 'body'];
+    let showErrors = false;
+    const refresh = () => {
+      const bad = problems();
+      submit.setAttribute('aria-disabled', String(bad.length > 0));
+      todo.textContent = bad.length ? text('textTodo', 'Still needed: {items}').replace('{items}', bad.map((k) => todoNames[ORDER.indexOf(k)]).join(', ')) : '';
+      ORDER.forEach((k) => {
+        const err = form.querySelector(`[data-error-for="${k}"]`);
+        const on = showErrors && bad.includes(k);
+        if (err) err.hidden = !on;
+        const target = k === 'rating' ? form.querySelector('[data-star-input]') : fields[k];
+        target.classList.toggle('is-invalid', on);
+        if (k !== 'rating') target.setAttribute('aria-invalid', String(on));
+      });
+      return bad;
+    };
+    form.addEventListener('input', (e) => { if (e.target === fields.phone) form.querySelector('[data-error-for="duplicate"]').hidden = true; refresh(); });
+    form.addEventListener('change', refresh);
+    refresh();
+
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
-      const picked = form.querySelector('[data-review-rating]:checked');
-      if (!picked) {
-        hint.textContent = text('textPick', 'Please choose a star rating.'); hint.classList.add('is-error');
+      if (submit.disabled) return;
+      showErrors = true;
+      const bad = refresh();
+      if (bad.length) {
+        const first = bad[0];
+        const stars = form.querySelector('[data-star-input]');
+        if (first === 'rating') {
+          stars.classList.remove('is-shaking'); void stars.offsetWidth; stars.classList.add('is-shaking');
+          stars.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          form.querySelector('[data-review-rating]').focus({ preventScroll: true });
+        } else {
+          fields[first].focus();
+        }
         return;
       }
-      const phoneInput = form.querySelector('[data-review-phone]');
-      let digits = phoneInput.value.replace(/\D/g, '');
-      if (digits.length === 12 && digits.startsWith('91')) digits = digits.slice(2);
-      if (digits.length === 11 && digits.startsWith('0')) digits = digits.slice(1);
-      phoneInput.setCustomValidity(/^[6-9]\d{9}$/.test(digits) ? '' : text('textPhone', 'Please enter a valid 10-digit mobile number.'));
-      for (const el of form.querySelectorAll('[required]')) { if (!el.checkValidity()) { el.reportValidity(); return; } }
-      // Shopify comments need an email; the phone goes there so it stays private (only visible in admin).
-      form.querySelector('[data-review-email]').value = `91${digits}@example.com`;
+      const stars = rating();
+      const digits = phoneDigits();
+      const email = `91${digits}@example.com`;
+      // One review per product per phone number.
+      const key = await sha256Short(email);
+      const handle = form.dataset.reviewForm;
+      const already = (key && (doneList(handle).includes(key) || data.reviews.some((r) => r.handle === handle && r.k === key)));
+      const dupErr = form.querySelector('[data-error-for="duplicate"]');
+      if (already) {
+        dupErr.hidden = false;
+        fields.phone.classList.add('is-invalid');
+        fields.phone.focus();
+        return;
+      }
+      dupErr.hidden = true;
       const title = clean(form.querySelector('[data-review-title]').value).slice(0, 80);
-      const body = form.querySelector('[data-review-body]').value.trim();
-      form.querySelector('[data-review-composed]').value = `[[${form.dataset.reviewForm}|${picked.value}|${title}]] ${body}`;
+      const body = fields.body.value.trim();
+      const composed = `[[${form.dataset.reviewForm}|${stars}|${title}]] ${body}`;
+      // Last safety net: never post anything that doesn't carry a 1-5 rating.
+      if (!/^\[\[[^|\]]+\|[1-5]\|/.test(composed) || !form.dataset.action) return;
+      form.querySelector('[data-review-composed]').value = composed;
+      // Shopify comments need an email; the phone goes there so it stays private (only visible in admin).
+      form.querySelector('[data-review-email]').value = email;
+      if (key) { try { localStorage.setItem(DONE_KEY(handle), JSON.stringify([...new Set([...doneList(handle), key])])); } catch (e) { /* ignore */ } }
+      if (!form.querySelector('input[name="form_type"]')) {
+        form.insertAdjacentHTML('afterbegin', '<input type="hidden" name="form_type" value="new_comment">');
+      }
+      form.action = form.dataset.action;
 
       submit.disabled = true; submit.textContent = text('textSending', 'Sending\u2026');
       status.hidden = true;
