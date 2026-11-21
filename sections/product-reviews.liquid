@@ -56,59 +56,28 @@
 
     <div class="reviews__main">
       <div class="review-form" id="ReviewForm-{{ section.id }}" data-review-panel hidden>
-        {%- comment -%} No action/form_type until the script has checked every field, so an incomplete review can never be posted. {%- endcomment -%}
-        <form method="post" accept-charset="UTF-8" class="review-form__form" data-review-form="{{ product.handle | escape }}" novalidate onsubmit="return false">
-          <input type="hidden" name="utf8" value="✓">
-          <input type="hidden" name="comment[body]" value="" data-review-composed>
-          <fieldset class="review-form__rating">
-            <legend>{{ 'reviews.your_rating' | t }}</legend>
-            <div class="star-input" data-star-input>
-              {%- for n in (1..5) reversed -%}
-                {%- assign n_label = 'reviews.stars_label' | t: rating: n -%}
-                <input type="radio" id="Star{{ n }}-{{ section.id }}" name="review-rating-{{ section.id }}" value="{{ n }}" data-review-rating>
-                <label for="Star{{ n }}-{{ section.id }}" title="{{ n_label }}">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.83 6.08 6.67.78-4.93 4.56 1.32 6.58L12 17.3l-5.89 3.3 1.32-6.58L2.5 9.46l6.67-.78L12 2.6z"/></svg>
-                  <span class="visually-hidden">{{ n_label }}</span>
-                </label>
-              {%- endfor -%}
-            </div>
-            <span class="review-form__hint" data-star-hint aria-live="polite"></span>
-            <p class="review-form__error" data-error-for="rating" hidden>{{ 'reviews.pick_rating' | t }}</p>
-          </fieldset>
-
-          <div class="review-form__row">
-            <div class="field">
-              <label for="ReviewName-{{ section.id }}">{{ 'reviews.name' | t }}</label>
-              <input id="ReviewName-{{ section.id }}" type="text" name="comment[author]" autocomplete="name" maxlength="60" required data-review-name>
-              <p class="review-form__error" data-error-for="name" hidden>{{ 'reviews.name_missing' | t }}</p>
-            </div>
-            <div class="field">
-              <label for="ReviewPhone-{{ section.id }}">{{ 'reviews.phone' | t }}</label>
-              <input id="ReviewPhone-{{ section.id }}" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" required data-review-phone placeholder="98765 43210">
-              <input type="hidden" name="comment[email]" value="" data-review-email>
-              <p class="review-form__error" data-error-for="phone" hidden>{{ 'reviews.phone_invalid' | t }}</p>
-              <p class="review-form__error" data-error-for="duplicate" hidden>{{ 'reviews.duplicate' | t }}</p>
-              <small>{{ 'reviews.phone_note' | t }}</small>
-            </div>
-          </div>
-          <div class="field">
-            <label for="ReviewTitle-{{ section.id }}">{{ 'reviews.title' | t }}</label>
-            <input id="ReviewTitle-{{ section.id }}" type="text" maxlength="80" data-review-title placeholder="{{ 'reviews.title_placeholder' | t }}">
-          </div>
-          <div class="field">
-            <label for="ReviewBody-{{ section.id }}">{{ 'reviews.body' | t }}</label>
-            <textarea id="ReviewBody-{{ section.id }}" rows="4" maxlength="1500" required data-review-body placeholder="{{ 'reviews.body_placeholder' | t }}"></textarea>
-            <p class="review-form__error" data-error-for="body" hidden>{{ 'reviews.body_missing' | t }}</p>
-          </div>
-          <div class="review-form__foot">
-            <p class="review-form__note" data-review-note></p>
-            <div class="review-form__submit">
-              <button type="submit" class="button button--dark" data-review-submit aria-disabled="true">{{ 'reviews.submit' | t }}</button>
-              <p class="review-form__todo" data-review-todo aria-live="polite"></p>
-            </div>
-          </div>
-          <p class="review-form__status" data-review-status role="status" hidden></p>
+        {%- liquid
+          # Find the reviews blog post so Shopify's own form tag can be used:
+          # it wires up Shopify's spam protection (CAPTCHA) for the review.
+          assign blog_handle = path | split: '/' | first
+          assign article_handle = path | split: '/' | last
+          assign reviews_article = nil
+          for a in blogs[blog_handle].articles
+            if a.handle == article_handle
+              assign reviews_article = a
+              break
+            endif
+          endfor
+        -%}
+        {%- if reviews_article -%}
+          {%- form 'new_comment', reviews_article, class: 'review-form__form', data-review-form: product.handle, novalidate: 'novalidate' -%}
+            {%- render 'review-form-fields', section: section -%}
+          {%- endform -%}
+        {%- else -%}
+        <form method="post" accept-charset="UTF-8" class="review-form__form" data-review-form="{{ product.handle | escape }}" data-review-fallback novalidate>
+            {%- render 'review-form-fields', section: section -%}
         </form>
+        {%- endif -%}
       </div>
 
       <div class="reviews__thanks" data-review-thanks hidden>

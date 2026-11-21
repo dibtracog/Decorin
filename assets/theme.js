@@ -545,16 +545,6 @@
     }
     return H.map((v) => (v >>> 0).toString(16).padStart(8, '0')).join('');
   };
-  const sha256Short = async (value) => {
-    const input = String(value).trim().toLowerCase();
-    try {
-      if (window.crypto && crypto.subtle) {
-        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
-        return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('').slice(0, 4);
-      }
-    } catch (e) { /* fall back below */ }
-    return sha256Hex(input).slice(0, 4);
-  };
   const DONE_KEY = (handle) => `decorin:reviewed:${handle}`;
   const doneList = (handle) => { try { return JSON.parse(localStorage.getItem(DONE_KEY(handle)) || '[]'); } catch (e) { return []; } };
 
@@ -567,12 +557,12 @@
       const cacheKey = `decorin:reviews:${base}`;
       try {
         const cached = JSON.parse(sessionStorage.getItem(cacheKey) || 'null');
-        if (cached && Date.now() - cached.t < 120000 && !REVIEWS_DEBUG) return cached.v;
+        if (cached && Date.now() - cached.t < 30000 && !REVIEWS_DEBUG && !document.querySelector('[data-reviews]')) return cached.v;
       } catch (e) { /* ignore */ }
       const out = { ok: false, enabled: false, moderated: true, action: `${base}/comments`, reviews: [] };
       for (let page = 1; page <= 10; page++) {
-        const url = `${base}?section_id=review-data&page=${page}`;
-        const res = await fetch(url, { credentials: 'same-origin' });
+        const url = `${base}?section_id=review-data&page=${page}&t=${Math.floor(Date.now() / 15000)}`;
+        const res = await fetch(url, { credentials: 'same-origin', cache: 'no-store' });
         rlog('GET', url, res.status);
         if (!res.ok) { out.reason = `HTTP ${res.status} for ${base} (does the blog post exist and is it visible?)`; break; }
         const html = await res.text();
@@ -688,7 +678,6 @@
       history.replaceState(null, '', url.toString());
     }
     if (!data.enabled) return;
-    form.dataset.action = data.action;
     root.querySelector('[data-review-note]').textContent = data.moderated ? text('textModerated', '') : text('textPublic', '');
     if (thanks.hidden) openBtn.hidden = false;
     openBtn.addEventListener('click', () => {
@@ -757,17 +746,23 @@
     form.addEventListener('change', refresh);
     refresh();
 
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      if (submit.disabled) return;
+    // Capture phase on the document runs BEFORE any other submit listener on the form,
+    // including Shopify's spam protection (CAPTCHA). Invalid reviews are stopped here;
+    // valid ones continue as a normal form submit so Shopify can add its CAPTCHA token.
+    let sending = false;
+    const stop = (event) => { event.preventDefault(); event.stopImmediatePropagation(); };
+    document.addEventListener('submit', (event) => {
+      if (event.target !== form) return;
+      if (sending) { stop(event); return; }
       showErrors = true;
       const bad = refresh();
       if (bad.length) {
+        stop(event);
         const first = bad[0];
-        const stars = form.querySelector('[data-star-input]');
+        const starBox = form.querySelector('[data-star-input]');
         if (first === 'rating') {
-          stars.classList.remove('is-shaking'); void stars.offsetWidth; stars.classList.add('is-shaking');
-          stars.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          starBox.classList.remove('is-shaking'); void starBox.offsetWidth; starBox.classList.add('is-shaking');
+          starBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
           form.querySelector('[data-review-rating]').focus({ preventScroll: true });
         } else {
           fields[first].focus();
@@ -775,14 +770,13 @@
         return;
       }
       const stars = rating();
-      const digits = phoneDigits();
-      const email = `91${digits}@example.com`;
+      const email = `91${phoneDigits()}@example.com`;
       // One review per product per phone number.
-      const key = await sha256Short(email);
+      const key = sha256Hex(email).slice(0, 4);
       const handle = form.dataset.reviewForm;
-      const already = (key && (doneList(handle).includes(key) || data.reviews.some((r) => r.handle === handle && r.k === key)));
       const dupErr = form.querySelector('[data-error-for="duplicate"]');
-      if (already) {
+      if (doneList(handle).includes(key) || data.reviews.some((r) => r.handle === handle && r.k === key)) {
+        stop(event);
         dupErr.hidden = false;
         fields.phone.classList.add('is-invalid');
         fields.phone.focus();
@@ -790,29 +784,28 @@
       }
       dupErr.hidden = true;
       const title = clean(form.querySelector('[data-review-title]').value).slice(0, 80);
-      const body = fields.body.value.trim();
-      const composed = `[[${form.dataset.reviewForm}|${stars}|${title}]] ${body}`;
+      const composed = `[[${handle}|${stars}|${title}]] ${fields.body.value.trim()}`;
       // Last safety net: never post anything that doesn't carry a 1-5 rating.
-      if (!/^\[\[[^|\]]+\|[1-5]\|/.test(composed) || !form.dataset.action) return;
+      if (!/^\[\[[^|\]]+\|[1-5]\|/.test(composed)) { stop(event); return; }
       form.querySelector('[data-review-composed]').value = composed;
       // Shopify comments need an email; the phone goes there so it stays private (only visible in admin).
       form.querySelector('[data-review-email]').value = email;
-      if (key) { try { localStorage.setItem(DONE_KEY(handle), JSON.stringify([...new Set([...doneList(handle), key])])); } catch (e) { /* ignore */ } }
-      if (!form.querySelector('input[name="form_type"]')) {
-        form.insertAdjacentHTML('afterbegin', '<input type="hidden" name="form_type" value="new_comment">');
+      if (form.hasAttribute('data-review-fallback')) {
+        if (!data.action) { stop(event); return; }
+        form.action = data.action;
+        if (!form.querySelector('input[name="form_type"]')) form.insertAdjacentHTML('afterbegin', '<input type="hidden" name="form_type" value="new_comment"><input type="hidden" name="utf8" value="✓">');
       }
-      form.action = form.dataset.action;
-
-      submit.disabled = true; submit.textContent = text('textSending', 'Sending\u2026');
-      status.hidden = true;
-      // A normal form post is the most reliable with Shopify (spam checks, redirects).
+      try { localStorage.setItem(DONE_KEY(handle), JSON.stringify([...new Set([...doneList(handle), key])])); } catch (e) { /* ignore */ }
       // Shopify then shows the reviews blog post; the code at the top of this
       // block sends the shopper straight back here with a thank-you message.
       const back = JSON.stringify({ path: location.pathname, t: Date.now() });
       try { sessionStorage.setItem(RETURN_KEY, back); } catch (e) { /* ignore */ }
       try { localStorage.setItem(RETURN_KEY, back); } catch (e) { /* ignore */ }
-      HTMLFormElement.prototype.submit.call(form);
-    });
+      sending = true;
+      status.hidden = true;
+      setTimeout(() => { submit.textContent = text('textSending', 'Sending…'); submit.setAttribute('aria-disabled', 'true'); }, 0);
+      // Let the browser (and Shopify's CAPTCHA listener) carry on with the submit.
+    }, true);
   };
 
   const bootReviews = () => {

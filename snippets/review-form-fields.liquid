@@ -1,0 +1,53 @@
+{%- comment -%}
+  Fields of the product review form (inside {% form 'new_comment' %}).
+  The theme script checks every field before the form is allowed to submit.
+{%- endcomment -%}
+<input type="hidden" name="comment[body]" value="" data-review-composed>
+<fieldset class="review-form__rating">
+  <legend>{{ 'reviews.your_rating' | t }}</legend>
+  <div class="star-input" data-star-input>
+    {%- for n in (1..5) reversed -%}
+      {%- assign n_label = 'reviews.stars_label' | t: rating: n -%}
+      <input type="radio" id="Star{{ n }}-{{ section.id }}" name="review-rating-{{ section.id }}" value="{{ n }}" data-review-rating>
+      <label for="Star{{ n }}-{{ section.id }}" title="{{ n_label }}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.83 6.08 6.67.78-4.93 4.56 1.32 6.58L12 17.3l-5.89 3.3 1.32-6.58L2.5 9.46l6.67-.78L12 2.6z"/></svg>
+        <span class="visually-hidden">{{ n_label }}</span>
+      </label>
+    {%- endfor -%}
+  </div>
+  <span class="review-form__hint" data-star-hint aria-live="polite"></span>
+  <p class="review-form__error" data-error-for="rating" hidden>{{ 'reviews.pick_rating' | t }}</p>
+</fieldset>
+
+<div class="review-form__row">
+  <div class="field">
+    <label for="ReviewName-{{ section.id }}">{{ 'reviews.name' | t }}</label>
+    <input id="ReviewName-{{ section.id }}" type="text" name="comment[author]" autocomplete="name" maxlength="60" required data-review-name>
+    <p class="review-form__error" data-error-for="name" hidden>{{ 'reviews.name_missing' | t }}</p>
+  </div>
+  <div class="field">
+    <label for="ReviewPhone-{{ section.id }}">{{ 'reviews.phone' | t }}</label>
+    <input id="ReviewPhone-{{ section.id }}" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" required data-review-phone placeholder="98765 43210">
+    <input type="hidden" name="comment[email]" value="" data-review-email>
+    <p class="review-form__error" data-error-for="phone" hidden>{{ 'reviews.phone_invalid' | t }}</p>
+    <p class="review-form__error" data-error-for="duplicate" hidden>{{ 'reviews.duplicate' | t }}</p>
+    <small>{{ 'reviews.phone_note' | t }}</small>
+  </div>
+</div>
+<div class="field">
+  <label for="ReviewTitle-{{ section.id }}">{{ 'reviews.title' | t }}</label>
+  <input id="ReviewTitle-{{ section.id }}" type="text" maxlength="80" data-review-title placeholder="{{ 'reviews.title_placeholder' | t }}">
+</div>
+<div class="field">
+  <label for="ReviewBody-{{ section.id }}">{{ 'reviews.body' | t }}</label>
+  <textarea id="ReviewBody-{{ section.id }}" rows="4" maxlength="1500" required data-review-body placeholder="{{ 'reviews.body_placeholder' | t }}"></textarea>
+  <p class="review-form__error" data-error-for="body" hidden>{{ 'reviews.body_missing' | t }}</p>
+</div>
+<div class="review-form__foot">
+  <p class="review-form__note" data-review-note></p>
+  <div class="review-form__submit">
+    <button type="submit" class="button button--dark" data-review-submit aria-disabled="true">{{ 'reviews.submit' | t }}</button>
+    <p class="review-form__todo" data-review-todo aria-live="polite"></p>
+  </div>
+</div>
+<p class="review-form__status" data-review-status role="status" hidden></p>
