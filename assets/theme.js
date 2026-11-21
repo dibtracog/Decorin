@@ -481,7 +481,7 @@
   // After a non-AJAX submit Shopify lands on the blog post; send the shopper back.
   try {
     const back = sessionStorage.getItem(RETURN_KEY);
-    if (back && document.body.classList.contains('template-article')) {
+    if (back && document.body.classList.contains('template-article') && !document.querySelector('[data-comment-errors]')) {
       sessionStorage.removeItem(RETURN_KEY);
       const url = new URL(back, location.origin);
       url.searchParams.set('review', 'thanks');
@@ -687,13 +687,18 @@
         rlog('POST', form.action, res.status, res.url);
         // Shopify may ask for a spam check (hCaptcha); let the browser handle it normally.
         if (/\/challenge/.test(res.url)) { nativeSubmit(); return; }
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        // Shopify re-renders the blog post with the reasons when it rejects a comment.
+        const page = new DOMParser().parseFromString(await res.text(), 'text/html');
+        const errs = page.querySelector('[data-comment-errors]');
+        if (errs) { const e = new Error(errs.textContent.replace(/\s+/g, ' ').trim()); e.shopify = true; throw e; }
+        if (!res.ok) { rlog('falling back to a normal form submit after HTTP', res.status); nativeSubmit(); return; }
         form.reset(); hint.textContent = '';
         showThanks();
         thanks.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } catch (err) {
         console.warn('[DecorIn reviews]', err);
-        status.textContent = text('textError', 'Something went wrong.'); status.hidden = false;
+        status.textContent = err && err.shopify ? `${text('textError', 'Something went wrong.')} (${err.message})` : text('textError', 'Something went wrong.');
+        status.hidden = false;
       } finally {
         submit.disabled = false; submit.textContent = label;
       }

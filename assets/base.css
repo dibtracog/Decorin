@@ -1071,3 +1071,6 @@ input[type="number"] { max-width: 120px; }
 .review-form__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; }
 .review-form__note { flex: 1 1 240px; font-size: 0.875rem; color: color-mix(in srgb, var(--c-text) 60%, transparent); }
 .review-form__status { color: #b3261e; font-weight: 600; }
+.article__notice { margin: 20px 0; padding: 14px 18px; border-radius: 12px; background: color-mix(in srgb, #3f8f5a 12%, #fff); color: #24573a; }
+.article__notice--error { background: #fdecea; color: #b3261e; }
+.article__notice--error ul { margin: 0; padding-left: 18px; }
