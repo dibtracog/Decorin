@@ -92,19 +92,7 @@ const loadComments = async (articleId) => {
     if (!conn.pageInfo?.hasNextPage) break;
     after = conn.pageInfo.endCursor;
   }
-  return markDuplicates(all);
-};
-
-// One review per product per phone number: the oldest one counts, later ones are duplicates.
-const markDuplicates = (list) => {
-  const seen = new Set();
-  const oldestFirst = [...list].sort((a, b) => (a.date?.getTime() || 0) - (b.date?.getTime() || 0));
-  for (const r of oldestFirst) {
-    const key = `${r.handle}|${r.email}`;
-    r.duplicate = Boolean(r.handle && r.email && seen.has(key));
-    if (r.handle && r.email) seen.add(key);
-  }
-  return oldestFirst.reverse();
+  return all.sort((a, b) => (b.date?.getTime() || 0) - (a.date?.getTime() || 0));
 };
 
 const STATUS = {
@@ -161,7 +149,7 @@ function ReviewManager() {
         const d = await gql(`mutation ($id: ID!) { commentDelete(id: $id) { deletedCommentId userErrors { field message } } }`, { id: review.id });
         const errs = d?.commentDelete?.userErrors || [];
         if (errs.length) throw new Error(errs.map((e) => e.message).join('; '));
-        setState((s) => ({ ...s, reviews: markDuplicates(s.reviews.filter((r) => r.id !== review.id)) }));
+        setState((s) => ({ ...s, reviews: s.reviews.filter((r) => r.id !== review.id) }));
         setNotice(`Deleted ${review.name}'s review.`);
       } else {
         const field = action === 'approve' ? 'commentApprove' : 'commentSpam';
@@ -232,7 +220,6 @@ function ReviewManager() {
                         <s-text type="strong">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</s-text>
                         <s-badge tone={st.tone}>{st.label}</s-badge>
                         {!r.rating && <s-badge tone="critical">No rating — not shown on store</s-badge>}
-                        {r.duplicate && <s-badge tone="critical">Duplicate — this number already reviewed this product</s-badge>}
                         {allProducts && <s-badge tone="info">{r.handle || 'untagged'}</s-badge>}
                       </s-stack>
                       <s-text color="subdued">{r.date ? r.date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}</s-text>
@@ -241,7 +228,7 @@ function ReviewManager() {
                     <s-paragraph>{r.body}</s-paragraph>
                     <s-text color="subdued">{r.name}{r.phone ? ` · ${r.phone}` : ''}</s-text>
                     <s-stack direction="inline" gap="small">
-                      {r.status !== 'PUBLISHED' && !r.duplicate && r.rating > 0 && (
+                      {r.status !== 'PUBLISHED' && r.rating > 0 && (
                         <s-button variant={isPending ? 'primary' : 'secondary'} loading={busy === r.id} disabled={!!busy} onClick={() => act(r, 'approve')}>Approve</s-button>
                       )}
                       {r.status !== 'SPAM' && (

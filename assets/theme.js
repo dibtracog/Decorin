@@ -513,41 +513,6 @@
     return doc.body.textContent.replace(/\n{3,}/g, '\n\n').trim();
   };
 
-  // Compact SHA-256 (used when crypto.subtle isn't available, e.g. non-https previews).
-  const sha256Hex = (str) => {
-    const K = [];
-    let n = 2;
-    const isPrime = (x) => { for (let i = 2; i * i <= x; i++) if (x % i === 0) return false; return true; };
-    const frac = (x) => ((x - Math.floor(x)) * 4294967296) >>> 0;
-    const H = [];
-    while (K.length < 64) { if (isPrime(n)) { if (H.length < 8) H.push(frac(Math.pow(n, 1 / 2))); K.push(frac(Math.pow(n, 1 / 3))); } n++; }
-    const bytes = [...new TextEncoder().encode(str)];
-    const bitLen = bytes.length * 8;
-    bytes.push(0x80);
-    while (bytes.length % 64 !== 56) bytes.push(0);
-    for (let i = 7; i >= 0; i--) bytes.push(i > 3 ? 0 : (bitLen >>> (i * 8)) & 255);
-    const rotr = (x, r) => (x >>> r) | (x << (32 - r));
-    for (let off = 0; off < bytes.length; off += 64) {
-      const w = new Array(64);
-      for (let i = 0; i < 16; i++) w[i] = (bytes[off + i * 4] << 24) | (bytes[off + i * 4 + 1] << 16) | (bytes[off + i * 4 + 2] << 8) | bytes[off + i * 4 + 3];
-      for (let i = 16; i < 64; i++) {
-        const s0 = rotr(w[i - 15], 7) ^ rotr(w[i - 15], 18) ^ (w[i - 15] >>> 3);
-        const s1 = rotr(w[i - 2], 17) ^ rotr(w[i - 2], 19) ^ (w[i - 2] >>> 10);
-        w[i] = (w[i - 16] + s0 + w[i - 7] + s1) | 0;
-      }
-      let [a, b, c, d, e, f, g, h] = H;
-      for (let i = 0; i < 64; i++) {
-        const t1 = (h + (rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25)) + ((e & f) ^ (~e & g)) + K[i] + w[i]) | 0;
-        const t2 = ((rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22)) + ((a & b) ^ (a & c) ^ (b & c))) | 0;
-        h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = b; b = a; a = (t1 + t2) | 0;
-      }
-      [a, b, c, d, e, f, g, h].forEach((v, i) => { H[i] = (H[i] + v) | 0; });
-    }
-    return H.map((v) => (v >>> 0).toString(16).padStart(8, '0')).join('');
-  };
-  const DONE_KEY = (handle) => `decorin:reviewed:${handle}`;
-  const doneList = (handle) => { try { return JSON.parse(localStorage.getItem(DONE_KEY(handle)) || '[]'); } catch (e) { return []; } };
-
   let reviewStore = null;
   const loadReviews = () => {
     if (reviewStore) return reviewStore;
@@ -576,7 +541,7 @@
           const text = htmlToText(c.c);
           const m = text.match(TAG_RE);
           if (!m) continue;
-          out.reviews.push({ k: c.k || '', handle: m[1].trim(), rating: Number(m[2]), title: (m[3] || '').trim(), body: text.slice(m[0].length).trim(), author: c.a, date: c.d });
+          out.reviews.push({ handle: m[1].trim(), rating: Number(m[2]), title: (m[3] || '').trim(), body: text.slice(m[0].length).trim(), author: c.a, date: c.d });
         }
         if (!data.next) break;
       }
@@ -742,7 +707,7 @@
       });
       return bad;
     };
-    form.addEventListener('input', (e) => { if (e.target === fields.phone) form.querySelector('[data-error-for="duplicate"]').hidden = true; refresh(); });
+    form.addEventListener('input', refresh);
     form.addEventListener('change', refresh);
     refresh();
 
@@ -771,18 +736,7 @@
       }
       const stars = rating();
       const email = `91${phoneDigits()}@example.com`;
-      // One review per product per phone number.
-      const key = sha256Hex(email).slice(0, 4);
       const handle = form.dataset.reviewForm;
-      const dupErr = form.querySelector('[data-error-for="duplicate"]');
-      if (doneList(handle).includes(key) || data.reviews.some((r) => r.handle === handle && r.k === key)) {
-        stop(event);
-        dupErr.hidden = false;
-        fields.phone.classList.add('is-invalid');
-        fields.phone.focus();
-        return;
-      }
-      dupErr.hidden = true;
       const title = clean(form.querySelector('[data-review-title]').value).slice(0, 80);
       const composed = `[[${handle}|${stars}|${title}]] ${fields.body.value.trim()}`;
       // Last safety net: never post anything that doesn't carry a 1-5 rating.
@@ -795,7 +749,6 @@
         form.action = data.action;
         if (!form.querySelector('input[name="form_type"]')) form.insertAdjacentHTML('afterbegin', '<input type="hidden" name="form_type" value="new_comment"><input type="hidden" name="utf8" value="✓">');
       }
-      try { localStorage.setItem(DONE_KEY(handle), JSON.stringify([...new Set([...doneList(handle), key])])); } catch (e) { /* ignore */ }
       // Shopify then shows the reviews blog post; the code at the top of this
       // block sends the shopper straight back here with a thank-you message.
       const back = JSON.stringify({ path: location.pathname, t: Date.now() });

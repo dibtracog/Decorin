@@ -178,7 +178,6 @@
     "name_missing": "Please enter your name.",
     "body_missing": "Please write a few words (at least 10 characters).",
     "todo": "Still needed: {items}",
-    "todo_items": "star rating|name|phone number|review",
-    "duplicate": "This phone number has already been used to review this product. Only one review per product is allowed."
+    "todo_items": "star rating|name|phone number|review"
   }
 }
