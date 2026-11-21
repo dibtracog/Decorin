@@ -1,0 +1,168 @@
+{%- comment -%}
+  UPI payment page: order summary with fee breakdown + a UPI QR for the exact amount.
+  Served at /cart?view=payment (templates/cart.payment.json) - no admin setup needed.
+
+  Breakdown (all in paise): product cost = cart total − handling fee, so
+  product cost + shipping (FREE) + handling always equals the cart total.
+{%- endcomment -%}
+{%- liquid
+  assign vpa = section.settings.upi_id | strip
+  assign payee = section.settings.payee_name | default: settings.brand_name | default: shop.name
+  assign total = cart.total_price
+  assign handling = section.settings.handling_fee | times: 100
+  assign shipping_display = section.settings.shipping_fee | times: 100
+  if total <= handling
+    assign handling = 0
+  endif
+  assign product_cost = total | minus: handling
+
+  assign rupees = total | divided_by: 100
+  assign paise = total | modulo: 100
+  if paise < 10
+    assign paise = '0' | append: paise
+  endif
+  assign upi_amount = rupees | append: '.' | append: paise
+
+  capture ref
+    render 'payment-reference'
+  endcapture
+  assign ref = ref | strip
+  assign note = section.settings.note_prefix | append: ' ' | append: ref | append: ' Rs' | append: upi_amount
+  assign payee_param = payee | url_encode | replace: '+', '%20'
+  assign note_param = note | url_encode | replace: '+', '%20'
+  assign upi_link = 'upi://pay?pa=' | append: vpa | append: '&pn=' | append: payee_param | append: '&am=' | append: upi_amount | append: '&cu=INR&tn=' | append: note_param
+-%}
+<section class="pay page-width" data-upi-checkout data-ref="{{ ref }}" data-amount="{{ upi_amount }}" data-cart-update-url="{{ routes.cart_update_url }}">
+  <div class="pay__head">
+    <div>
+      <p class="eyebrow">{{ section.settings.eyebrow }}</p>
+      <h1 class="pay__title">{{ section.settings.heading }}</h1>
+    </div>
+    <a class="cart-page__continue" href="{{ routes.cart_url }}">{% render 'icon', name: 'arrow-left' %}{{ 'pay.back_to_cart' | t }}</a>
+  </div>
+
+  {%- if cart.item_count == 0 -%}
+    <div class="cart-empty">
+      <div class="cart-empty__art gradient-card gradient-card--1">{% render 'icon', name: 'cart' %}</div>
+      <h2 class="cart-empty__title">{{ 'cart.empty' | t }}</h2>
+      <p class="cart-empty__text">{{ 'pay.empty' | t }}</p>
+      <a class="button button--dark" href="{{ routes.all_products_collection_url }}">{{ 'cart.start_shopping' | t }}{% render 'icon', name: 'arrow-right' %}</a>
+    </div>
+  {%- else -%}
+    <div class="pay__layout">
+      <div class="pay__card">
+        {% render 'starfield', count: 18 %}
+        <p class="pay__label">{{ 'pay.amount_to_pay' | t }}</p>
+        <p class="pay__amount">{{ total | money }}</p>
+
+        {%- if vpa != blank -%}
+          <div class="pay__qr-frame">
+            <div class="pay__qr" data-upi-qr data-upi="{{ upi_link | escape }}" role="img" aria-label="{{ 'pay.qr_label' | t: amount: upi_amount | escape }}">
+              <span class="pay__qr-loading">{{ 'pay.qr_loading' | t }}</span>
+            </div>
+          </div>
+          <p class="pay__scan">{{ 'pay.scan' | t }}</p>
+          <ul class="pay__apps" role="list">
+            <li>Google Pay</li><li>PhonePe</li><li>Paytm</li><li>BHIM</li>
+          </ul>
+
+          <a class="button button--gold button--full pay__app-btn" href="{{ upi_link }}">
+            {{ 'pay.open_app' | t }}{% render 'icon', name: 'arrow-right' %}
+          </a>
+
+          <div class="pay__meta">
+            <div class="pay__meta-row">
+              <span>{{ 'pay.upi_id' | t }}</span>
+              <button type="button" class="pay__copy" data-copy="{{ vpa | escape }}" data-copied="{{ 'pay.copied' | t | escape }}">
+                <strong>{{ vpa }}</strong>
+                <span class="pay__copy-label">{{ 'pay.copy' | t }}</span>
+              </button>
+            </div>
+            <div class="pay__meta-row">
+              <span>{{ 'pay.reference' | t }}</span>
+              <strong>{{ ref }}</strong>
+            </div>
+          </div>
+        {%- else -%}
+          <div class="pay__notice">
+            <p>{{ 'pay.not_configured' | t }}</p>
+          </div>
+        {%- endif -%}
+      </div>
+
+      <aside class="pay__summary">
+        <h2 class="cart-summary__title">{{ 'cart.summary' | t }}</h2>
+        <ul class="pay__items" role="list">
+          {%- for item in cart.items -%}
+            <li class="pay__item">
+              <span class="pay__item-media">
+                {%- if item.image -%}
+                  {{ item.image | image_url: width: 160 | image_tag: loading: 'lazy', alt: '' }}
+                {%- else -%}
+                  {% render 'placeholder-decor', index: forloop.index, class: 'cart-item__placeholder' %}
+                {%- endif -%}
+                <span class="pay__item-qty">{{ item.quantity }}</span>
+              </span>
+              <span class="pay__item-title">
+                {{ item.product.title }}
+                {%- unless item.product.has_only_default_variant -%}<small>{{ item.variant.title }}</small>{%- endunless -%}
+              </span>
+              <span class="pay__item-price">{{ item.final_line_price | money }}</span>
+            </li>
+          {%- endfor -%}
+        </ul>
+
+        <dl class="cart-summary__rows">
+          <div class="cart-summary__row">
+            <dt>{{ 'pay.product_cost' | t }}</dt>
+            <dd>{{ product_cost | money }}</dd>
+          </div>
+          <div class="cart-summary__row">
+            <dt>{{ 'cart.shipping' | t }}</dt>
+            <dd class="pay__shipping"><s>{{ shipping_display | money }}</s><span class="cart-summary__free">{{ 'cart.free' | t }}</span></dd>
+          </div>
+          {%- if handling > 0 -%}
+            <div class="cart-summary__row">
+              <dt>{{ 'pay.handling' | t }}</dt>
+              <dd>{{ handling | money }}</dd>
+            </div>
+          {%- endif -%}
+          <div class="cart-summary__row cart-summary__row--total">
+            <dt>{{ 'cart.total' | t }}</dt>
+            <dd>{{ total | money }}</dd>
+          </div>
+        </dl>
+
+        {%- if section.settings.after_text != blank -%}
+          <div class="pay__after">
+            {% render 'icon', name: 'sparkle' %}
+            <p>{{ section.settings.after_text }}</p>
+          </div>
+        {%- endif -%}
+      </aside>
+    </div>
+  {%- endif -%}
+</section>
+
+{%- if vpa != blank and cart.item_count > 0 -%}
+  <script src="{{ 'qrcode.min.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "UPI payment",
+  "settings": [
+    { "type": "header", "content": "UPI details" },
+    { "type": "text", "id": "upi_id", "label": "UPI ID", "default": "9149296348@ybl", "info": "The QR stays hidden if this is empty." },
+    { "type": "text", "id": "payee_name", "label": "Payee name", "info": "Shown in the customer's UPI app. Defaults to the brand name." },
+    { "type": "text", "id": "note_prefix", "label": "Payment note prefix", "default": "DecorIn", "info": "UPI note = prefix + payment reference + amount, e.g. DecorIn DI261120-3FA9C1 Rs499.00" },
+    { "type": "header", "content": "Cost breakdown" },
+    { "type": "number", "id": "handling_fee", "label": "Handling fee (₹)", "default": 49, "info": "Included within the product price: product cost = price − handling fee." },
+    { "type": "number", "id": "shipping_fee", "label": "Shipping fee shown as struck-through (₹)", "default": 99 },
+    { "type": "header", "content": "Text" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Secure payment" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Complete your payment" },
+    { "type": "textarea", "id": "after_text", "label": "After-payment message", "default": "Once you've paid, keep your payment reference handy. We'll confirm your order and share delivery details shortly." }
+  ]
+}
+{% endschema %}

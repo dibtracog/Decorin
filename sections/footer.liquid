@@ -1,0 +1,58 @@
+{%- liquid
+  assign has_catalogue = false
+  for link in section.settings.menu.links
+    if link.url == routes.all_products_collection_url
+      assign has_catalogue = true
+    endif
+  endfor
+-%}
+<footer class="site-footer">
+  <div class="page-width site-footer__grid">
+    <div class="site-footer__brand">
+      <a class="site-footer__logo" href="{{ routes.root_url }}">{{ settings.brand_name | default: shop.name }}</a>
+      <p>{{ section.settings.tagline }}</p>
+      {%- if settings.area_limit -%}
+        {%- assign area_city = settings.area_city | default: 'Jaipur' -%}
+        {%- assign area_state = settings.area_state | default: 'Rajasthan' -%}
+        <p class="site-footer__area">
+          {% render 'icon', name: 'pin' %}
+          <span>{{ 'area.footer' | t: city: area_city, state: area_state }}
+            <a href="{%- render 'interest-url' -%}">{{ 'area.not_here' | t: city: area_city }} {{ 'area.let_us_know' | t }}</a></span>
+        </p>
+      {%- endif -%}
+    </div>
+
+    <nav class="site-footer__nav" aria-label="{{ 'general.footer_menu' | t }}">
+      <h2 class="site-footer__heading">{{ 'general.explore' | t }}</h2>
+      <ul>
+        {%- unless has_catalogue -%}
+          <li><a href="{{ routes.all_products_collection_url }}">{{ 'general.catalogue' | t }}</a></li>
+        {%- endunless -%}
+        {%- for link in section.settings.menu.links -%}
+          <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+        {%- endfor -%}
+      </ul>
+    </nav>
+
+    <div class="site-footer__wish">
+      <span class="site-footer__wish-mark" aria-hidden="true">✦</span>
+      <p>{{ section.settings.wish }}</p>
+    </div>
+  </div>
+
+  <div class="page-width site-footer__bottom">
+    <p>&copy; {{ 'now' | date: '%Y' }} {{ settings.brand_name | default: shop.name }}</p>
+    <p>{{ powered_by_link }}</p>
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "Footer",
+  "settings": [
+    { "type": "link_list", "id": "menu", "label": "Menu", "default": "footer" },
+    { "type": "textarea", "id": "tagline", "label": "Tagline", "default": "Thoughtfully chosen decor to make every corner of your home feel new." },
+    { "type": "text", "id": "wish", "label": "Closing message", "default": "Here's to a new year in a home you love." }
+  ]
+}
+{% endschema %}

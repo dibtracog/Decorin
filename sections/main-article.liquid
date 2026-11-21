@@ -1,0 +1,26 @@
+<div class="page-width page-section">
+<article class="article">
+  <h1>{{ article.title }}</h1>
+  <small>{{ article.published_at | time_tag: format: 'date' }} · {{ article.author }}</small>
+  {%- if article.image -%}
+    {{ article.image | image_url: width: 1200 | image_tag }}
+  {%- endif -%}
+  <div class="rte">{{ article.content }}</div>
+  {%- if article.comments_enabled? -%}
+    {%- comment -%} Shows the result of a review/comment that was just sent (used by product reviews). {%- endcomment -%}
+    {%- form 'new_comment', article, class: 'article__comment-result' -%}
+      {%- if form.posted_successfully? -%}
+        <p class="article__notice" data-comment-posted>{{ 'reviews.thanks' | t }}</p>
+      {%- endif -%}
+      {%- if form.errors -%}
+        <div class="article__notice article__notice--error" data-comment-errors>{{ form.errors | default_errors }}</div>
+      {%- endif -%}
+    {%- endform -%}
+  {%- endif -%}
+  <a href="{{ blog.url }}">← {{ blog.title }}</a>
+</article>
+</div>
+
+{% schema %}
+{ "name": "Blog post", "settings": [] }
+{% endschema %}

@@ -1,0 +1,109 @@
+{%- comment -%}
+  Ratings & reviews for the current product — no app needed.
+
+  How it works:
+  - Reviews are stored as comments on ONE blog post (default blog "reviews",
+    post "product-reviews"; change it in Theme settings → Reviews).
+  - The form posts a comment whose text starts with a small tag:
+    [[product-handle|rating|title]] followed by the review.
+  - With "Comments are allowed, pending moderation" on the blog, every review
+    waits for approval in Online Store → Blog posts → Manage comments.
+  - Approved reviews are read from the blog post itself
+    (sections/review-data.liquid) and drawn here by assets/theme.js.
+{%- endcomment -%}
+{%- assign path = settings.reviews_article | default: 'reviews/product-reviews' | strip -%}
+<section class="reviews page-width" id="reviews" data-reviews
+  data-handle="{{ product.handle | escape }}"
+  data-per-page="{{ section.settings.per_page }}"
+  data-design-mode="{{ request.design_mode }}"
+  data-text-thanks="{{ 'reviews.thanks' | t | escape }}"
+  data-text-error="{{ 'reviews.error' | t | escape }}"
+  data-text-sending="{{ 'reviews.sending' | t | escape }}"
+  data-text-pick="{{ 'reviews.pick_rating' | t | escape }}"
+  data-text-phone="{{ 'reviews.phone_invalid' | t | escape }}"
+  data-text-todo="{{ 'reviews.todo' | t | escape }}"
+  data-text-todo-items="{{ 'reviews.todo_items' | t | escape }}"
+  data-text-hints="{{ 'reviews.hints' | t | escape }}"
+  data-text-stars="{{ 'reviews.js_stars' | t | escape }}"
+  data-text-counts="{{ 'reviews.js_counts' | t | escape }}"
+  data-text-based="{{ 'reviews.js_based' | t | escape }}"
+  data-text-show-all="{{ 'reviews.js_show_all' | t | escape }}"
+  data-text-moderated="{{ 'reviews.moderated_note' | t | escape }}"
+  data-text-public="{{ 'reviews.public_note' | t | escape }}"
+  data-text-no-reviews="{{ 'reviews.no_reviews' | t | escape }}"
+  data-text-no-reviews-text="{{ 'reviews.no_reviews_text' | t | escape }}"
+  hidden>
+  <div class="reviews__head">
+    <div>
+      <p class="eyebrow">{{ section.settings.eyebrow }}</p>
+      <h2 class="reviews__heading">{{ section.settings.heading }}</h2>
+    </div>
+    <button type="button" class="button button--dark reviews__write" data-review-open aria-expanded="false" aria-controls="ReviewForm-{{ section.id }}" hidden>
+      {% render 'icon', name: 'pen' %}{{ 'reviews.write' | t }}
+    </button>
+  </div>
+
+  <div class="reviews__setup" data-review-setup hidden>
+    <h2>{{ 'reviews.setup_title' | t }}</h2>
+    <p>{{ 'reviews.setup_text' | t: path: path }}</p>
+  </div>
+
+  <div class="reviews__layout" data-review-layout>
+    <aside class="reviews__summary gradient-card">
+      {%- render 'starfield', count: 14 -%}
+      <div data-review-summary></div>
+    </aside>
+
+    <div class="reviews__main">
+      <div class="review-form" id="ReviewForm-{{ section.id }}" data-review-panel hidden>
+        {%- liquid
+          # Find the reviews blog post so Shopify's own form tag can be used:
+          # it wires up Shopify's spam protection (CAPTCHA) for the review.
+          assign blog_handle = path | split: '/' | first
+          assign article_handle = path | split: '/' | last
+          assign reviews_article = nil
+          for a in blogs[blog_handle].articles
+            if a.handle == article_handle
+              assign reviews_article = a
+              break
+            endif
+          endfor
+        -%}
+        {%- if reviews_article -%}
+          {%- form 'new_comment', reviews_article, class: 'review-form__form', data-review-form: product.handle, novalidate: 'novalidate' -%}
+            {%- render 'review-form-fields', section: section -%}
+          {%- endform -%}
+        {%- else -%}
+        <form method="post" accept-charset="UTF-8" class="review-form__form" data-review-form="{{ product.handle | escape }}" data-review-fallback novalidate>
+            {%- render 'review-form-fields', section: section -%}
+        </form>
+        {%- endif -%}
+      </div>
+
+      <div class="reviews__thanks" data-review-thanks hidden>
+        {% render 'icon', name: 'check' %}
+        <p></p>
+      </div>
+
+      <ul class="reviews__list" role="list" data-review-list></ul>
+      <button type="button" class="button button--secondary reviews__more" data-review-more hidden></button>
+      <div class="reviews__empty" data-review-empty hidden>
+        <p>{{ 'reviews.empty' | t }}</p>
+      </div>
+    </div>
+  </div>
+  <p class="reviews__debug" data-review-debug hidden></p>
+</section>
+
+{% schema %}
+{
+  "name": "Product reviews",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Reviews" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Loved in homes like yours" },
+    { "type": "range", "id": "per_page", "label": "Reviews shown before \"Show all\"", "min": 3, "max": 12, "step": 1, "default": 6 },
+    { "type": "paragraph", "content": "Reviews are approved blog comments. Set the blog post in Theme settings → Reviews." }
+  ],
+  "enabled_on": { "templates": ["product"] }
+}
+{% endschema %}

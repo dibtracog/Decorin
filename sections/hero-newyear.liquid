@@ -1,0 +1,82 @@
+<section class="hero{% if section.settings.image %} hero--has-image{% endif %}" id="Hero-{{ section.id }}">
+  {%- if section.settings.image -%}
+    <div class="hero__media" aria-hidden="true">
+      {{ section.settings.image | image_url: width: 2400 | image_tag: loading: 'eager', fetchpriority: 'high', sizes: '100vw', widths: '750, 1100, 1500, 2000, 2400', alt: '' }}
+    </div>
+  {%- endif -%}
+
+  {% render 'starfield', count: 56 %}
+
+  <div class="hero__year" aria-hidden="true">{{ section.settings.year }}</div>
+
+  <div class="hero__content page-width">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="hero__eyebrow reveal" style="--delay: 0.1s">
+        <span class="hero__eyebrow-line"></span>
+        {{ section.settings.eyebrow }}
+        <span class="hero__eyebrow-line"></span>
+      </p>
+    {%- endif -%}
+
+    <h1 class="hero__title reveal" style="--delay: 0.25s">
+      {{ section.settings.heading }}
+      {%- if section.settings.heading_emphasis != blank %}
+        <em class="text-shimmer">{{ section.settings.heading_emphasis }}</em>
+      {%- endif -%}
+    </h1>
+
+    {%- if section.settings.text != blank -%}
+      <p class="hero__text reveal" style="--delay: 0.4s">{{ section.settings.text }}</p>
+    {%- endif -%}
+
+    <div class="hero__actions reveal" style="--delay: 0.55s">
+      <a class="button button--gold" href="{{ section.settings.button_link | default: routes.all_products_collection_url }}">
+        {{ section.settings.button_label }}
+        {% render 'icon', name: 'arrow-right' %}
+      </a>
+      {%- if section.settings.secondary_label != blank -%}
+        <a class="button button--ghost" href="#highlights">{{ section.settings.secondary_label }}</a>
+      {%- endif -%}
+    </div>
+
+    {%- if section.settings.show_countdown -%}
+      <div class="countdown reveal" style="--delay: 0.7s" data-countdown="{{ section.settings.countdown_date | escape }}" data-done="{{ section.settings.countdown_done | escape }}">
+        <p class="countdown__label" data-countdown-label>{{ section.settings.countdown_label }}</p>
+        <div class="countdown__units" data-countdown-units>
+          <div class="countdown__unit"><span class="countdown__num" data-unit="days">--</span><span class="countdown__name">{{ 'countdown.days' | t }}</span></div>
+          <div class="countdown__unit"><span class="countdown__num" data-unit="hours">--</span><span class="countdown__name">{{ 'countdown.hours' | t }}</span></div>
+          <div class="countdown__unit"><span class="countdown__num" data-unit="minutes">--</span><span class="countdown__name">{{ 'countdown.minutes' | t }}</span></div>
+          <div class="countdown__unit"><span class="countdown__num" data-unit="seconds">--</span><span class="countdown__name">{{ 'countdown.seconds' | t }}</span></div>
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+
+  <a class="hero__scroll" href="#highlights">
+    <span class="visually-hidden">{{ 'general.scroll_down' | t }}</span>
+    <span class="hero__scroll-line" aria-hidden="true"></span>
+  </a>
+</section>
+
+{% schema %}
+{
+  "name": "New Year hero",
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "Background image (optional)", "info": "Shown under a dark overlay. Leave empty for the starry night design." },
+    { "type": "text", "id": "year", "label": "Large background year", "default": "2027" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The New Year Edit" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "This new year, decorate your home with" },
+    { "type": "text", "id": "heading_emphasis", "label": "Heading (highlighted ending)", "default": "pieces you'll love." },
+    { "type": "textarea", "id": "text", "label": "Text", "default": "Candles, vases, wall art and cosy textiles — handpicked to give every room a fresh start." },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Shop the collection" },
+    { "type": "url", "id": "button_link", "label": "Button link", "info": "Defaults to the full catalogue." },
+    { "type": "text", "id": "secondary_label", "label": "Secondary button label", "default": "See the highlights" },
+    { "type": "header", "content": "Countdown" },
+    { "type": "checkbox", "id": "show_countdown", "label": "Show countdown", "default": true },
+    { "type": "text", "id": "countdown_label", "label": "Countdown label", "default": "Counting down to a fresh start" },
+    { "type": "text", "id": "countdown_date", "label": "Count down to", "default": "2027-01-01T00:00:00", "info": "Format: YYYY-MM-DDTHH:MM:SS (visitor's local time)." },
+    { "type": "text", "id": "countdown_done", "label": "Message after countdown ends", "default": "Happy New Year! Start it beautifully." }
+  ],
+  "presets": [{ "name": "New Year hero" }]
+}
+{% endschema %}

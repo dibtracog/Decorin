@@ -1,0 +1,118 @@
+<section class="highlights" id="highlights" aria-labelledby="Highlights-{{ section.id }}">
+  <div class="page-width highlights__head">
+    <div>
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      <h2 class="section-title" id="Highlights-{{ section.id }}">{{ section.settings.heading }}</h2>
+      {%- if section.settings.text != blank -%}
+        <p class="section-text">{{ section.settings.text }}</p>
+      {%- endif -%}
+    </div>
+    <div class="carousel-arrows" data-carousel-controls="Carousel-{{ section.id }}">
+      <button type="button" class="carousel-arrow" data-carousel-prev aria-controls="Carousel-{{ section.id }}">
+        {% render 'icon', name: 'arrow-left' %}<span class="visually-hidden">{{ 'carousel.previous' | t }}</span>
+      </button>
+      <button type="button" class="carousel-arrow" data-carousel-next aria-controls="Carousel-{{ section.id }}">
+        {% render 'icon', name: 'arrow-right' %}<span class="visually-hidden">{{ 'carousel.next' | t }}</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="carousel" data-carousel>
+    <ul class="carousel__track" id="Carousel-{{ section.id }}" role="list" tabindex="0" aria-label="{{ section.settings.heading | escape }}" data-carousel-track>
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign p = block.settings.product
+          assign img = block.settings.image | default: p.featured_image
+          assign title = block.settings.title
+          if title == blank and p != blank
+            assign title = p.title
+          endif
+          assign url = block.settings.link | default: p.url | default: routes.all_products_collection_url
+        -%}
+        <li class="carousel__slide" {{ block.shopify_attributes }}>
+          <a class="showcase-card gradient-card gradient-card--{{ forloop.index }}" href="{{ url }}">
+            <div class="showcase-card__media">
+              {%- if img -%}
+                {{ img | image_url: width: 1200 | image_tag: loading: 'lazy', sizes: '(min-width: 990px) 33vw, (min-width: 750px) 46vw, 82vw', widths: '400, 600, 800, 1000, 1200', alt: title }}
+              {%- else -%}
+                {% render 'placeholder-decor', index: forloop.index, class: 'showcase-card__placeholder' %}
+              {%- endif -%}
+            </div>
+            {%- if block.settings.tag != blank -%}
+              <span class="showcase-card__tag">{{ block.settings.tag }}</span>
+            {%- endif -%}
+            <div class="showcase-card__body">
+              <span class="showcase-card__index">0{{ forloop.index }}</span>
+              <h3 class="showcase-card__title">{{ title }}</h3>
+              {%- if block.settings.text != blank -%}
+                <p class="showcase-card__text">{{ block.settings.text }}</p>
+              {%- endif -%}
+              <span class="showcase-card__cta">
+                {%- if p != blank -%}
+                  {{ p.price | money }}
+                {%- else -%}
+                  {{ 'carousel.discover' | t }}
+                {%- endif -%}
+                {% render 'icon', name: 'arrow-right' %}
+              </span>
+            </div>
+          </a>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+
+  <div class="page-width highlights__foot">
+    <div class="carousel-dots" data-carousel-dots>
+      {%- for block in section.blocks -%}
+        <button type="button" class="carousel-dot{% if forloop.first %} is-active{% endif %}" data-index="{{ forloop.index0 }}" aria-controls="Carousel-{{ section.id }}">
+          <span class="visually-hidden">{{ 'carousel.go_to' | t: number: forloop.index }}</span>
+        </button>
+      {%- endfor -%}
+    </div>
+    <a class="button button--dark" href="{{ routes.all_products_collection_url }}">
+      {{ section.settings.button_label }}
+      {% render 'icon', name: 'arrow-right' %}
+    </a>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Highlights carousel",
+  "max_blocks": 4,
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "A glimpse inside" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Fresh starts, beautiful spaces" },
+    { "type": "textarea", "id": "text", "label": "Text", "default": "From warm candlelight to statement walls — a taste of what you'll find in our collection." },
+    { "type": "text", "id": "button_label", "label": "Catalogue button label", "default": "Browse the full catalogue" }
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Item",
+      "settings": [
+        { "type": "product", "id": "product", "label": "Product", "info": "Optional. Uses its image, title, price and link." },
+        { "type": "image_picker", "id": "image", "label": "Image (overrides product image)" },
+        { "type": "text", "id": "title", "label": "Title (overrides product title)" },
+        { "type": "text", "id": "text", "label": "Short description" },
+        { "type": "text", "id": "tag", "label": "Tag", "default": "New Year Pick" },
+        { "type": "url", "id": "link", "label": "Link (overrides product link)" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Highlights carousel",
+      "blocks": [
+        { "type": "item", "settings": { "title": "Candles & Lanterns", "text": "Warm light for the first long evenings of the year." } },
+        { "type": "item", "settings": { "title": "Vases & Planters", "text": "Fresh stems and greenery for a fresh beginning." } },
+        { "type": "item", "settings": { "title": "Wall Art & Mirrors", "text": "Give your walls a brand-new story to tell." } },
+        { "type": "item", "settings": { "title": "Cushions & Throws", "text": "Layer in comfort for slow winter mornings." } }
+      ]
+    }
+  ]
+}
+{% endschema %}

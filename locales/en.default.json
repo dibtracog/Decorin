@@ -1,0 +1,222 @@
+{
+  "general": {
+    "page": "Page {{ page }}",
+    "skip_to_content": "Skip to content",
+    "search": "Search",
+    "cart": "Cart",
+    "menu": "Menu",
+    "close": "Close",
+    "home": "Home",
+    "catalogue": "Catalogue",
+    "explore": "Explore",
+    "footer_menu": "Footer",
+    "breadcrumbs": "Breadcrumbs",
+    "pagination": "Pagination",
+    "previous": "Previous page",
+    "next": "Next page",
+    "scroll_down": "Scroll to highlights",
+    "404_title": "Page not found",
+    "404_subtext": "The page you were looking for does not exist.",
+    "announcement": "Announcements"
+  },
+  "countdown": {
+    "days": "Days",
+    "hours": "Hours",
+    "minutes": "Mins",
+    "seconds": "Secs"
+  },
+  "carousel": {
+    "previous": "Previous slide",
+    "next": "Next slide",
+    "go_to": "Go to slide {{ number }}",
+    "discover": "Discover"
+  },
+  "products": {
+    "variant": "Options",
+    "quantity": "Quantity",
+    "add_to_cart": "Add to cart",
+    "sold_out": "Sold out",
+    "sale": "Sale",
+    "from": "From"
+  },
+  "collections": {
+    "empty": "New pieces are arriving soon.",
+    "all_title": "Collections",
+    "product_count": {
+      "one": "{{ count }} piece",
+      "other": "{{ count }} pieces"
+    }
+  },
+  "sections": {
+    "featured_collection": {
+      "empty": "Pick a collection for this section in the theme editor."
+    }
+  },
+  "cart": {
+    "title": "Your cart",
+    "product": "Product",
+    "total": "Total",
+    "remove": "Remove",
+    "subtotal": "Subtotal",
+    "update": "Update",
+    "checkout": "Check out securely",
+    "empty": "Your cart is empty",
+    "continue_shopping": "Continue shopping",
+    "item_count": {
+      "one": "({{ count }} item)",
+      "other": "({{ count }} items)"
+    },
+    "decrease": "Decrease quantity for {{ product }}",
+    "increase": "Increase quantity for {{ product }}",
+    "quantity_for": "Quantity for {{ product }}",
+    "summary": "Order summary",
+    "shipping": "Shipping",
+    "estimated_total": "Estimated total",
+    "start_shopping": "Start shopping",
+    "error": "Couldn't update your cart. Please try again.",
+    "free": "Free"
+  },
+  "search": {
+    "results_count": {
+      "one": "{{ count }} result for \"{{ terms }}\"",
+      "other": "{{ count }} results for \"{{ terms }}\""
+    },
+    "results_for": "Results for “{{ terms }}”",
+    "no_results": "Nothing found for “{{ terms }}”. Try another word, or browse everything.",
+    "browse_all": "Browse the full catalogue",
+    "prompt": "Type above to search the catalogue.",
+    "live_empty": "Nothing matches “{{ terms }}”. Try a shorter word, like “vase” or “candle”.",
+    "live_count_one": "{count} piece",
+    "live_count_other": "{count} pieces"
+  },
+  "password": {
+    "label": "Password",
+    "enter": "Enter"
+  },
+  "gift_card": {
+    "title": "Your gift card",
+    "balance": "Balance",
+    "disabled": "This gift card is no longer valid."
+  },
+  "facets": {
+    "search_label": "Search the catalogue",
+    "search_placeholder": "Search candles, vases, fountains…",
+    "filter_and_sort": "Filter & sort",
+    "sort_by": "Sort by",
+    "from": "From",
+    "to": "To",
+    "clear_all": "Clear all",
+    "apply": "Apply",
+    "remove": "Remove filter",
+    "no_matches": "No pieces match these filters.",
+    "show_results": {
+      "one": "Show {{ count }} result",
+      "other": "Show {{ count }} results"
+    },
+    "clear_search": "Clear search",
+    "reset": "Reset filters & sort"
+  },
+  "pay": {
+    "back_to_cart": "Back to cart",
+    "empty": "Add something you love, then come back here to pay.",
+    "amount_to_pay": "Amount to pay",
+    "qr_label": "UPI QR code to pay ₹{{ amount }}",
+    "qr_loading": "Generating QR…",
+    "scan": "Scan with any UPI app",
+    "open_app": "Pay with UPI app",
+    "upi_id": "UPI ID",
+    "copy": "Copy",
+    "copied": "Copied",
+    "reference": "Payment reference",
+    "not_configured": "UPI payments are being set up. Please check back shortly.",
+    "product_cost": "Product cost",
+    "handling": "Handling fee"
+  },
+  "reviews": {
+    "write": "Write a review",
+    "stars_label": "{{ rating }} out of 5 stars",
+    "count": {
+      "one": "{{ count }} review",
+      "other": "{{ count }} reviews"
+    },
+    "based_on": {
+      "one": "Based on {{ count }} review",
+      "other": "Based on {{ count }} reviews"
+    },
+    "show_all": {
+      "one": "Show all {{ count }} review",
+      "other": "Show all {{ count }} reviews"
+    },
+    "be_first": "Be the first to review",
+    "no_reviews": "No reviews yet",
+    "no_reviews_text": "Bought this piece? Tell others how it looks at home.",
+    "empty": "Your review could be the first one here. Share how it looks in your space.",
+    "your_rating": "Your rating",
+    "name": "Name",
+    "title": "Headline (optional)",
+    "title_placeholder": "e.g. Glows beautifully at night",
+    "body": "Your review",
+    "body_placeholder": "What did you love? How does it look in your room?",
+    "submit": "Submit review",
+    "sending": "Sending…",
+    "moderated_note": "Reviews appear once our team has checked them, usually within a day.",
+    "public_note": "Your review will be posted publicly with your name.",
+    "thanks": "Thank you! Your review has been received and will appear after a quick check.",
+    "error": "Something went wrong. Please try again in a moment.",
+    "pick_rating": "Please choose a star rating.",
+    "hints": "Poor|Fair|Good|Very good|Loved it",
+    "noscript": "Please enable JavaScript to write a review.",
+    "setup_title": "Product reviews — almost ready",
+    "setup_text": "Create a blog with the handle \"reviews\" (comments: allowed, pending moderation) and a visible post in it with the handle \"product-reviews\". Looking for: {{ path }}. Only you see this message in the theme editor.",
+    "js_counts": "{n} review|{n} reviews",
+    "js_stars": "{n} out of 5 stars",
+    "js_based": "Based on {n} review|Based on {n} reviews",
+    "js_show_all": "Show all {n} reviews",
+    "phone": "Phone number",
+    "phone_note": "Never shown publicly. We may call or WhatsApp you about your review.",
+    "phone_invalid": "Please enter a valid 10-digit mobile number.",
+    "name_missing": "Please enter your name.",
+    "body_missing": "Please write a few words (at least 10 characters).",
+    "todo": "Still needed: {items}",
+    "todo_items": "star rating|name|phone number|review"
+  },
+  "area": {
+    "badge": "Delivering in {{ city }} only, for now",
+    "note": "We currently deliver only in {{ city }}, {{ state }}. More cities are coming soon.",
+    "not_here": "Not in {{ city }}?",
+    "let_us_know": "Let us know where you are",
+    "check_title": "Check delivery",
+    "check_label": "Your pincode",
+    "check_placeholder": "e.g. 302001",
+    "check_button": "Check",
+    "check_ok": "We deliver to {{ pincode }}.",
+    "check_no": "Sorry, we don't deliver to {{ pincode }} yet. We're only in {{ city }} for now.",
+    "check_invalid": "Enter a 6-digit pincode.",
+    "check_needed": "Enter your {{ city }} pincode above to continue to checkout.",
+    "footer": "Currently delivering in {{ city }}, {{ state }} only."
+  },
+  "interest": {
+    "eyebrow": "Coming to your city",
+    "heading": "Interested in buying? Let us know",
+    "text": "We deliver only in {{ city }} for now. Tell us where you are, and we'll message you as soon as we deliver to your city.",
+    "name": "Your name",
+    "phone": "Phone number",
+    "phone_note": "10-digit mobile number. We'll only use it to tell you when we reach your city.",
+    "email": "Email (optional)",
+    "city": "Your city",
+    "state": "State",
+    "state_pick": "Choose your state",
+    "product": "Anything you'd like to buy? (optional)",
+    "product_placeholder": "A product name or what you're looking for",
+    "submit": "Let us know",
+    "sending": "Sending…",
+    "thanks": "Thank you! We've noted your city and will message you as soon as we deliver there.",
+    "error_name": "Please enter your name.",
+    "error_phone": "Enter a valid 10-digit Indian mobile number.",
+    "error_city": "Please tell us your city.",
+    "error_state": "Please choose your state.",
+    "error_email": "That email doesn't look right.",
+    "error_generic": "Something went wrong. Please try again.",
+    "in_area": "Good news: we already deliver in {{ city }}. You can order right away."
+  }
+}

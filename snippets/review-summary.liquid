@@ -1,0 +1,11 @@
+{%- comment -%}
+  Placeholder for a product's star rating. Filled in by assets/theme.js from the
+  reviews blog post (see sections/review-data.liquid).
+  Usage: {% render 'review-summary', product: product, style: 'card' %}
+{%- endcomment -%}
+{%- if style == 'card' -%}
+  <span class="rating-chip" data-rating-chip="{{ product.handle | escape }}" hidden></span>
+{%- else -%}
+  <a class="rating-inline" href="#reviews" data-reviews-jump data-rating-inline="{{ product.handle | escape }}"
+    data-text-counts="{{ 'reviews.js_counts' | t | escape }}" data-text-first="{{ 'reviews.be_first' | t | escape }}" data-text-stars="{{ 'reviews.js_stars' | t | escape }}" hidden></a>
+{%- endif -%}

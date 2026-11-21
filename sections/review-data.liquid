@@ -1,0 +1,22 @@
+{%- comment -%}
+  JSON feed of approved reviews. Not placed on any page; the theme fetches it with
+  /blogs/reviews/product-reviews?section_id=review-data&page=N
+  In that context the blog post (article) and its comments are loaded natively.
+{%- endcomment -%}
+{%- if article -%}
+  {%- paginate article.comments by 50 -%}
+    <script type="application/json" data-review-data>
+      {"ok":true,"enabled":{% if article.comments_enabled? %}true{% else %}false{% endif %},"moderated":{% if article.moderated? %}true{% else %}false{% endif %},"action":{{ article.url | append: '/comments' | json }},"next":{% if paginate.next %}true{% else %}false{% endif %},"comments":[
+        {%- for c in article.comments -%}
+          {"a":{{ c.author | json }},"d":{{ c.created_at | date: '%Y-%m-%d' | json }},"c":{{ c.content | json }}}{% unless forloop.last %},{% endunless %}
+        {%- endfor -%}
+      ]}
+    </script>
+  {%- endpaginate -%}
+{%- else -%}
+  <script type="application/json" data-review-data>{"ok":false,"reason":"no-article"}</script>
+{%- endif -%}
+
+{% schema %}
+{ "name": "Review data", "settings": [] }
+{% endschema %}

@@ -1,0 +1,15 @@
+{
+  "sections": {
+    "main": {
+      "type": "upi-checkout",
+      "settings": {
+        "upi_id": "9149296348@ybl",
+        "note_prefix": "DecorIn",
+        "shipping_fee": 99
+      }
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

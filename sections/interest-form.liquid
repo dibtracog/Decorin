@@ -1,0 +1,105 @@
+{%- comment -%}
+  "Interested in buying? Let us know" — collects the city of shoppers outside the delivery area.
+  Uses Shopify's own contact form, so every entry arrives as an email to the store's contact address
+  (Settings → General → Store contact email). No app or extra setup needed.
+{%- endcomment -%}
+{%- liquid
+  assign city = settings.area_city | default: 'Jaipur'
+  assign area_state = settings.area_state | default: 'Rajasthan'
+  assign states = 'Andhra Pradesh,Arunachal Pradesh,Assam,Bihar,Chhattisgarh,Goa,Gujarat,Haryana,Himachal Pradesh,Jharkhand,Karnataka,Kerala,Madhya Pradesh,Maharashtra,Manipur,Meghalaya,Mizoram,Nagaland,Odisha,Punjab,Rajasthan,Sikkim,Tamil Nadu,Telangana,Tripura,Uttar Pradesh,Uttarakhand,West Bengal,Andaman and Nicobar Islands,Chandigarh,Dadra and Nagar Haveli and Daman and Diu,Delhi,Jammu and Kashmir,Ladakh,Lakshadweep,Puducherry' | split: ','
+-%}
+<section class="interest page-width" id="interest" data-interest
+  data-city="{{ city | escape }}"
+  data-text-sending="{{ 'interest.sending' | t | escape }}"
+  data-text-error="{{ 'interest.error_generic' | t | escape }}"
+  data-text-in-area="{{ 'interest.in_area' | t: city: city | escape }}">
+  <div class="interest__layout">
+    <div class="interest__intro gradient-card">
+      {%- render 'starfield', count: 16 -%}
+      <p class="eyebrow">{{ section.settings.eyebrow | default: 'Coming to your city' }}</p>
+      <h2 class="interest__heading">{{ section.settings.heading | default: 'Interested in buying? Let us know' }}</h2>
+      <p class="interest__text">{{ 'interest.text' | t: city: city }}</p>
+      <p class="interest__now">{% render 'icon', name: 'pin' %}{{ 'area.footer' | t: city: city, state: area_state }}</p>
+    </div>
+
+    <div class="interest__panel">
+      {%- form 'contact', class: 'interest__form', novalidate: 'novalidate', data-interest-form: '' -%}
+        {%- if form.posted_successfully? -%}
+          <div class="interest__thanks" tabindex="-1" data-interest-thanks>
+            <span class="interest__thanks-icon">{% render 'icon', name: 'check' %}</span>
+            <p>{{ 'interest.thanks' | t }}</p>
+          </div>
+        {%- else -%}
+          {%- if form.errors -%}
+            <div class="interest__errors" role="alert">{{ form.errors | default_errors }}</div>
+          {%- endif -%}
+          <input type="hidden" name="contact[Form]" value="Interested in buying (outside {{ city | escape }})">
+          <input type="hidden" name="contact[body]" value="" data-interest-body>
+
+          <div class="interest__row">
+            <div class="field">
+              <label for="InterestName-{{ section.id }}">{{ 'interest.name' | t }}</label>
+              <input id="InterestName-{{ section.id }}" type="text" name="contact[name]" autocomplete="name" maxlength="60" required data-interest-field="name">
+              <p class="interest__error" data-error-for="name" hidden>{{ 'interest.error_name' | t }}</p>
+            </div>
+            <div class="field">
+              <label for="InterestPhone-{{ section.id }}">{{ 'interest.phone' | t }}</label>
+              <input id="InterestPhone-{{ section.id }}" type="tel" name="contact[Phone]" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="98765 43210" required data-interest-field="phone">
+              <p class="interest__error" data-error-for="phone" hidden>{{ 'interest.error_phone' | t }}</p>
+              <small>{{ 'interest.phone_note' | t }}</small>
+            </div>
+          </div>
+
+          <div class="interest__row">
+            <div class="field">
+              <label for="InterestCity-{{ section.id }}">{{ 'interest.city' | t }}</label>
+              <input id="InterestCity-{{ section.id }}" type="text" name="contact[City]" autocomplete="address-level2" maxlength="60" required data-interest-field="city">
+              <p class="interest__error" data-error-for="city" hidden>{{ 'interest.error_city' | t }}</p>
+              <p class="interest__hint" data-interest-hint hidden></p>
+            </div>
+            <div class="field">
+              <label for="InterestState-{{ section.id }}">{{ 'interest.state' | t }}</label>
+              <div class="interest__select">
+                <select id="InterestState-{{ section.id }}" name="contact[State]" autocomplete="address-level1" required data-interest-field="state">
+                  <option value="">{{ 'interest.state_pick' | t }}</option>
+                  {%- for s in states -%}<option value="{{ s }}">{{ s }}</option>{%- endfor -%}
+                </select>
+              </div>
+              <p class="interest__error" data-error-for="state" hidden>{{ 'interest.error_state' | t }}</p>
+            </div>
+          </div>
+
+          <div class="interest__row">
+            <div class="field">
+              <label for="InterestEmail-{{ section.id }}">{{ 'interest.email' | t }}</label>
+              <input id="InterestEmail-{{ section.id }}" type="email" autocomplete="email" maxlength="100" data-interest-field="email">
+              <input type="hidden" name="contact[email]" value="" data-interest-email>
+              <p class="interest__error" data-error-for="email" hidden>{{ 'interest.error_email' | t }}</p>
+            </div>
+            <div class="field">
+              <label for="InterestProduct-{{ section.id }}">{{ 'interest.product' | t }}</label>
+              <input id="InterestProduct-{{ section.id }}" type="text" name="contact[Interested in]" maxlength="120" placeholder="{{ 'interest.product_placeholder' | t }}" data-interest-field="product">
+            </div>
+          </div>
+
+          <div class="interest__foot">
+            <button type="submit" class="button button--gold" data-interest-submit>{% render 'icon', name: 'sparkle' %}{{ 'interest.submit' | t }}</button>
+            <p class="interest__status" role="status" data-interest-status hidden></p>
+          </div>
+        {%- endif -%}
+      {%- endform -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Interest form",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Coming to your city" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Interested in buying? Let us know" },
+    { "type": "paragraph", "content": "Entries arrive by email at your store contact email (Settings → General). The delivery city comes from Theme settings → Delivery area." }
+  ],
+  "presets": [{ "name": "Interest form" }]
+}
+{% endschema %}

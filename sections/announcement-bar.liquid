@@ -1,0 +1,47 @@
+{%- liquid
+  assign messages = ''
+  if settings.area_limit and settings.area_message != blank
+    assign messages = settings.area_message | append: '|||'
+  endif
+  for i in (1..4)
+    assign key = 'text_' | append: i
+    assign msg = section.settings[key]
+    if msg != blank
+      assign messages = messages | append: msg | append: '|||'
+    endif
+  endfor
+  assign messages = messages | split: '|||'
+-%}
+{%- if messages.size > 0 -%}
+  <div class="announcement" role="region" aria-label="{{ 'general.announcement' | t }}">
+    <p class="visually-hidden">{{ messages | join: ' · ' }}</p>
+    <div class="announcement__viewport" aria-hidden="true">
+      <div class="announcement__track" style="--duration: {{ messages.size | times: section.settings.speed | times: 2 }}s">
+        {%- for copy in (1..2) -%}
+          <div class="announcement__group">
+            {%- for repeat in (1..2) -%}
+              {%- for msg in messages -%}
+                <span class="announcement__item">{{ msg }}</span>
+                <span class="announcement__sep">✦</span>
+              {%- endfor -%}
+            {%- endfor -%}
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+    <p class="announcement__static" aria-hidden="true">{{ messages.first }}</p>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Announcement ticker",
+  "settings": [
+    { "type": "text", "id": "text_1", "label": "Message 1", "default": "The New Year Edit is here" },
+    { "type": "text", "id": "text_2", "label": "Message 2", "default": "Fresh decor for a fresh start" },
+    { "type": "text", "id": "text_3", "label": "Message 3", "default": "Handpicked for every room" },
+    { "type": "text", "id": "text_4", "label": "Message 4" },
+    { "type": "range", "id": "speed", "label": "Scroll time per message", "min": 4, "max": 16, "step": 1, "unit": "s", "default": 9 }
+  ]
+}
+{% endschema %}

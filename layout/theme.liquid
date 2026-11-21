@@ -1,0 +1,41 @@
+{%- assign brand = settings.brand_name | default: shop.name -%}
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="{{ settings.color_midnight }}">
+    <title>
+      {{ page_title }}
+      {%- if current_page != 1 %} – {{ 'general.page' | t: page: current_page }}{% endif -%}
+      {%- unless page_title contains brand %} – {{ brand }}{% endunless -%}
+    </title>
+    {%- if page_description -%}
+      <meta name="description" content="{{ page_description | escape }}">
+    {%- endif -%}
+    <link rel="canonical" href="{{ canonical_url }}">
+    <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
+
+    {%- render 'css-variables' -%}
+    {{ 'base.css' | asset_url | stylesheet_tag }}
+    <script src="{{ 'theme.js' | asset_url }}" defer></script>
+
+    {{ content_for_header }}
+  </head>
+  {%- liquid
+    assign reviews_path = settings.reviews_article | default: 'reviews/product-reviews' | strip | remove_first: '/blogs/' | remove_first: 'blogs/'
+    assign reviews_url = routes.root_url | append: '/blogs/' | append: reviews_path | replace: '//', '/'
+  -%}
+  <body class="template-{{ template.name }}" data-reviews-url="{{ reviews_url | escape }}">
+    <a class="skip-link" href="#MainContent">{{ 'general.skip_to_content' | t }}</a>
+    <div class="header-wrapper" data-header-wrapper>
+      {% sections 'header-group' %}
+    </div>
+
+    <main id="MainContent" role="main" tabindex="-1">
+      {{ content_for_layout }}
+    </main>
+
+    {% sections 'footer-group' %}
+  </body>
+</html>

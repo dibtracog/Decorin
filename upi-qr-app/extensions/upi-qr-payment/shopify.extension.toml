@@ -1,0 +1,35 @@
+api_version = "2026-10"
+
+[[extensions]]
+name = "UPI QR payment"
+handle = "upi-qr-payment"
+type = "ui_extension"
+
+  [[extensions.targeting]]
+  module = "./src/ThankYou.jsx"
+  target = "purchase.thank-you.block.render"
+
+  [extensions.capabilities]
+  api_access = false
+  network_access = false
+
+  # Editable in Shopify admin > Settings > Checkout > Customize > Thank you page > this block
+  [extensions.settings]
+
+    [[extensions.settings.fields]]
+    key = "upi_id"
+    type = "single_line_text_field"
+    name = "UPI ID"
+    description = "Where payments are sent, e.g. 9149296348@ybl"
+
+    [[extensions.settings.fields]]
+    key = "payee_name"
+    type = "single_line_text_field"
+    name = "Payee name"
+    description = "Shown in the customer's UPI app. Defaults to DecorIn."
+
+    [[extensions.settings.fields]]
+    key = "note_prefix"
+    type = "single_line_text_field"
+    name = "Payment note prefix"
+    description = "UPI note = prefix + order confirmation number + amount. Defaults to DecorIn."

@@ -1,0 +1,22 @@
+{%- comment -%}
+  Catalogue search index, fetched once by the live search (assets/theme.js) via
+  /collections/all?section_id=search-index. Every product card carries the words
+  it can be found by (title, product type, tags). Not meant to be added to pages.
+{%- endcomment -%}
+{%- paginate collection.products by 250 -%}
+  <ul data-search-index hidden>
+    {%- for product in collection.products -%}
+      <li
+        data-search-item
+        data-search-title="{{ product.title | downcase | escape }}"
+        data-search="{{ product.title | downcase | escape }} {{ product.type | downcase | escape }} {{ product.tags | join: ' ' | downcase | escape }}"
+      >
+        {% render 'product-card', product: product, index: forloop.index %}
+      </li>
+    {%- endfor -%}
+  </ul>
+{%- endpaginate -%}
+
+{% schema %}
+{ "name": "Search index", "settings": [] }
+{% endschema %}
