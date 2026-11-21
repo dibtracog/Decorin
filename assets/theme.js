@@ -1,4 +1,4 @@
-/* DecorIn theme scripts — no dependencies. */
+/* DecorIn theme scripts \u2014 no dependencies. */
 (() => {
   'use strict';
 
@@ -201,9 +201,9 @@
      The whole catalogue is loaded once (section "search-index") and filtered in the
      browser. Every word typed must match the start of a word in the product's title,
      type or tags, so each extra letter can only narrow the results, never reshuffle
-     them. A trailing "s" is ignored (vases → vase). Order stays in catalogue order,
+     them. A trailing "s" is ignored (vases \u2192 vase). Order stays in catalogue order,
      with title matches first. */
-  const normalizeText = (s) => s.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+  const normalizeText = (s) => s.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
   const stem = (t) => (t.length > 3 && t.endsWith('s') && !t.endsWith('ss') ? t.slice(0, -1) : t);
   const queryTokens = (q) => normalizeText(q).split(' ').filter(Boolean).map(stem);
   const matchesAll = (words, tokens) => tokens.every((t) => words.some((w) => w.startsWith(t)));
@@ -246,7 +246,7 @@
       if (!items.length) throw new Error('search-index section: no products in response');
       return items;
     };
-    const money = (value) => `₹${Number(value).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => `\u20b9${Number(value).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const fromJson = async () => {
       const res = await fetch(`${catalogue}/products.json?limit=250`, { headers: { Accept: 'application/json' } });
       if (!res.ok) throw new Error(`products.json: HTTP ${res.status}`);
@@ -323,7 +323,7 @@
         </div>
         ${hits.length
           ? '<ul class="product-grid" role="list"></ul>'
-          : `<div class="catalogue__empty"><span aria-hidden="true">✦</span><p>${escapeHtml(fill(form.dataset.textEmpty, { terms }))}</p></div>`}`;
+          : `<div class="catalogue__empty"><span aria-hidden="true">\u2726</span><p>${escapeHtml(fill(form.dataset.textEmpty, { terms }))}</p></div>`}`;
       const grid = results.querySelector('.product-grid');
       if (grid) hits.forEach((item) => grid.appendChild(item.el.cloneNode(true)));
       results.querySelector('[data-live-clear]').addEventListener('click', () => { input.value = ''; input.focus(); restore(); });
@@ -478,17 +478,27 @@
   const RETURN_KEY = 'decorin:reviewReturn';
   const REVIEWS_DEBUG = /[?&]reviews_debug/.test(location.search);
   const rlog = (...a) => console.info('[DecorIn reviews]', ...a);
-  // After a non-AJAX submit Shopify lands on the blog post; send the shopper back.
-  try {
-    const back = sessionStorage.getItem(RETURN_KEY);
-    if (back && document.body.classList.contains('template-article') && !document.querySelector('[data-comment-errors]')) {
-      sessionStorage.removeItem(RETURN_KEY);
-      const url = new URL(back, location.origin);
+  // After a review is sent Shopify shows the reviews blog post; send the shopper back.
+  if (document.body.classList.contains('template-article')) {
+    let saved = null;
+    for (const store of [() => sessionStorage, () => localStorage]) {
+      try { saved = saved || store().getItem(RETURN_KEY); store().removeItem(RETURN_KEY); } catch (e) { /* storage blocked */ }
+    }
+    let path = '';
+    try { const v = JSON.parse(saved || 'null'); if (v && Date.now() - v.t < 15 * 60 * 1000) path = v.path; } catch (e) { path = saved || ''; }
+    if (!path) { try { const ref = new URL(document.referrer); if (ref.origin === location.origin && ref.pathname.includes('/products/')) path = ref.pathname; } catch (e) { /* no referrer */ } }
+    const errors = document.querySelector('[data-comment-errors]');
+    if (path && path.startsWith('/') && !errors) {
+      const url = new URL(path, location.origin);
       url.searchParams.set('review', 'thanks');
       url.hash = 'reviews';
       location.replace(url.toString());
+    } else if (path && errors) {
+      const link = document.createElement('a');
+      link.href = `${path}#reviews`; link.className = 'button button--dark'; link.textContent = '\u2190 Back to the product';
+      errors.after(link);
     }
-  } catch (e) { /* storage blocked */ }
+  }
 
   const STAR = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.6l2.83 6.08 6.67.78-4.93 4.56 1.32 6.58L12 17.3l-5.89 3.3 1.32-6.58L2.5 9.46l6.67-.78L12 2.6z"/></svg>';
   const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -590,7 +600,7 @@
     if (s.count) {
       const bars = [5, 4, 3, 2, 1].map((n) => {
         const c = s.list.filter((r) => r.rating === n).length;
-        return `<li class="reviews__bar"><span class="reviews__bar-label">${n}★</span><span class="reviews__bar-track"><span style="width:${Math.round((c / s.count) * 100)}%"></span></span><span class="reviews__bar-num">${c}</span></li>`;
+        return `<li class="reviews__bar"><span class="reviews__bar-label">${n}\u2605</span><span class="reviews__bar-track"><span style="width:${Math.round((c / s.count) * 100)}%"></span></span><span class="reviews__bar-num">${c}</span></li>`;
       }).join('');
       summary.innerHTML = `<p class="reviews__avg">${s.avg}<span>/5</span></p>${starsHtml(s.percent, text('textStars', '{n} out of 5 stars').replace('{n}', s.avg), 'lg')}<p class="reviews__based">${esc(plural(text('textBased', 'Based on {n} review|Based on {n} reviews'), s.count))}</p><ul class="reviews__bars" role="list">${bars}</ul>`;
     } else {
@@ -675,33 +685,15 @@
       const body = form.querySelector('[data-review-body]').value.trim();
       form.querySelector('[data-review-composed]').value = `[[${form.dataset.reviewForm}|${picked.value}|${title}]] ${body}`;
 
-      const label = submit.textContent;
-      submit.disabled = true; submit.textContent = text('textSending', 'Sending…');
+      submit.disabled = true; submit.textContent = text('textSending', 'Sending\u2026');
       status.hidden = true;
-      const nativeSubmit = () => {
-        try { sessionStorage.setItem(RETURN_KEY, location.pathname); } catch (e) { /* ignore */ }
-        HTMLFormElement.prototype.submit.call(form);
-      };
-      try {
-        const res = await fetch(form.action, { method: 'POST', body: new URLSearchParams(new FormData(form)), credentials: 'same-origin' });
-        rlog('POST', form.action, res.status, res.url);
-        // Shopify may ask for a spam check (hCaptcha); let the browser handle it normally.
-        if (/\/challenge/.test(res.url)) { nativeSubmit(); return; }
-        // Shopify re-renders the blog post with the reasons when it rejects a comment.
-        const page = new DOMParser().parseFromString(await res.text(), 'text/html');
-        const errs = page.querySelector('[data-comment-errors]');
-        if (errs) { const e = new Error(errs.textContent.replace(/\s+/g, ' ').trim()); e.shopify = true; throw e; }
-        if (!res.ok) { rlog('falling back to a normal form submit after HTTP', res.status); nativeSubmit(); return; }
-        form.reset(); hint.textContent = '';
-        showThanks();
-        thanks.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } catch (err) {
-        console.warn('[DecorIn reviews]', err);
-        status.textContent = err && err.shopify ? `${text('textError', 'Something went wrong.')} (${err.message})` : text('textError', 'Something went wrong.');
-        status.hidden = false;
-      } finally {
-        submit.disabled = false; submit.textContent = label;
-      }
+      // A normal form post is the most reliable with Shopify (spam checks, redirects).
+      // Shopify then shows the reviews blog post; the code at the top of this
+      // block sends the shopper straight back here with a thank-you message.
+      const back = JSON.stringify({ path: location.pathname, t: Date.now() });
+      try { sessionStorage.setItem(RETURN_KEY, back); } catch (e) { /* ignore */ }
+      try { localStorage.setItem(RETURN_KEY, back); } catch (e) { /* ignore */ }
+      HTMLFormElement.prototype.submit.call(form);
     });
   };
 
