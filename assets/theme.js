@@ -708,7 +708,7 @@
       return bad;
     };
     form.addEventListener('input', refresh);
-    window.addEventListener('pageshow', (e) => { if (e.persisted) { sending = false; submit.disabled = false; submit.textContent = submitLabel; clearTimeout(form._sendTimer); refresh(); } });
+    window.addEventListener('pageshow', (e) => { if (e.persisted) { sending = false; submit.textContent = submitLabel; clearTimeout(form._sendTimer); refresh(); } });
     form.addEventListener('change', refresh);
     refresh();
 
@@ -721,7 +721,7 @@
     document.addEventListener('submit', (event) => {
       if (event.target !== form) return;
       // Shopify's CAPTCHA re-submits the form after getting its token: let that through.
-      if (sending) return;
+      if (sending) { rlog('re-submit after spam check'); return; }
       showErrors = true;
       const bad = refresh();
       if (bad.length) {
@@ -762,18 +762,18 @@
       setTimeout(() => {
         submit.textContent = text('textSending', 'Sending\u2026');
         submit.setAttribute('aria-disabled', 'true');
-        submit.disabled = true; // stops double clicks; scripted re-submits still work
+        // Not disabled: Shopify's CAPTCHA may re-click this button after getting its token.
       }, 0);
+      rlog('review passed checks, submitting (Shopify spam check may run now)');
       // Never leave the shopper stuck: if the page hasn't moved on, re-enable the button.
       clearTimeout(form._sendTimer);
       form._sendTimer = setTimeout(() => {
         sending = false;
-        submit.disabled = false;
         submit.textContent = submitLabel;
         refresh();
         status.textContent = text('textError', 'Something went wrong. Please try again in a moment.');
         status.hidden = false;
-      }, 20000);
+      }, 30000);
       // Let the browser (and Shopify's CAPTCHA listener) carry on with the submit.
     }, true);
   };
