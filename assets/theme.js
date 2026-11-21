@@ -708,6 +708,7 @@
       return bad;
     };
     form.addEventListener('input', refresh);
+    window.addEventListener('pageshow', (e) => { if (e.persisted) { sending = false; submit.disabled = false; submit.textContent = submitLabel; clearTimeout(form._sendTimer); refresh(); } });
     form.addEventListener('change', refresh);
     refresh();
 
@@ -715,10 +716,12 @@
     // including Shopify's spam protection (CAPTCHA). Invalid reviews are stopped here;
     // valid ones continue as a normal form submit so Shopify can add its CAPTCHA token.
     let sending = false;
+    const submitLabel = submit.textContent;
     const stop = (event) => { event.preventDefault(); event.stopImmediatePropagation(); };
     document.addEventListener('submit', (event) => {
       if (event.target !== form) return;
-      if (sending) { stop(event); return; }
+      // Shopify's CAPTCHA re-submits the form after getting its token: let that through.
+      if (sending) return;
       showErrors = true;
       const bad = refresh();
       if (bad.length) {
@@ -747,7 +750,7 @@
       if (form.hasAttribute('data-review-fallback')) {
         if (!data.action) { stop(event); return; }
         form.action = data.action;
-        if (!form.querySelector('input[name="form_type"]')) form.insertAdjacentHTML('afterbegin', '<input type="hidden" name="form_type" value="new_comment"><input type="hidden" name="utf8" value="✓">');
+        if (!form.querySelector('input[name="form_type"]')) form.insertAdjacentHTML('afterbegin', '<input type="hidden" name="form_type" value="new_comment"><input type="hidden" name="utf8" value="\u2713">');
       }
       // Shopify then shows the reviews blog post; the code at the top of this
       // block sends the shopper straight back here with a thank-you message.
@@ -756,7 +759,21 @@
       try { localStorage.setItem(RETURN_KEY, back); } catch (e) { /* ignore */ }
       sending = true;
       status.hidden = true;
-      setTimeout(() => { submit.textContent = text('textSending', 'Sending…'); submit.setAttribute('aria-disabled', 'true'); }, 0);
+      setTimeout(() => {
+        submit.textContent = text('textSending', 'Sending\u2026');
+        submit.setAttribute('aria-disabled', 'true');
+        submit.disabled = true; // stops double clicks; scripted re-submits still work
+      }, 0);
+      // Never leave the shopper stuck: if the page hasn't moved on, re-enable the button.
+      clearTimeout(form._sendTimer);
+      form._sendTimer = setTimeout(() => {
+        sending = false;
+        submit.disabled = false;
+        submit.textContent = submitLabel;
+        refresh();
+        status.textContent = text('textError', 'Something went wrong. Please try again in a moment.');
+        status.hidden = false;
+      }, 20000);
       // Let the browser (and Shopify's CAPTCHA listener) carry on with the submit.
     }, true);
   };
