@@ -78,6 +78,30 @@ shopify theme dev --store your-store.myshopify.com
 shopify theme check
 ```
 
+## Delivery area: Jaipur only (for now)
+
+**Theme settings → Delivery area** controls where you deliver. The defaults are city *Jaipur*, state *Rajasthan*, and pincodes `302` (every Jaipur city pincode, 302001–302044). The theme then:
+
+- shows the delivery message first in the announcement bar, in the footer, and on every product page (with a pincode checker);
+- locks **Check out** on the cart page until the shopper enters a pincode you deliver to. The pincode is saved on the order as the *Delivery pincode* note;
+- sends shoppers from other cities to the **"Interested in buying? Let us know"** form.
+
+**Make checkout itself refuse other addresses (do this too).** The theme can't control Shopify's checkout pages. A custom app can't either: address checks at checkout (checkout rules and checkout UI extensions) only work on Shopify Plus. Shopify's shipping settings work on every plan:
+
+1. Settings → **Shipping and delivery** → **Shipping** → open your shipping profile. Delete the shipping rates for India, or remove India from the zone, so Shopify doesn't ship anywhere by regular shipping.
+2. Same page → **Local delivery** → turn it on for your location → **Delivery zones: Use postal codes** → enter `302` (or the exact Jaipur pincodes you serve). Set the price (₹0 for free) and delivery information → Save.
+3. Shoppers with an address outside those pincodes now see "no delivery options available" at checkout and can't place the order.
+
+To expand later, add pincodes in both places: Local delivery, and Theme settings → Delivery area. To lift the limit completely, untick *Deliver to one city only* and add normal shipping rates back.
+
+## "Interested in buying? Let us know"
+
+`sections/interest-form.liquid` sits on the home page (link: `/#interest`). It asks for name, phone, city and state, plus an optional email and product. It uses Shopify's own contact form, so **each entry arrives as an email** at your store contact email (Settings → General). No app is needed. The subject is "New customer message", and the body lists the city and state.
+
+Optional standalone page: Online Store → Pages → Add page, title "Interested", template **page.interest** → then choose it in Theme settings → Delivery area → *"Let us know" page*.
+
+If entries don't arrive, check spam, and check that Online Store → Preferences → Spam protection isn't blocking contact forms.
+
 ## Product reviews (no app needed)
 
 Every product page has a **Reviews** section, with star ratings under the product title and on catalogue cards.

@@ -391,6 +391,7 @@
         if (html) {
           const fresh = new DOMParser().parseFromString(html, 'text/html').querySelector('[data-cart-section]');
           if (fresh) section.innerHTML = fresh.innerHTML;
+          document.dispatchEvent(new CustomEvent('decorin:cart-updated'));
         } else {
           window.location.reload();
         }
@@ -805,6 +806,239 @@
     e.preventDefault();
     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
+
+  /* ---------- Delivery area: pincode check + checkout lock (Theme settings > Delivery area) ---------- */
+  const AREA_KEY = 'decorin:pincode';
+  const areaGet = () => { try { return localStorage.getItem(AREA_KEY) || ''; } catch (e) { return ''; } };
+  const areaSet = (v) => { try { localStorage.setItem(AREA_KEY, v); } catch (e) { /* private mode */ } };
+  const pinServed = (pin, list) => (list || '').split(/[\s,;]+/)
+    .map((p) => p.replace(/\D/g, ''))
+    .filter(Boolean)
+    .some((p) => pin.indexOf(p) === 0);
+  const guardBox = () => document.querySelector('[data-delivery-check][data-guard="true"]');
+  let areaSaved = null;
+
+  const updateGuard = () => {
+    const box = guardBox();
+    const locked = !!box && box.dataset.state !== 'ok';
+    document.querySelectorAll('[data-checkout-guard]').forEach((btn) => {
+      btn.classList.toggle('is-locked', locked);
+      btn.setAttribute('aria-disabled', locked ? 'true' : 'false');
+    });
+    const hint = document.querySelector('[data-checkout-hint]');
+    if (hint && !locked) hint.hidden = true;
+  };
+
+  const saveArea = (box, pin, served) => {
+    const key = `${pin}|${served}`;
+    if (areaSaved === key || !box.dataset.cartUpdateUrl) return;
+    areaSaved = key;
+    fetch(`${box.dataset.cartUpdateUrl}.js`, {
+      method: 'POST',
+      keepalive: true,
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ attributes: { 'Delivery pincode': pin, 'Delivery area': served ? box.dataset.city : 'Outside delivery area' } }),
+    }).catch(() => { areaSaved = null; });
+  };
+
+  const runCheck = (box, opts = {}) => {
+    const input = box.querySelector('[data-delivery-input]');
+    const out = box.querySelector('[data-delivery-result]');
+    if (!input || !out) return '';
+    const pin = (input.value || '').replace(/\D/g, '').slice(0, 6);
+    if (input.value !== pin) input.value = pin;
+    let state = '';
+    let msg = '';
+    if (!pin) state = '';
+    else if (!/^[1-9]\d{5}$/.test(pin)) { state = 'invalid'; msg = box.dataset.textInvalid; }
+    else if (pinServed(pin, box.dataset.pincodes)) { state = 'ok'; msg = box.dataset.textOk.replace('__PIN__', pin); }
+    else { state = 'no'; msg = box.dataset.textNo.replace('__PIN__', pin); }
+    box.dataset.state = state;
+    box.classList.toggle('is-ok', state === 'ok');
+    box.classList.toggle('is-no', state === 'no' || state === 'invalid');
+    input.classList.toggle('is-invalid', state === 'no' || state === 'invalid');
+    if (opts.quiet && state === 'invalid') { out.hidden = true; } else { out.textContent = msg; out.hidden = !msg; }
+    if (state === 'ok' || state === 'no') {
+      areaSet(pin);
+      if (opts.save !== false) saveArea(box, pin, state === 'ok');
+    }
+    updateGuard();
+    return state;
+  };
+
+  const initDelivery = () => {
+    document.querySelectorAll('[data-delivery-check]').forEach((box) => {
+      if (box.dataset.ready) return;
+      box.dataset.ready = 'true';
+      const input = box.querySelector('[data-delivery-input]');
+      const start = (box.dataset.saved || areaGet()).replace(/\D/g, '');
+      if (input && start) { input.value = start; runCheck(box, { quiet: true, save: !box.dataset.saved }); }
+    });
+    updateGuard();
+  };
+
+  document.addEventListener('input', (e) => {
+    const input = e.target.closest && e.target.closest('[data-delivery-input]');
+    if (!input) return;
+    const box = input.closest('[data-delivery-check]');
+    const digits = input.value.replace(/\D/g, '');
+    if (digits.length >= 6) { runCheck(box); return; }
+    if (input.value !== digits) input.value = digits;
+    box.dataset.state = '';
+    box.classList.remove('is-ok', 'is-no');
+    input.classList.remove('is-invalid');
+    const out = box.querySelector('[data-delivery-result]');
+    if (out) out.hidden = true;
+    updateGuard();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' || !e.target.matches || !e.target.matches('[data-delivery-input]')) return;
+    e.preventDefault(); // inside the cart form, Enter would otherwise go to checkout
+    runCheck(e.target.closest('[data-delivery-check]'));
+  });
+  document.addEventListener('click', (e) => {
+    const check = e.target.closest('[data-delivery-button]');
+    if (check) { runCheck(check.closest('[data-delivery-check]')); return; }
+    const btn = e.target.closest('[data-checkout-guard]');
+    const box = btn && guardBox();
+    if (!box || box.dataset.state === 'ok') return;
+    if (runCheck(box) === 'ok') return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    const hint = document.querySelector('[data-checkout-hint]');
+    if (hint && box.dataset.state !== 'no') { hint.textContent = box.dataset.textNeeded; hint.hidden = false; }
+    box.classList.remove('is-shaking');
+    void box.offsetWidth;
+    box.classList.add('is-shaking');
+    const input = box.querySelector('[data-delivery-input]');
+    if (input) input.focus();
+  }, true);
+  initDelivery();
+  document.addEventListener('decorin:cart-updated', initDelivery);
+  document.addEventListener('shopify:section:load', initDelivery);
+
+  /* ---------- "Interested in buying? Let us know" form (Shopify contact form) ---------- */
+  const normPhone = (v) => {
+    let d = String(v || '').replace(/\D/g, '');
+    if (d.length === 12 && d.indexOf('91') === 0) d = d.slice(2);
+    if (d.length === 11 && d[0] === '0') d = d.slice(1);
+    return /^[6-9]\d{9}$/.test(d) ? d : '';
+  };
+  const interestField = (form, name) => form.querySelector(`[data-interest-field="${name}"]`);
+  const interestProblems = (form) => {
+    const val = (n) => ((interestField(form, n) || {}).value || '').trim();
+    const out = [];
+    if (val('name').length < 2) out.push('name');
+    if (!normPhone(val('phone'))) out.push('phone');
+    if (val('city').length < 2) out.push('city');
+    if (!val('state')) out.push('state');
+    if (val('email') && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val('email'))) out.push('email');
+    return out;
+  };
+  const interestShow = (form, problems, only) => {
+    ['name', 'phone', 'city', 'state', 'email'].forEach((n) => {
+      if (only && only !== n) return;
+      const bad = problems.indexOf(n) !== -1;
+      const err = form.querySelector(`[data-error-for="${n}"]`);
+      const field = interestField(form, n);
+      if (err) err.hidden = !bad;
+      if (field) { field.classList.toggle('is-invalid', bad); field.setAttribute('aria-invalid', bad ? 'true' : 'false'); }
+    });
+  };
+
+  const initInterest = () => {
+    document.querySelectorAll('[data-interest]').forEach((sec) => {
+      if (sec.dataset.ready) return;
+      sec.dataset.ready = 'true';
+      const thanks = sec.querySelector('[data-interest-thanks]');
+      if (thanks) { sec.scrollIntoView({ block: 'start' }); thanks.focus({ preventScroll: true }); return; }
+      const form = sec.querySelector('[data-interest-form]');
+      if (!form) return;
+      const wanted = new URLSearchParams(window.location.search).get('product');
+      const product = interestField(form, 'product');
+      if (wanted && product && !product.value) product.value = wanted.slice(0, 120);
+      const city = interestField(form, 'city');
+      const hint = form.querySelector('[data-interest-hint]');
+      const area = (sec.dataset.city || '').trim().toLowerCase();
+      // Fix each field as soon as the shopper corrects it; flag it once they leave it.
+      form.addEventListener('focusout', (e) => {
+        const n = e.target.dataset && e.target.dataset.interestField;
+        if (n && e.target.value.trim()) interestShow(form, interestProblems(form), n);
+      });
+      form.addEventListener('input', (e) => {
+        const n = e.target.dataset && e.target.dataset.interestField;
+        if (n && e.target.classList.contains('is-invalid')) interestShow(form, interestProblems(form), n);
+        if (e.target === city && hint) {
+          const here = area && city.value.trim().toLowerCase() === area;
+          hint.textContent = here ? sec.dataset.textInArea : '';
+          hint.hidden = !here;
+        }
+      });
+      form.addEventListener('change', (e) => {
+        if (e.target.dataset && e.target.dataset.interestField === 'state') interestShow(form, interestProblems(form), 'state');
+      });
+    });
+  };
+
+  // Capture phase: runs before Shopify's spam-protection listener; the button is never disabled
+  // so the CAPTCHA can re-submit the form after it gets its token.
+  document.addEventListener('submit', (e) => {
+    const form = e.target.closest && e.target.closest('[data-interest-form]');
+    if (!form || !form.querySelector('[data-interest-submit]')) return;
+    if (form.dataset.sending === 'true') return;
+    const problems = interestProblems(form);
+    if (problems.length) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      interestShow(form, problems);
+      const first = interestField(form, problems[0]);
+      if (first) first.focus();
+      return;
+    }
+    const sec = form.closest('[data-interest]');
+    const val = (n) => ((interestField(form, n) || {}).value || '').trim();
+    const digits = normPhone(val('phone'));
+    interestField(form, 'phone').value = `+91 ${digits}`;
+    const email = form.querySelector('[data-interest-email]');
+    if (email) email.value = val('email') || `91${digits}@example.com`;
+    const body = form.querySelector('[data-interest-body]');
+    if (body) {
+      body.value = [
+        'Interested in buying - outside the delivery area',
+        `Name: ${val('name')}`,
+        `Phone: +91 ${digits}`,
+        `City: ${val('city')}`,
+        `State: ${val('state')}`,
+        `Email: ${val('email') || 'not given'}`,
+        `Interested in: ${val('product') || '-'}`,
+        `Sent from: ${window.location.pathname}`,
+      ].join('\n');
+    }
+    form.dataset.sending = 'true';
+    const btn = form.querySelector('[data-interest-submit]');
+    const label = btn.dataset.label || btn.innerHTML;
+    btn.dataset.label = label;
+    btn.setAttribute('aria-disabled', 'true');
+    btn.textContent = (sec && sec.dataset.textSending) || 'Sending...';
+    const status = form.querySelector('[data-interest-status]');
+    setTimeout(() => {
+      if (form.dataset.sending !== 'true' || !document.body.contains(form)) return;
+      form.dataset.sending = '';
+      btn.innerHTML = label;
+      btn.setAttribute('aria-disabled', 'false');
+      if (status) { status.textContent = (sec && sec.dataset.textError) || ''; status.hidden = false; }
+    }, 30000);
+  }, true);
+  window.addEventListener('pageshow', (e) => {
+    if (!e.persisted) return;
+    document.querySelectorAll('[data-interest-form][data-sending="true"]').forEach((f) => {
+      f.dataset.sending = '';
+      const btn = f.querySelector('[data-interest-submit]');
+      if (btn && btn.dataset.label) { btn.innerHTML = btn.dataset.label; btn.setAttribute('aria-disabled', 'false'); }
+    });
+  });
+  initInterest();
+  document.addEventListener('shopify:section:load', initInterest);
 
   const initAll = () => document.querySelectorAll('.highlights').forEach(initCarousel);
   initAll();

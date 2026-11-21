@@ -1087,3 +1087,63 @@ input[type="number"] { max-width: 120px; }
 .review-form__todo:empty { display: none; }
 [data-review-submit][aria-disabled="true"] { opacity: .45; box-shadow: none; }
 @media (prefers-reduced-motion: reduce) { .star-input.is-shaking { animation: none; } }
+
+/* ---------- Delivery area (Jaipur only for now) ---------- */
+.delivery-check { margin-top: 24px; padding: 18px 18px 16px; border-radius: 16px; background: color-mix(in srgb, var(--c-gold) 9%, #fff); border: 1px solid color-mix(in srgb, var(--c-gold) 38%, transparent); display: grid; gap: 12px; font-size: 0.9375rem; }
+.delivery-check--cart { margin-top: 20px; }
+.delivery-check__lead { margin: 0; display: flex; gap: 10px; align-items: flex-start; line-height: 1.5; }
+.delivery-check__lead strong { display: block; color: var(--c-midnight); }
+.delivery-check__pin { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--c-midnight); color: var(--c-gold-light); }
+.delivery-check__row { display: flex; gap: 8px; }
+.delivery-check__input { flex: 1 1 auto; min-width: 0; letter-spacing: 0.12em; font-variant-numeric: tabular-nums; }
+.delivery-check__input:focus { outline: none; border-color: var(--c-gold); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-gold) 25%, transparent); }
+.delivery-check__input.is-invalid { border-color: #b3261e; box-shadow: 0 0 0 3px rgba(179, 38, 30, .14); }
+.delivery-check__button { flex: none; min-height: 48px; padding-inline: 20px; }
+.delivery-check__result { margin: 0; font-weight: 600; }
+.delivery-check.is-ok .delivery-check__result { color: #1e6b3a; }
+.delivery-check.is-ok .delivery-check__result::before { content: "\2713  "; }
+.delivery-check.is-no .delivery-check__result { color: #b3261e; }
+.delivery-check__more { margin: 0; font-size: 0.875rem; color: color-mix(in srgb, var(--c-text) 70%, transparent); }
+.delivery-check__more a { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; color: var(--c-gold-dark); text-decoration: underline; text-underline-offset: 3px; }
+.delivery-check.is-no .delivery-check__more a { color: var(--c-midnight); background: color-mix(in srgb, var(--c-gold) 30%, transparent); padding: 2px 8px; border-radius: 999px; text-decoration: none; }
+.delivery-check.is-shaking { animation: star-shake .45s ease; }
+.cart-summary__checkout.is-locked { opacity: .55; }
+.cart-summary__guard { margin: 10px 0 0; font-size: 0.875rem; font-weight: 600; color: #b3261e; text-align: center; }
+.site-footer__area { display: flex; gap: 8px; align-items: flex-start; font-size: 0.875rem; color: rgba(255,255,255,.85); }
+.site-footer__area .icon { flex: none; margin-top: 3px; color: var(--c-gold-light); }
+.site-footer__area a { display: block; margin-top: 2px; color: var(--c-gold-light); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---------- Interest form ("Let us know") ---------- */
+.interest { padding-block: 72px; scroll-margin-top: 120px; }
+.interest__layout { display: grid; gap: 24px; }
+@media (min-width: 990px) { .interest__layout { grid-template-columns: 0.9fr 1.1fr; gap: 32px; align-items: stretch; } }
+.interest__intro { --card-gradient: radial-gradient(110% 80% at 20% 0%, #3a3f78 0%, #161b44 48%, #0a0e26 100%); border-radius: 24px; padding: 36px 30px; display: flex; flex-direction: column; justify-content: center; gap: 14px; }
+.interest__intro > *:not(.starfield) { position: relative; margin: 0; }
+.interest__intro .eyebrow { color: var(--c-gold-light); }
+.interest__heading { font-size: clamp(1.75rem, 3.4vw, 2.5rem); line-height: 1.15; color: #fff; }
+.interest__text { color: rgba(255,255,255,.82); max-width: 32rem; }
+.interest__now { display: inline-flex; align-items: center; gap: 8px; align-self: flex-start; padding: 8px 14px; border-radius: 999px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); font-size: 0.875rem; font-weight: 600; }
+.interest__now .icon { color: var(--c-gold-light); }
+.interest__panel { padding: 28px; border-radius: 24px; background: #fff; border: 1px solid color-mix(in srgb, var(--c-gold) 40%, transparent); box-shadow: 0 24px 50px -36px color-mix(in srgb, var(--c-midnight) 70%, transparent); }
+.interest__form { display: grid; gap: 18px; }
+.interest__row { display: grid; gap: 18px; }
+@media (min-width: 750px) { .interest__row { grid-template-columns: 1fr 1fr; align-items: start; } }
+.interest__form input, .interest__form select { width: 100%; }
+.interest__form input:focus, .interest__form select:focus { outline: none; border-color: var(--c-gold); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-gold) 25%, transparent); }
+.interest__form .is-invalid { border-color: #b3261e; box-shadow: 0 0 0 3px rgba(179, 38, 30, .14); }
+.interest__form .field small { font-size: 0.8125rem; color: color-mix(in srgb, var(--c-text) 50%, transparent); }
+.interest__select { position: relative; }
+.interest__select select { appearance: none; -webkit-appearance: none; padding-right: 40px; cursor: pointer; }
+.interest__select::after { content: ""; position: absolute; right: 16px; top: 50%; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateY(-70%) rotate(45deg); pointer-events: none; }
+.interest__error { margin: 4px 0 0; font-size: 0.875rem; font-weight: 600; color: #b3261e; }
+.interest__hint { margin: 4px 0 0; font-size: 0.875rem; font-weight: 600; color: #1e6b3a; }
+.interest__errors { padding: 12px 14px; border-radius: 12px; background: rgba(179, 38, 30, .08); color: #b3261e; font-weight: 600; }
+.interest__errors ul { margin: 0; padding-left: 18px; }
+.interest__foot { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+.interest__foot .button[aria-disabled="true"] { opacity: .6; }
+.interest__status { margin: 0; color: #b3261e; font-weight: 600; }
+.interest__thanks { display: grid; justify-items: center; text-align: center; gap: 14px; padding: 32px 8px; outline: none; }
+.interest__thanks p { margin: 0; font-size: 1.125rem; max-width: 28rem; }
+.interest__thanks-icon { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: var(--c-midnight); color: var(--c-gold-light); }
+.interest__thanks-icon .icon { width: 26px; height: 26px; }
+@media (prefers-reduced-motion: reduce) { .delivery-check.is-shaking { animation: none; } }

@@ -1,5 +1,8 @@
 {%- liquid
   assign messages = ''
+  if settings.area_limit and settings.area_message != blank
+    assign messages = settings.area_message | append: '|||'
+  endif
   for i in (1..4)
     assign key = 'text_' | append: i
     assign msg = section.settings[key]

@@ -73,7 +73,7 @@
           "settings": {
             "icon": "truck",
             "title": "Delivered to your door",
-            "text": "Fast, careful shipping."
+            "text": "Fast, careful delivery across Jaipur."
           }
         },
         "f-4": {
@@ -96,12 +96,17 @@
     "banner": {
       "type": "newyear-banner",
       "settings": {}
+    },
+    "interest": {
+      "type": "interest-form",
+      "settings": {}
     }
   },
   "order": [
     "hero",
     "highlights",
     "features",
+    "interest",
     "banner"
   ]
 }

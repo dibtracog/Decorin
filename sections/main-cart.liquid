@@ -105,17 +105,20 @@
           </div>
         </dl>
 
+        {%- render 'delivery-check', mode: 'cart' -%}
+
         {%- if section.settings.use_upi_page -%}
           {%- assign payment_url = routes.cart_url | append: '?view=payment' -%}
           {%- if section.settings.payment_page != blank -%}{%- assign payment_url = section.settings.payment_page.url -%}{%- endif -%}
-          <a class="button button--gold button--full cart-summary__checkout" href="{{ payment_url }}">
+          <a class="button button--gold button--full cart-summary__checkout" href="{{ payment_url }}" data-checkout-guard>
             {% render 'icon', name: 'lock' %}{{ 'cart.checkout' | t }}
           </a>
         {%- else -%}
-          <button type="submit" name="checkout" class="button button--gold button--full cart-summary__checkout">
+          <button type="submit" name="checkout" class="button button--gold button--full cart-summary__checkout" data-checkout-guard>
             {% render 'icon', name: 'lock' %}{{ 'cart.checkout' | t }}
           </button>
         {%- endif -%}
+        <p class="cart-summary__guard" data-checkout-hint hidden></p>
         <noscript>
           <button type="submit" name="update" class="button button--secondary button--full">{{ 'cart.update' | t }}</button>
         </noscript>

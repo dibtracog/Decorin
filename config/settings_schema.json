@@ -101,5 +101,59 @@
         "default": true
       }
     ]
+  },
+  {
+    "name": "Delivery area",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Limit orders to one city for now. To actually stop checkout elsewhere, also set Settings → Shipping and delivery to deliver only to these pincodes (see the theme README)."
+      },
+      {
+        "type": "checkbox",
+        "id": "area_limit",
+        "label": "Deliver to one city only",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "area_city",
+        "label": "City",
+        "default": "Jaipur"
+      },
+      {
+        "type": "text",
+        "id": "area_state",
+        "label": "State",
+        "default": "Rajasthan"
+      },
+      {
+        "type": "text",
+        "id": "area_pincodes",
+        "label": "Pincodes we deliver to",
+        "default": "302",
+        "info": "Comma-separated. A short code matches every pincode starting with it, e.g. 302 = all Jaipur city pincodes (302001–302044). Add 303 for Jaipur district towns, or list exact pincodes."
+      },
+      {
+        "type": "text",
+        "id": "area_message",
+        "label": "Announcement bar message",
+        "default": "Now delivering across Jaipur · more cities soon",
+        "info": "Shown first in the announcement bar while the limit is on."
+      },
+      {
+        "type": "checkbox",
+        "id": "area_block_checkout",
+        "label": "Ask for a pincode before checkout",
+        "default": true,
+        "info": "Cart page: checkout stays locked until the shopper enters a pincode you deliver to."
+      },
+      {
+        "type": "page",
+        "id": "interest_page",
+        "label": "\"Let us know\" page",
+        "info": "Optional. A page using the 'interest' template. If empty, links go to the form on the home page."
+      }
+    ]
   }
 ]

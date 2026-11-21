@@ -57,6 +57,8 @@
         </button>
       {%- endform -%}
 
+      {%- render 'delivery-check', mode: 'product', product_title: product.title -%}
+
       <div class="product__description rte">{{ product.description }}</div>
     </div>
   </div>
