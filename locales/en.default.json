@@ -153,8 +153,6 @@
     "empty": "Your review could be the first one here. Share how it looks in your space.",
     "your_rating": "Your rating",
     "name": "Name",
-    "email": "Email",
-    "email_note": "Never shown publicly.",
     "title": "Headline (optional)",
     "title_placeholder": "e.g. Glows beautifully at night",
     "body": "Your review",
@@ -173,6 +171,9 @@
     "js_counts": "{n} review|{n} reviews",
     "js_stars": "{n} out of 5 stars",
     "js_based": "Based on {n} review|Based on {n} reviews",
-    "js_show_all": "Show all {n} reviews"
+    "js_show_all": "Show all {n} reviews",
+    "phone": "Phone number",
+    "phone_note": "Never shown publicly. We may call or WhatsApp you about your review.",
+    "phone_invalid": "Please enter a valid 10-digit mobile number."
   }
 }

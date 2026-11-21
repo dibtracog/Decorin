@@ -651,6 +651,7 @@
     root.querySelectorAll('[data-review-rating]').forEach((r) => r.addEventListener('change', () => {
       hint.textContent = hints[Number(r.value) - 1] || ''; hint.classList.remove('is-error');
     }));
+    form.querySelector('[data-review-phone]').addEventListener('input', (e) => e.currentTarget.setCustomValidity(''));
 
     const status = form.querySelector('[data-review-status]');
     const submit = form.querySelector('[data-review-submit]');
@@ -662,7 +663,14 @@
         hint.textContent = text('textPick', 'Please choose a star rating.'); hint.classList.add('is-error');
         return;
       }
+      const phoneInput = form.querySelector('[data-review-phone]');
+      let digits = phoneInput.value.replace(/\D/g, '');
+      if (digits.length === 12 && digits.startsWith('91')) digits = digits.slice(2);
+      if (digits.length === 11 && digits.startsWith('0')) digits = digits.slice(1);
+      phoneInput.setCustomValidity(/^[6-9]\d{9}$/.test(digits) ? '' : text('textPhone', 'Please enter a valid 10-digit mobile number.'));
       for (const el of form.querySelectorAll('[required]')) { if (!el.checkValidity()) { el.reportValidity(); return; } }
+      // Shopify comments need an email; the phone goes there so it stays private (only visible in admin).
+      form.querySelector('[data-review-email]').value = `91${digits}@example.com`;
       const title = clean(form.querySelector('[data-review-title]').value).slice(0, 80);
       const body = form.querySelector('[data-review-body]').value.trim();
       form.querySelector('[data-review-composed]').value = `[[${form.dataset.reviewForm}|${picked.value}|${title}]] ${body}`;

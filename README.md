@@ -89,7 +89,9 @@ One-time setup in Shopify admin:
    Make sure the blog's URL handle is `reviews`.
 2. **Blog posts → Add blog post**. Title: `Product reviews`, Blog: `Reviews`, Visibility: **Visible**.
    Its handle must be `product-reviews`; check the SEO section at the bottom.
-3. That's it. To approve or delete reviews, go to **Online Store → Blog posts → Manage comments**.
+3. That's it. Manage reviews from the **Customer reviews** card on each product page in admin (see `upi-qr-app/README.md`). Shopify's own **Online Store → Blog posts → Manage comments** works too.
+
+Reviewers don't sign up or log in; they give a **name and phone number**. Shopify comments need an email address, so the phone is stored in the email field as `91XXXXXXXXXX@example.com`. That keeps it private: only you see it, in admin.
    Each comment starts with a tag like `[[diya-cascade-fountain|5|Glows beautifully]]`, which shows the product, rating and headline. Don't edit the tag.
 
 The blog post path can be changed in **Theme settings → Reviews**. Card stars can also be switched off there.

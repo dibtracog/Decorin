@@ -20,6 +20,7 @@
   data-text-error="{{ 'reviews.error' | t | escape }}"
   data-text-sending="{{ 'reviews.sending' | t | escape }}"
   data-text-pick="{{ 'reviews.pick_rating' | t | escape }}"
+  data-text-phone="{{ 'reviews.phone_invalid' | t | escape }}"
   data-text-hints="{{ 'reviews.hints' | t | escape }}"
   data-text-stars="{{ 'reviews.js_stars' | t | escape }}"
   data-text-counts="{{ 'reviews.js_counts' | t | escape }}"
@@ -78,9 +79,10 @@
               <input id="ReviewName-{{ section.id }}" type="text" name="comment[author]" autocomplete="name" maxlength="60" required>
             </div>
             <div class="field">
-              <label for="ReviewEmail-{{ section.id }}">{{ 'reviews.email' | t }}</label>
-              <input id="ReviewEmail-{{ section.id }}" type="email" name="comment[email]" autocomplete="email" required>
-              <small>{{ 'reviews.email_note' | t }}</small>
+              <label for="ReviewPhone-{{ section.id }}">{{ 'reviews.phone' | t }}</label>
+              <input id="ReviewPhone-{{ section.id }}" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" required data-review-phone placeholder="98765 43210">
+              <input type="hidden" name="comment[email]" value="" data-review-email>
+              <small>{{ 'reviews.phone_note' | t }}</small>
             </div>
           </div>
           <div class="field">

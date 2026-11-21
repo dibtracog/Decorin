@@ -51,3 +51,24 @@ No merchant account or payment gateway needed. It works on every Shopify plan.
 
 Tip: Settings → Notifications lets you customise these emails. Shopify Flow (free) can email "Payment received"
 when an order is marked paid.
+
+## Review manager (admin block)
+
+`extensions/review-manager` adds a **Customer reviews** card to every product page in Shopify admin (**Products → open a product**, near the bottom).
+It needs no hosting and no extra app.
+
+For each review it shows the stars, headline, text, the reviewer's **name and phone number**, the date and the status (Pending / Published / Spam).
+- **Approve**: publishes a pending review on the store.
+- **Spam / Hide (spam)**: takes it off the store but keeps it.
+- **Delete**: removes it permanently, after a confirmation step.
+- **Show** filter: All / Pending approval / Published / Spam.
+- **All products** switch: manage every product's reviews from any one product page.
+
+The app needs the `read_content,write_content` scopes (already set in `shopify.app.toml`).
+
+Deploy it the same way as the UPI block, from the `upi-qr-app` folder:
+
+    shopify app deploy
+
+When Shopify says the app needs new permissions, open **Apps → DecorIn UPI QR** in admin and approve the update.
+If you don't see the card on a product page, click **⋯ / "Customize blocks"** (the apps icon) at the bottom of the product page and pin **DecorIn reviews**.
