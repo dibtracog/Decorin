@@ -2,6 +2,22 @@
 (() => {
   'use strict';
 
+  /* ---------- Shopify's | t filter already HTML-escapes, so "don't" can arrive as "don&#39;t" in
+     data-text-* attributes. Decode those once so messages show real apostrophes. ---------- */
+  const decoder = document.createElement('textarea');
+  const fixTexts = (root) => {
+    (root && root.querySelectorAll ? root : document).querySelectorAll('*').forEach((el) => {
+      for (const a of el.attributes) {
+        if (a.name.indexOf('data-text') !== 0 || a.value.indexOf('&') === -1) continue;
+        decoder.innerHTML = a.value;
+        if (decoder.value !== a.value) el.setAttribute(a.name, decoder.value);
+      }
+    });
+  };
+  fixTexts(document);
+  document.addEventListener('shopify:section:load', (e) => fixTexts(e.target));
+  document.addEventListener('decorin:cart-updated', () => fixTexts(document.querySelector('[data-cart-section]')));
+
   /* ---------- Header: solid background once the page scrolls ---------- */
   const onScroll = () => document.body.classList.toggle('header-scrolled', window.scrollY > 24);
   window.addEventListener('scroll', onScroll, { passive: true });
