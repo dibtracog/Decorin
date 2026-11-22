@@ -35,6 +35,12 @@
         {% render 'icon', name: 'search' %}
         <span class="visually-hidden">{{ 'general.search' | t }}</span>
       </a>
+      {%- if shop.customer_accounts_enabled -%}
+        <a class="site-header__icon site-header__account" href="{{ routes.account_url }}" title="{{ 'general.my_orders' | t }}">
+          {% render 'icon', name: 'user' %}
+          <span class="visually-hidden">{{ 'general.my_orders' | t }}</span>
+        </a>
+      {%- endif -%}
       <a class="site-header__icon site-header__cart" href="{{ routes.cart_url }}">
         {% render 'icon', name: 'cart' %}
         <span class="visually-hidden">{{ 'general.cart' | t }}</span>

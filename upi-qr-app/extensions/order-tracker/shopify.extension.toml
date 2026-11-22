@@ -1,0 +1,12 @@
+api_version = "2026-10"
+
+[[extensions]]
+name = "My orders"
+handle = "order-tracker"
+type = "ui_extension"
+
+  # A full page in the customer's account (shopify.com/.../account).
+  # Add it to the account menu: Online Store > Navigation > Customer account menu > Add menu item > Apps > My orders.
+  [[extensions.targeting]]
+  module = "./src/OrderTracker.jsx"
+  target = "customer-account.page.render"

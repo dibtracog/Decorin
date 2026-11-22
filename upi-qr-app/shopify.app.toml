@@ -6,7 +6,8 @@ embedded = true
 
 [access_scopes]
 # read_products (which product page) + read_content + write_content let the "DecorIn reviews" admin block list, approve, hide and delete reviews (blog comments).
-scopes = "read_products,read_content,write_content"
+# customer_read_orders + customer_read_customers let the "My orders" page show a signed-in customer their own orders.
+scopes = "read_products,read_content,write_content,customer_read_orders,customer_read_customers"
 
 [auth]
 redirect_urls = ["https://shopify.dev/apps/default-app-home/api/auth"]

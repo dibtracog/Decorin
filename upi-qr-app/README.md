@@ -52,6 +52,27 @@ No merchant account or payment gateway needed. It works on every Shopify plan.
 Tip: Settings → Notifications lets you customise these emails. Shopify Flow (free) can email "Payment received"
 when an order is marked paid.
 
+## "My orders" page (customer account)
+
+`extensions/order-tracker` adds a **My orders** page to your customers' account (the page they reach from the person icon in the shop header). It sorts their orders into groups:
+
+| Group | When an order is here | What you do in Shopify admin to move it on |
+|---|---|---|
+| **Payment processing** | Order placed, payment pending | You receive the UPI payment → order → **Mark as paid** |
+| **Being delivered** | Paid, not fulfilled yet | You deliver it → **Fulfill items** |
+| **Fulfilled** | Fulfilled (shows **Delivered** after **Mark as delivered**) | Nothing more |
+| **Cancelled** | Cancelled orders | |
+
+It reads live order data each time the page opens, so the status changes as soon as you change the order in admin.
+
+**Setup (once):**
+1. Deploy as usual (`shopify app deploy` in this folder, answer **Yes** to release), then approve the new permissions in your store (the app asks to read customers' own orders).
+2. If deploy says the app needs **protected customer data** access: Dev Dashboard → DecorIn UPI QR → **API access** → **Protected customer data** → request access → tick *Name* and *Email*, give the reason "Show customers their own orders" → Save. Then deploy again.
+3. Shopify admin → **Settings → Customer accounts** → make sure accounts are on and **Customer accounts** (the new, passwordless version) is selected.
+4. Add the page to the account menu: **Content/Online Store → Menus → Customer account menu** → **Add menu item** → choose **Apps → My orders** → Save.
+
+Customers sign in with the email they used at checkout (Shopify emails them a 6-digit code; there's no password).
+
 ## Review manager (admin block)
 
 `extensions/review-manager` adds a **Customer reviews** card to every product page in Shopify admin (**Products → open a product**, near the bottom).
