@@ -188,7 +188,6 @@
     "check_title": "Check delivery",
     "check_label": "Your pincode",
     "check_placeholder": "e.g. 302001",
-    "check_button": "Check",
     "check_ok": "We deliver to {{ pincode }}.",
     "check_no": "Sorry, we don't deliver to {{ pincode }} yet. We're only in {{ city }} for now.",
     "check_invalid": "Enter a 6-digit pincode.",

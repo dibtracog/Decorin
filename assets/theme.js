@@ -907,14 +907,16 @@
     if (out) out.hidden = true;
     updateGuard();
   });
+  // Leaving the box with a part-typed pincode explains what's wrong.
+  document.addEventListener('focusout', (e) => {
+    if (e.target.matches && e.target.matches('[data-delivery-input]') && e.target.value) runCheck(e.target.closest('[data-delivery-check]'));
+  });
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Enter' || !e.target.matches || !e.target.matches('[data-delivery-input]')) return;
     e.preventDefault(); // inside the cart form, Enter would otherwise go to checkout
     runCheck(e.target.closest('[data-delivery-check]'));
   });
   document.addEventListener('click', (e) => {
-    const check = e.target.closest('[data-delivery-button]');
-    if (check) { runCheck(check.closest('[data-delivery-check]')); return; }
     const btn = e.target.closest('[data-checkout-guard]');
     const box = btn && guardBox();
     if (!box || box.dataset.state === 'ok') return;
