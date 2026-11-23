@@ -218,5 +218,22 @@
     "error_email": "That email doesn't look right.",
     "error_generic": "Something went wrong. Please try again.",
     "in_area": "Good news: we already deliver in {{ city }}. You can order right away."
+  },
+  "contact": {
+    "whatsapp_action": "Chat now",
+    "email_action": "Write to us",
+    "info_title": "Good to know",
+    "form_title": "Or send us a message",
+    "name": "Your name",
+    "email": "Email",
+    "phone": "Phone (optional)",
+    "message": "Message",
+    "send": "Send message",
+    "success": "Thanks! We've got your message and will reply soon."
+  },
+  "about": {
+    "shop": "Shop the collection",
+    "contact": "Contact us",
+    "link": "About us"
   }
 }

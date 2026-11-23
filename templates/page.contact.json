@@ -1,0 +1,16 @@
+{
+  "sections": {
+    "main": {
+      "type": "contact-page",
+      "blocks": {
+        "wa-chetan": { "type": "whatsapp", "settings": { "label": "WhatsApp", "name": "Chetan", "number": "+91 91492 96348", "message": "Hi DecorIn! I have a question." } },
+        "wa-hemang": { "type": "whatsapp", "settings": { "label": "WhatsApp", "name": "Hemang", "number": "+91 84408 56545", "message": "Hi DecorIn! I have a question." } },
+        "mail-chetan": { "type": "email", "settings": { "label": "Email", "name": "Chetan", "email": "chetan12122007a@gmail.com" } },
+        "mail-hemang": { "type": "email", "settings": { "label": "Email", "name": "Hemang", "email": "hemamggarg2@gmail.com" } }
+      },
+      "block_order": ["wa-chetan", "wa-hemang", "mail-chetan", "mail-hemang"],
+      "settings": {}
+    }
+  },
+  "order": ["main"]
+}

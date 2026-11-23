@@ -1,0 +1,123 @@
+{%- comment -%}
+  About us page: story intro, founder cards (blocks), a "Built at BITS Pilani" panel and a closing call to action.
+  Used by templates/page.about.json (the "About us" page in Online Store > Pages).
+{%- endcomment -%}
+<section class="about page-width" id="AboutPage-{{ section.id }}">
+  <header class="about__hero">
+    <p class="eyebrow">{{ section.settings.eyebrow }}</p>
+    <h1 class="about__title">{{ section.settings.heading }}</h1>
+    {%- if section.settings.intro != blank -%}<div class="about__intro rte">{{ section.settings.intro }}</div>{%- endif -%}
+  </header>
+
+  {%- if section.blocks.size > 0 -%}
+    <div class="about__founders-head">
+      <p class="eyebrow">{{ section.settings.founders_eyebrow }}</p>
+      <h2 class="about__h2">{{ section.settings.founders_heading }}</h2>
+    </div>
+    <ul class="about__founders" role="list">
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign words = block.settings.name | split: ' '
+          assign first_initial = words.first | slice: 0
+          assign last_initial = words.last | slice: 0
+          assign initials = first_initial | append: last_initial
+        -%}
+        <li class="founder" {{ block.shopify_attributes }}>
+          <div class="founder__top gradient-card">{%- render 'starfield', count: 10 -%}</div>
+          <div class="founder__avatar">
+            {%- if block.settings.image -%}
+              {{ block.settings.image | image_url: width: 400 | image_tag: class: 'founder__photo', loading: 'lazy', alt: block.settings.name }}
+            {%- else -%}
+              <span class="founder__initials" aria-hidden="true">{{ initials }}</span>
+            {%- endif -%}
+          </div>
+          <div class="founder__body">
+            <p class="founder__role">{{ block.settings.role }}</p>
+            <h3 class="founder__name">{{ block.settings.name }}</h3>
+            <p class="founder__study">{% render 'icon', name: 'sparkle' %}<span>{{ block.settings.study }}</span></p>
+            {%- if block.settings.bio != blank -%}<p class="founder__bio">{{ block.settings.bio }}</p>{%- endif -%}
+            {%- if block.settings.email != blank -%}
+              <a class="founder__email" href="mailto:{{ block.settings.email }}">
+                <span class="founder__email-icon">{% render 'icon', name: 'mail' %}</span>
+                <span>{{ block.settings.email }}</span>
+              </a>
+            {%- endif -%}
+          </div>
+        </li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
+
+  <div class="about__campus gradient-card">
+    {%- render 'starfield', count: 18 -%}
+    <div class="about__campus-text">
+      <p class="eyebrow eyebrow--light">{{ section.settings.campus_eyebrow }}</p>
+      <h2 class="about__h2">{{ section.settings.campus_heading }}</h2>
+      <div class="rte">{{ section.settings.campus_text }}</div>
+    </div>
+    <ul class="about__stats" role="list">
+      {%- for i in (1..4) -%}
+        {%- assign v = 'stat_' | append: i | append: '_value' -%}
+        {%- assign l = 'stat_' | append: i | append: '_label' -%}
+        {%- if section.settings[v] != blank -%}
+          <li class="about__stat">
+            <span class="about__stat-value">{{ section.settings[v] }}</span>
+            <span class="about__stat-label">{{ section.settings[l] }}</span>
+          </li>
+        {%- endif -%}
+      {%- endfor -%}
+    </ul>
+  </div>
+
+  <div class="about__cta">
+    <h2 class="about__h2">{{ section.settings.cta_heading }}</h2>
+    <div class="about__cta-buttons">
+      <a class="button button--gold" href="{{ routes.all_products_collection_url }}">{{ 'about.shop' | t }}{% render 'icon', name: 'arrow-right' %}</a>
+      <a class="button button--secondary" href="{{ section.settings.contact_link | default: '/pages/contact' }}">{{ 'about.contact' | t }}</a>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "About page",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Our story" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Two students, one idea: homes that feel brand new" },
+    { "type": "richtext", "id": "intro", "label": "Introduction", "default": "<p>DecorIn started in a hostel room at BITS Pilani, with two friends who kept wishing their rooms felt more like home. We began hunting for decor that looks special, lasts, and doesn't cost a fortune, and we decided to share our finds.</p><p>Every piece in our shop is handpicked by us. We're starting small and local, delivering across Jaipur, so we can look after every order personally.</p>" },
+    { "type": "header", "content": "Founders" },
+    { "type": "text", "id": "founders_eyebrow", "label": "Eyebrow", "default": "The founders" },
+    { "type": "text", "id": "founders_heading", "label": "Heading", "default": "The people behind DecorIn" },
+    { "type": "header", "content": "BITS Pilani panel" },
+    { "type": "text", "id": "campus_eyebrow", "label": "Eyebrow", "default": "Built at BITS Pilani" },
+    { "type": "text", "id": "campus_heading", "label": "Heading", "default": "Where DecorIn began" },
+    { "type": "richtext", "id": "campus_text", "label": "Text", "default": "<p>We're both pursuing our undergraduate BE degrees at the Birla Institute of Technology and Science (BITS), Pilani Campus. Founded in 1964 in the town of Pilani, Rajasthan, BITS is one of India's leading engineering institutes and has been recognised by the Government of India as an Institution of Eminence.</p><p>BITS is known for its entrepreneurial culture, and many of its students build their own start-ups while studying. DecorIn is our first.</p>" },
+    { "type": "text", "id": "stat_1_value", "label": "Fact 1", "default": "1964" },
+    { "type": "text", "id": "stat_1_label", "label": "Fact 1 label", "default": "Founded" },
+    { "type": "text", "id": "stat_2_value", "label": "Fact 2", "default": "Pilani" },
+    { "type": "text", "id": "stat_2_label", "label": "Fact 2 label", "default": "Rajasthan, about 200 km from Jaipur" },
+    { "type": "text", "id": "stat_3_value", "label": "Fact 3", "default": "Institution of Eminence" },
+    { "type": "text", "id": "stat_3_label", "label": "Fact 3 label", "default": "Recognised by the Government of India" },
+    { "type": "text", "id": "stat_4_value", "label": "Fact 4", "default": "BE" },
+    { "type": "text", "id": "stat_4_label", "label": "Fact 4 label", "default": "Our undergraduate degrees" },
+    { "type": "header", "content": "Closing" },
+    { "type": "text", "id": "cta_heading", "label": "Heading", "default": "Find something that makes your home feel new" },
+    { "type": "url", "id": "contact_link", "label": "Contact link" }
+  ],
+  "blocks": [
+    {
+      "type": "founder",
+      "name": "Founder",
+      "settings": [
+        { "type": "text", "id": "name", "label": "Name", "default": "Founder name" },
+        { "type": "text", "id": "role", "label": "Role", "default": "Co-founder" },
+        { "type": "text", "id": "study", "label": "Studies", "default": "BE, BITS Pilani – Pilani Campus" },
+        { "type": "textarea", "id": "bio", "label": "Short bio" },
+        { "type": "text", "id": "email", "label": "Email" },
+        { "type": "image_picker", "id": "image", "label": "Photo (optional)" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "About page" }]
+}
+{% endschema %}

@@ -1,0 +1,14 @@
+{
+  "sections": {
+    "main": {
+      "type": "about-page",
+      "blocks": {
+        "chetan": { "type": "founder", "settings": { "name": "Chetan Agarwal", "role": "Co-founder", "study": "BE, BITS Pilani – Pilani Campus", "bio": "Looks after our catalogue and the website, and personally checks every piece before it reaches you.", "email": "chetan12122007a@gmail.com" } },
+        "hemang": { "type": "founder", "settings": { "name": "Hemang Garg", "role": "Co-founder", "study": "BE, BITS Pilani – Pilani Campus", "bio": "Looks after sourcing, orders and delivery, and makes sure every order reaches you safely and on time.", "email": "hemamggarg2@gmail.com" } }
+      },
+      "block_order": ["chetan", "hemang"],
+      "settings": {}
+    }
+  },
+  "order": ["main"]
+}
