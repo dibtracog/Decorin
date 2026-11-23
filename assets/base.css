@@ -1298,3 +1298,5 @@ input[type="number"] { max-width: 120px; }
 .interest__privacy { margin: 0; display: flex; align-items: center; gap: 8px; flex: 1 1 220px; max-width: 26rem; font-size: 0.8125rem; line-height: 1.45; color: color-mix(in srgb, var(--c-text) 58%, transparent); }
 .interest__privacy .icon { flex: none; width: 14px; height: 14px; color: var(--c-gold-dark); }
 .interest__foot .interest__status { flex-basis: 100%; }
+.cart-summary__policy { margin: 14px 0 0; font-size: 0.8125rem; line-height: 1.5; text-align: center; color: color-mix(in srgb, var(--c-text) 60%, transparent); }
+.cart-summary__policy a { color: var(--c-gold-dark); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }

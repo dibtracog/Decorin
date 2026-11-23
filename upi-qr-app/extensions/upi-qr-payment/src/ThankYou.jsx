@@ -14,7 +14,6 @@ import '@shopify/ui-extensions/preact';
 import { render } from 'preact';
 import { useState } from 'preact/hooks';
 
-const DEFAULT_UPI_ID = '9149296348@ybl';
 const DEFAULT_PAYEE = 'DecorIn';
 
 export default async () => {
@@ -39,7 +38,9 @@ function UpiPayment() {
   const isManual = selectedPayments.some((option) => option.type === 'manualPayment');
   if (!isManual || !total || total.currencyCode !== 'INR') return null;
 
-  const upiId = String(settings.upi_id || DEFAULT_UPI_ID).trim();
+  // The UPI ID is set in Shopify admin (Checkout editor > Thank you > this block), not in code.
+  const upiId = String(settings.upi_id || '').trim();
+  if (!upiId) return null;
   const payee = String(settings.payee_name || DEFAULT_PAYEE).trim();
   const prefix = String(settings.note_prefix || DEFAULT_PAYEE).trim();
 

@@ -32,7 +32,7 @@ No merchant account or payment gateway needed. It works on every Shopify plan.
 4. **Install it on your store:** Partner dashboard → Apps → DecorIn UPI QR → **Distribution → Custom distribution**
    → enter your store's `.myshopify.com` domain → open the install link → Install.
 5. **Add the block:** Shopify admin → **Settings → Checkout → Customize** → switch the page dropdown to
-   **Thank you** → **Add app block → UPI QR payment** → set your **UPI ID** (`9149296348@ybl`) → Save.
+   **Thank you** → **Add app block → UPI QR payment** → set your **UPI ID** (for example `yourname@okbank`) → Save. The block stays hidden until a UPI ID is set.
 6. **Create the payment method:** Shopify admin → **Settings → Payments → Manual payment methods →
    Create custom payment method**
    - Name: `UPI (Scan & Pay)`

@@ -20,7 +20,7 @@ type = "ui_extension"
     key = "upi_id"
     type = "single_line_text_field"
     name = "UPI ID"
-    description = "Where payments are sent, e.g. 9149296348@ybl"
+    description = "Where payments are sent, e.g. yourname@okbank. The block stays hidden until this is set."
 
     [[extensions.settings.fields]]
     key = "payee_name"

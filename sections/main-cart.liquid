@@ -119,6 +119,7 @@
           </button>
         {%- endif -%}
         <p class="cart-summary__guard" data-checkout-hint hidden></p>
+        <p class="cart-summary__policy">{{ 'cart.no_returns' | t }} <a href="{{ section.settings.return_policy_link | default: '/pages/return-policy' }}">{{ 'cart.return_policy' | t }}</a></p>
         <noscript>
           <button type="submit" name="update" class="button button--secondary button--full">{{ 'cart.update' | t }}</button>
         </noscript>
@@ -145,6 +146,7 @@
     { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Almost yours" },
     { "type": "checkbox", "id": "use_upi_page", "label": "Send checkout to the theme's UPI payment page", "default": false, "info": "Off (recommended): customers use Shopify checkout, choose the UPI payment method, and see the QR on the Thank you page. On: skip Shopify checkout and show the theme's QR page (no Shopify order is created)." },
     { "type": "page", "id": "payment_page", "label": "UPI payment page", "info": "Optional. Leave empty to use the built-in payment page (/cart?view=payment)." },
+    { "type": "url", "id": "return_policy_link", "label": "Return policy link", "info": "Optional. Defaults to /pages/return-policy." },
     { "type": "textarea", "id": "empty_text", "label": "Empty cart message", "default": "This new year, find something that makes your home feel brand new." }
   ]
 }

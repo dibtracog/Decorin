@@ -3,7 +3,7 @@
     "main": {
       "type": "upi-checkout",
       "settings": {
-        "upi_id": "9149296348@ybl",
+        "upi_id": "",
         "note_prefix": "DecorIn",
         "shipping_fee": 99
       }
