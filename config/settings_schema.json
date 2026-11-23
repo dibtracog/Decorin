@@ -155,5 +155,17 @@
         "info": "Optional. A page using the 'interest' template. If empty, links go to the form on the home page."
       }
     ]
+  },
+  {
+    "name": "Social",
+    "settings": [
+      {
+        "type": "text",
+        "id": "social_instagram",
+        "label": "Instagram",
+        "default": "https://www.instagram.com/decorinofficial/",
+        "info": "Shown as an Instagram bubble in the footer, About us and Contact pages. Leave empty to hide."
+      }
+    ]
   }
 ]

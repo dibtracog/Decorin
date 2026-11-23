@@ -1224,3 +1224,39 @@ input[type="number"] { max-width: 120px; }
 .about__stat-label { font-size: 0.875rem; color: rgba(255,255,255,.75); }
 .about__cta { margin-top: 72px; text-align: center; display: grid; gap: 22px; justify-items: center; }
 .about__cta-buttons { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+
+/* ---------- Instagram bubble ---------- */
+.insta-bubble { display: inline-flex; align-items: center; gap: 12px; padding: 7px 20px 7px 7px; border-radius: 999px; text-decoration: none; transition: transform .25s ease, box-shadow .25s ease; }
+.insta-bubble:hover { transform: translateY(-2px); }
+.insta-bubble__icon { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; color: #fff; background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%); box-shadow: 0 8px 18px -8px rgba(214, 36, 159, .7); }
+.insta-bubble__icon .icon { width: 24px; height: 24px; }
+.insta-bubble__text { display: grid; line-height: 1.2; text-align: left; }
+.insta-bubble__label { font-size: 0.6875rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; }
+.insta-bubble__handle { font-weight: 700; font-size: 0.9375rem; }
+.insta-bubble--light { background: #fff; border: 1px solid color-mix(in srgb, #d6249f 22%, transparent); color: var(--c-midnight); box-shadow: 0 16px 36px -28px rgba(214, 36, 159, .8); }
+.insta-bubble--light .insta-bubble__label { color: #c1357f; }
+.insta-bubble--light:hover { box-shadow: 0 20px 40px -24px rgba(214, 36, 159, .8); }
+.insta-bubble--dark { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16); color: #fff; }
+.insta-bubble--dark .insta-bubble__label { color: rgba(255,255,255,.65); }
+.site-footer__social { margin-top: 18px; }
+.contact__social { display: flex; justify-content: center; margin-top: 24px; }
+
+/* ---------- About: how we pick + values ---------- */
+.about__section-head { text-align: center; max-width: 40rem; margin: 0 auto 32px; }
+.about__section-text { margin: 14px 0 0; color: color-mix(in srgb, var(--c-text) 72%, transparent); }
+.about__picks, .about__values { margin-top: 80px; }
+.about__steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; counter-reset: none; }
+@media (min-width: 750px) { .about__steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .about__steps { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.about__step { position: relative; padding: 26px 24px; border-radius: 20px; background: #fff; border: 1px solid color-mix(in srgb, var(--c-gold) 28%, transparent); display: grid; gap: 10px; align-content: start; }
+.about__step::before { content: ""; position: absolute; left: 24px; right: 24px; top: 0; height: 3px; border-radius: 0 0 3px 3px; background: linear-gradient(90deg, var(--c-gold-light), var(--c-gold-dark)); }
+.about__step-num { font-family: var(--font-heading); font-style: italic; font-size: 2rem; line-height: 1; color: var(--c-gold); }
+.about__step-title { font-size: 1.3125rem; }
+.about__step-text { margin: 0; color: color-mix(in srgb, var(--c-text) 72%, transparent); font-size: 0.9375rem; }
+.about__value-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; }
+@media (min-width: 750px) { .about__value-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.about__value { padding: 28px 24px; border-radius: 22px; background: color-mix(in srgb, var(--c-gold) 7%, #fff); border: 1px solid color-mix(in srgb, var(--c-gold) 24%, transparent); text-align: center; display: grid; gap: 10px; justify-items: center; }
+.about__value-art { display: block; width: 104px; height: 104px; color: var(--c-gold-dark); }
+.about__value-art .feature__art { position: static; z-index: auto; transform: none; width: 100%; max-width: none; height: 100%; opacity: 1; color: inherit; }
+.about__value-title { font-size: 1.375rem; }
+.about__value-text { margin: 0; color: color-mix(in srgb, var(--c-text) 72%, transparent); font-size: 0.9375rem; max-width: 22rem; }

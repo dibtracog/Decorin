@@ -11,6 +11,7 @@
     <div class="site-footer__brand">
       <a class="site-footer__logo" href="{{ routes.root_url }}">{{ settings.brand_name | default: shop.name }}</a>
       <p>{{ section.settings.tagline }}</p>
+      <div class="site-footer__social">{%- render 'instagram-bubble', style: 'dark' -%}</div>
       {%- if settings.area_limit -%}
         {%- assign area_city = settings.area_city | default: 'Jaipur' -%}
         {%- assign area_state = settings.area_state | default: 'Rajasthan' -%}
