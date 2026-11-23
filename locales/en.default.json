@@ -203,13 +203,13 @@
     "text": "We deliver only in {{ city }} for now. Tell us where you are, and we'll message you as soon as we deliver to your city.",
     "name": "Your name",
     "phone": "Phone number",
-    "phone_note": "10-digit mobile number. We'll only use it to tell you when we reach your city.",
-    "email": "Email (optional)",
+    "phone_note": "We'll only use your number to tell you when we deliver to your city. No spam.",
+    "email": "Email",
     "city": "Your city",
     "state": "State",
     "state_pick": "Choose your state",
-    "product": "Anything you'd like to buy? (optional)",
-    "product_placeholder": "A product name or what you're looking for",
+    "product": "Looking for",
+    "product_placeholder": "e.g. a vase, wall art, lamps",
     "submit": "Let us know",
     "sending": "Sending…",
     "thanks": "Thank you! We've noted your city and will message you as soon as we deliver there.",
@@ -219,7 +219,8 @@
     "error_state": "Please choose your state.",
     "error_email": "That email doesn't look right.",
     "error_generic": "Something went wrong. Please try again.",
-    "in_area": "Good news: we already deliver in {{ city }}. You can order right away."
+    "in_area": "Good news: we already deliver in {{ city }}. You can order right away.",
+    "optional": "Optional"
   },
   "contact": {
     "whatsapp_action": "Chat now",

@@ -1291,3 +1291,10 @@ input[type="number"] { max-width: 120px; }
 }
 @media (prefers-reduced-motion: reduce) { .chat-float { animation: none; } }
 @media print { .chat-float { display: none; } }
+/* interest form: tidy alignment */
+.interest__form .field label { display: flex; align-items: baseline; gap: 8px; }
+.interest__optional { font-size: 0.6875rem; letter-spacing: 0.04em; text-transform: none; font-weight: 600; color: color-mix(in srgb, var(--c-text) 48%, transparent); }
+.interest__foot { margin-top: 4px; padding-top: 18px; border-top: 1px solid color-mix(in srgb, var(--c-text) 10%, transparent); justify-content: space-between; }
+.interest__privacy { margin: 0; display: flex; align-items: center; gap: 8px; flex: 1 1 220px; max-width: 26rem; font-size: 0.8125rem; line-height: 1.45; color: color-mix(in srgb, var(--c-text) 58%, transparent); }
+.interest__privacy .icon { flex: none; width: 14px; height: 14px; color: var(--c-gold-dark); }
+.interest__foot .interest__status { flex-basis: 100%; }

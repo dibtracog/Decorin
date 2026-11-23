@@ -46,7 +46,6 @@
               <label for="InterestPhone-{{ section.id }}">{{ 'interest.phone' | t }}</label>
               <input id="InterestPhone-{{ section.id }}" type="tel" name="contact[Phone]" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="98765 43210" required data-interest-field="phone">
               <p class="interest__error" data-error-for="phone" hidden>{{ 'interest.error_phone' | t }}</p>
-              <small>{{ 'interest.phone_note' | t }}</small>
             </div>
           </div>
 
@@ -71,19 +70,20 @@
 
           <div class="interest__row">
             <div class="field">
-              <label for="InterestEmail-{{ section.id }}">{{ 'interest.email' | t }}</label>
+              <label for="InterestEmail-{{ section.id }}">{{ 'interest.email' | t }} <span class="interest__optional">{{ 'interest.optional' | t }}</span></label>
               <input id="InterestEmail-{{ section.id }}" type="email" autocomplete="email" maxlength="100" data-interest-field="email">
               <input type="hidden" name="contact[email]" value="" data-interest-email>
               <p class="interest__error" data-error-for="email" hidden>{{ 'interest.error_email' | t }}</p>
             </div>
             <div class="field">
-              <label for="InterestProduct-{{ section.id }}">{{ 'interest.product' | t }}</label>
+              <label for="InterestProduct-{{ section.id }}">{{ 'interest.product' | t }} <span class="interest__optional">{{ 'interest.optional' | t }}</span></label>
               <input id="InterestProduct-{{ section.id }}" type="text" name="contact[Interested in]" maxlength="120" placeholder="{{ 'interest.product_placeholder' | t }}" data-interest-field="product">
             </div>
           </div>
 
           <div class="interest__foot">
             <button type="submit" class="button button--gold" data-interest-submit>{% render 'icon', name: 'sparkle' %}{{ 'interest.submit' | t }}</button>
+            <p class="interest__privacy">{% render 'icon', name: 'lock' %}<span>{{ 'interest.phone_note' | t }}</span></p>
             <p class="interest__status" role="status" data-interest-status hidden></p>
           </div>
         {%- endif -%}
