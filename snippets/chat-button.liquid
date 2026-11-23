@@ -1,0 +1,27 @@
+{%- comment -%}
+  Floating WhatsApp chat button (Theme settings → Social → Floating chat button).
+  Uses DecorIn's own chat mark (a speech bubble with the brand sparkle) instead of the WhatsApp logo.
+{%- endcomment -%}
+{%- if settings.chat_enabled and settings.chat_number != blank -%}
+  {%- liquid
+    assign digits = settings.chat_number | remove: ' ' | remove: '+' | remove: '-' | remove: '(' | remove: ')'
+    assign message = settings.chat_message
+    if template.name == 'product' and product and settings.chat_product_message != blank
+      assign message = settings.chat_product_message | replace: '[product]', product.title
+    endif
+    assign encoded = message | url_encode
+    assign href = 'https://wa.me/' | append: digits | append: '?text=' | append: encoded
+  -%}
+  <a class="chat-float" href="{{ href }}" target="_blank" rel="noopener" data-chat-float aria-label="{{ settings.chat_label | escape }} ({{ 'general.opens_whatsapp' | t }})">
+    <span class="chat-float__mark" aria-hidden="true">
+      <svg viewBox="0 0 32 32" width="26" height="26" fill="none">
+        <path d="M16 4.5c-6.6 0-11.5 4.5-11.5 10.2 0 3.1 1.5 5.9 3.9 7.8l-.9 4.4c-.1.5.4.9.9.6l4.6-2.4c1 .2 2 .3 3 .3 6.6 0 11.5-4.5 11.5-10.2S22.6 4.5 16 4.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+        <path d="M16 9.6c.4 2.5 1.6 3.7 4.1 4.1-2.5.4-3.7 1.6-4.1 4.1-.4-2.5-1.6-3.7-4.1-4.1 2.5-.4 3.7-1.6 4.1-4.1Z" fill="currentColor"/>
+      </svg>
+    </span>
+    <span class="chat-float__text">
+      <span class="chat-float__label">{{ settings.chat_label }}</span>
+      {%- if settings.chat_subtext != blank -%}<span class="chat-float__sub">{{ settings.chat_subtext }}</span>{%- endif -%}
+    </span>
+  </a>
+{%- endif -%}

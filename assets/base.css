@@ -1260,3 +1260,34 @@ input[type="number"] { max-width: 120px; }
 .about__value-art .feature__art { position: static; z-index: auto; transform: none; width: 100%; max-width: none; height: 100%; opacity: 1; color: inherit; }
 .about__value-title { font-size: 1.375rem; }
 .about__value-text { margin: 0; color: color-mix(in srgb, var(--c-text) 72%, transparent); font-size: 0.9375rem; max-width: 22rem; }
+
+/* ---------- Floating chat button ---------- */
+.chat-float {
+  position: fixed; right: 20px; bottom: 20px; z-index: 40;
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 8px 20px 8px 8px; border-radius: 999px;
+  background: linear-gradient(135deg, var(--c-midnight-soft), var(--c-midnight-deep));
+  color: #fff; text-decoration: none;
+  border: 1px solid color-mix(in srgb, var(--c-gold) 45%, transparent);
+  box-shadow: 0 18px 40px -16px rgba(13, 19, 48, .65), 0 2px 6px rgba(13, 19, 48, .18);
+  animation: chat-in .6s cubic-bezier(.2, .7, .2, 1) 1.2s both;
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.chat-float:hover { transform: translateY(-2px); border-color: var(--c-gold-light); box-shadow: 0 22px 46px -16px rgba(13, 19, 48, .7), 0 2px 6px rgba(13, 19, 48, .2); }
+.chat-float:focus-visible { outline: 2px solid var(--c-gold-light); outline-offset: 3px; }
+.chat-float__mark {
+  flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
+  color: var(--c-midnight); background: linear-gradient(145deg, var(--c-gold-light), var(--c-gold));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.45);
+}
+.chat-float__text { display: grid; line-height: 1.2; }
+.chat-float__label { font-weight: 700; font-size: 0.9375rem; letter-spacing: 0.01em; }
+.chat-float__sub { font-size: 0.75rem; color: rgba(255,255,255,.65); }
+@keyframes chat-in { from { opacity: 0; transform: translateY(16px) scale(.96); } to { opacity: 1; transform: none; } }
+@media (max-width: 749px) {
+  .chat-float { right: 14px; bottom: 14px; padding: 6px; gap: 0; }
+  .chat-float__mark { width: 48px; height: 48px; }
+  .chat-float__text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+@media (prefers-reduced-motion: reduce) { .chat-float { animation: none; } }
+@media print { .chat-float { display: none; } }

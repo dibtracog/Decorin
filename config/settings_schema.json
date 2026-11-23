@@ -165,6 +165,48 @@
         "label": "Instagram",
         "default": "https://www.instagram.com/decorinofficial/",
         "info": "Shown as an Instagram bubble in the footer, About us and Contact pages. Leave empty to hide."
+      },
+      {
+        "type": "header",
+        "content": "Floating chat button"
+      },
+      {
+        "type": "checkbox",
+        "id": "chat_enabled",
+        "label": "Show floating WhatsApp chat button",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "chat_number",
+        "label": "WhatsApp number",
+        "default": "+91 91492 96348",
+        "info": "With country code. Chats open with this number."
+      },
+      {
+        "type": "text",
+        "id": "chat_label",
+        "label": "Button text",
+        "default": "Chat with us"
+      },
+      {
+        "type": "text",
+        "id": "chat_subtext",
+        "label": "Small text",
+        "default": "We reply on WhatsApp"
+      },
+      {
+        "type": "text",
+        "id": "chat_message",
+        "label": "Pre-filled message",
+        "default": "Hi DecorIn! I have a question."
+      },
+      {
+        "type": "text",
+        "id": "chat_product_message",
+        "label": "Pre-filled message on product pages",
+        "default": "Hi DecorIn! I'm interested in [product].",
+        "info": "[product] is replaced with the product name."
       }
     ]
   }
