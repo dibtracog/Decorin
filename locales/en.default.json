@@ -78,7 +78,7 @@
     "start_shopping": "Start shopping",
     "error": "Couldn't update your cart. Please try again.",
     "free": "Free",
-    "no_returns": "No returns or exchanges once your order is out for delivery.",
+    "no_returns": "All sales are final: no returns, exchanges or cancellations once your payment is confirmed.",
     "return_policy": "Return policy"
   },
   "search": {
