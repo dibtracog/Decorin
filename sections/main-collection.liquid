@@ -1,0 +1,66 @@
+{%- liquid
+  if collection.handle == 'all' and section.settings.all_heading != blank
+    assign heading = section.settings.all_heading
+  else
+    assign heading = collection.title
+  endif
+-%}
+<section class="catalogue">
+  <div class="catalogue__hero">
+    {% render 'starfield', count: 30 %}
+    <div class="page-width catalogue__hero-content">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="eyebrow eyebrow--light">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      <h1 class="catalogue__title" data-results-title>{{ heading }}</h1>
+      <div class="catalogue__intro">
+        {%- if collection.description != blank -%}
+          {{ collection.description }}
+        {%- else -%}
+          <p>{{ section.settings.intro }}</p>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+
+  <div class="page-width catalogue__results" data-results-root>
+    {% render 'catalogue-search' %}
+    <div class="catalogue__body" data-results="{{ section.id }}">
+    {%- paginate collection.products by section.settings.products_per_page -%}
+      {% render 'facets', results: collection, section_id: section.id, action_url: collection.url, count: collection.products_count %}
+
+      {%- if collection.products.size > 0 -%}
+        <ul class="product-grid" role="list">
+          {%- for product in collection.products -%}
+            <li>{% render 'product-card', product: product, index: forloop.index %}</li>
+          {%- endfor -%}
+        </ul>
+      {%- else -%}
+        <div class="catalogue__empty">
+          <span aria-hidden="true">✦</span>
+          {%- if collection.all_products_count > 0 -%}
+            <p>{{ 'facets.no_matches' | t }}</p>
+            <a class="button button--secondary" href="{{ collection.url }}">{{ 'facets.clear_all' | t }}</a>
+          {%- else -%}
+            <p>{{ 'collections.empty' | t }}</p>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      {% render 'pagination', paginate: paginate %}
+    {%- endpaginate -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Catalogue",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The New Year Collection" },
+    { "type": "text", "id": "all_heading", "label": "Heading for the 'All products' catalogue", "default": "The Full Catalogue" },
+    { "type": "textarea", "id": "intro", "label": "Intro text (used when the collection has no description)", "default": "This new year, decorate your home with pieces that make every corner feel brand new." },
+    { "type": "range", "id": "products_per_page", "label": "Products per page", "min": 8, "max": 48, "step": 4, "default": 24 }
+  ]
+}
+{% endschema %}

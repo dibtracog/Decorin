@@ -1,0 +1,12 @@
+{%- comment -%} Prints the link to the "Interested in buying? Let us know" form. Optional: product (title to prefill). {%- endcomment -%}
+{%- liquid
+  assign base = routes.root_url
+  if settings.interest_page != blank
+    assign base = settings.interest_page.url
+  endif
+  if product != blank
+    assign q = product | url_encode
+    assign base = base | append: '?product=' | append: q
+  endif
+  echo base | append: '#interest'
+-%}

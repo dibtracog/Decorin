@@ -1,0 +1,17 @@
+{%- comment -%}
+  Instagram "bubble" link. Uses Theme settings → Social → Instagram.
+  style: 'light' (on light backgrounds, default) or 'dark' (on dark backgrounds)
+{%- endcomment -%}
+{%- assign insta = settings.social_instagram | strip -%}
+{%- if insta != blank -%}
+  {%- liquid
+    assign handle = insta | split: '?' | first | split: 'instagram.com/' | last | remove: '/' | prepend: '@'
+  -%}
+  <a class="insta-bubble insta-bubble--{{ style | default: 'light' }}" href="{{ insta }}" target="_blank" rel="noopener">
+    <span class="insta-bubble__icon">{% render 'icon', name: 'instagram' %}</span>
+    <span class="insta-bubble__text">
+      <span class="insta-bubble__label">{{ 'general.follow_instagram' | t }}</span>
+      <span class="insta-bubble__handle">{{ handle }}</span>
+    </span>
+  </a>
+{%- endif -%}

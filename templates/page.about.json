@@ -1,0 +1,37 @@
+{
+  "sections": {
+    "main": {
+      "type": "about-page",
+      "blocks": {
+        "chetan": {
+          "type": "founder",
+          "settings": {
+            "name": "Chetan Agarwal",
+            "role": "Co-founder · Tech & social media",
+            "study": "BE, BITS Pilani – Pilani Campus",
+            "bio": "Chetan builds and runs everything digital at DecorIn, from this website and smooth online ordering to our Instagram, where he shares new arrivals and styling ideas.",
+            "email": "chetan12122007a@gmail.com"
+          }
+        },
+        "hemang": {
+          "type": "founder",
+          "settings": {
+            "name": "Hemang Garg",
+            "role": "Co-founder · Catalogue & delivery",
+            "study": "BE, BITS Pilani – Pilani Campus",
+            "bio": "Hemang curates our catalogue and runs operations: sourcing every piece, managing stock, and making sure each order is packed carefully and delivered on time.",
+            "email": "hemamggarg2@gmail.com"
+          }
+        }
+      },
+      "block_order": [
+        "chetan",
+        "hemang"
+      ],
+      "settings": {}
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

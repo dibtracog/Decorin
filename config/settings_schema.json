@@ -1,0 +1,213 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "DecorIn",
+    "theme_version": "0.2.0",
+    "theme_author": "DecorIn",
+    "theme_documentation_url": "https://shopify.dev/docs/storefronts/themes",
+    "theme_support_url": "https://help.shopify.com"
+  },
+  {
+    "name": "Brand",
+    "settings": [
+      {
+        "type": "text",
+        "id": "brand_name",
+        "label": "Brand name",
+        "default": "DecorIn",
+        "info": "Shown in the header, footer and page titles. Leave empty to use the store name."
+      }
+    ]
+  },
+  {
+    "name": "Colors",
+    "settings": [
+      {
+        "type": "color",
+        "id": "color_midnight",
+        "label": "Midnight (hero, footer, dark sections)",
+        "default": "#0d1330"
+      },
+      {
+        "type": "color",
+        "id": "color_gold",
+        "label": "Gold accent",
+        "default": "#d6b16a"
+      },
+      {
+        "type": "color",
+        "id": "color_ivory",
+        "label": "Page background",
+        "default": "#faf6ef"
+      },
+      {
+        "type": "color",
+        "id": "color_text",
+        "label": "Text",
+        "default": "#1c1b29"
+      }
+    ]
+  },
+  {
+    "name": "Typography",
+    "settings": [
+      {
+        "type": "font_picker",
+        "id": "type_heading_font",
+        "label": "Headings",
+        "default": "playfair_display_n4"
+      },
+      {
+        "type": "font_picker",
+        "id": "type_body_font",
+        "label": "Body",
+        "default": "assistant_n4"
+      }
+    ]
+  },
+  {
+    "name": "Layout",
+    "settings": [
+      {
+        "type": "range",
+        "id": "page_width",
+        "label": "Page width",
+        "min": 1000,
+        "max": 1600,
+        "step": 100,
+        "unit": "px",
+        "default": 1300
+      }
+    ]
+  },
+  {
+    "name": "Reviews",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Reviews are stored as comments on one blog post, so you approve them in Online Store → Blog posts → Manage comments."
+      },
+      {
+        "type": "text",
+        "id": "reviews_article",
+        "label": "Reviews blog post",
+        "info": "Format: blog-handle/post-handle",
+        "default": "reviews/product-reviews"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_card_ratings",
+        "label": "Show star ratings on product cards",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "Delivery area",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Limit orders to one city for now. To actually stop checkout elsewhere, also set Settings → Shipping and delivery to deliver only to these pincodes (see the theme README)."
+      },
+      {
+        "type": "checkbox",
+        "id": "area_limit",
+        "label": "Deliver to one city only",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "area_city",
+        "label": "City",
+        "default": "Jaipur"
+      },
+      {
+        "type": "text",
+        "id": "area_state",
+        "label": "State",
+        "default": "Rajasthan"
+      },
+      {
+        "type": "text",
+        "id": "area_pincodes",
+        "label": "Pincodes we deliver to",
+        "default": "302",
+        "info": "Comma-separated. A short code matches every pincode starting with it, e.g. 302 = all Jaipur city pincodes (302001–302044). Add 303 for Jaipur district towns, or list exact pincodes."
+      },
+      {
+        "type": "text",
+        "id": "area_message",
+        "label": "Announcement bar message",
+        "default": "Now delivering across Jaipur · more cities soon",
+        "info": "Shown first in the announcement bar while the limit is on."
+      },
+      {
+        "type": "checkbox",
+        "id": "area_block_checkout",
+        "label": "Ask for a pincode before checkout",
+        "default": true,
+        "info": "Cart page: checkout stays locked until the shopper enters a pincode you deliver to."
+      },
+      {
+        "type": "page",
+        "id": "interest_page",
+        "label": "\"Let us know\" page",
+        "info": "Optional. A page using the 'interest' template. If empty, links go to the form on the home page."
+      }
+    ]
+  },
+  {
+    "name": "Social",
+    "settings": [
+      {
+        "type": "text",
+        "id": "social_instagram",
+        "label": "Instagram",
+        "default": "https://www.instagram.com/decorinofficial/",
+        "info": "Shown as an Instagram bubble in the footer, About us and Contact pages. Leave empty to hide."
+      },
+      {
+        "type": "header",
+        "content": "Floating chat button"
+      },
+      {
+        "type": "checkbox",
+        "id": "chat_enabled",
+        "label": "Show floating WhatsApp chat button",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "chat_number",
+        "label": "WhatsApp number",
+        "default": "+91 91492 96348",
+        "info": "With country code. Chats open with this number."
+      },
+      {
+        "type": "text",
+        "id": "chat_label",
+        "label": "Button text",
+        "default": "Chat with us"
+      },
+      {
+        "type": "text",
+        "id": "chat_subtext",
+        "label": "Small text",
+        "default": "We reply on WhatsApp"
+      },
+      {
+        "type": "text",
+        "id": "chat_message",
+        "label": "Pre-filled message",
+        "default": "Hi DecorIn! I have a question."
+      },
+      {
+        "type": "text",
+        "id": "chat_product_message",
+        "label": "Pre-filled message on product pages",
+        "default": "Hi DecorIn! I'm interested in [product].",
+        "info": "[product] is replaced with the product name."
+      }
+    ]
+  }
+]

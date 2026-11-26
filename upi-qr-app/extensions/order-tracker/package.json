@@ -1,0 +1,11 @@
+{
+  "name": "order-tracker",
+  "private": true,
+  "version": "1.0.0",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@shopify/ui-extensions": "2026.10.1",
+    "preact": "10.24.3",
+    "@preact/signals": "1.3.1"
+  }
+}

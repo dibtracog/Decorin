@@ -1,0 +1,65 @@
+<section class="catalogue catalogue--search">
+  <div class="catalogue__hero catalogue__hero--compact">
+    {% render 'starfield', count: 24 %}
+    <div class="page-width catalogue__hero-content">
+      <p class="eyebrow eyebrow--light">{{ section.settings.eyebrow }}</p>
+      <h1 class="catalogue__title" data-results-title>
+        {%- if search.performed and search.terms != blank -%}
+          {{ 'search.results_for' | t: terms: search.terms }}
+        {%- else -%}
+          {{ section.settings.heading }}
+        {%- endif -%}
+      </h1>
+    </div>
+  </div>
+
+  <div class="page-width catalogue__results" data-results-root>
+    {% render 'catalogue-search', terms: search.terms %}
+    <div class="catalogue__body" data-results="{{ section.id }}">
+    {%- paginate search.results by section.settings.products_per_page -%}
+      {% render 'facets', results: search, section_id: section.id, action_url: routes.search_url, count: search.results_count, terms: search.terms %}
+
+      {%- if search.performed and search.results_count > 0 -%}
+        <ul class="product-grid" role="list">
+          {%- for item in search.results -%}
+            <li>
+              {%- if item.object_type == 'product' -%}
+                {% render 'product-card', product: item, index: forloop.index %}
+              {%- else -%}
+                <a class="search-result" href="{{ item.url }}">
+                  <span class="eyebrow">{{ item.object_type }}</span>
+                  <h3>{{ item.title }}</h3>
+                </a>
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- elsif search.performed -%}
+        <div class="catalogue__empty">
+          <span aria-hidden="true">✦</span>
+          <p>{{ 'search.no_results' | t: terms: search.terms }}</p>
+          <a class="button button--secondary" href="{{ routes.all_products_collection_url }}">{{ 'search.browse_all' | t }}</a>
+        </div>
+      {%- else -%}
+        <div class="catalogue__empty">
+          <span aria-hidden="true">✦</span>
+          <p>{{ 'search.prompt' | t }}</p>
+        </div>
+      {%- endif -%}
+
+      {% render 'pagination', paginate: paginate %}
+    {%- endpaginate -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Search results",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The New Year Collection" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Search the catalogue" },
+    { "type": "range", "id": "products_per_page", "label": "Results per page", "min": 8, "max": 48, "step": 4, "default": 24 }
+  ]
+}
+{% endschema %}

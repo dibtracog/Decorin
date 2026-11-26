@@ -1,0 +1,39 @@
+{%- comment -%}
+  Decor-themed line-art placeholder shown until a real image is added.
+  Usage: {% render 'placeholder-decor', index: 1, class: 'my-class' %}
+  index 1 = lantern, 2 = vase, 3 = mirror, 4 = cushion (cycles)
+{%- endcomment -%}
+{%- assign variant = index | default: 1 | minus: 1 | modulo: 4 | plus: 1 -%}
+<svg class="placeholder-decor {{ class }}" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+  <g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">
+    {%- case variant -%}
+      {%- when 1 -%}
+        <circle cx="50" cy="15" r="4"/>
+        <path d="M40 27h20l-3-8H43z"/>
+        <rect x="37" y="27" width="26" height="42" rx="3"/>
+        <path d="M37 69h26l3 8H34z"/>
+        <path d="M43 27v42M57 27v42"/>
+        <path d="M50 39c4.5 5 4.5 10 0 13.5-4.5-3.5-4.5-8.5 0-13.5z"/>
+        <path d="M47 56h6v7h-6z"/>
+      {%- when 2 -%}
+        <path d="M43 40c-1 7-12 12-12 26 0 12 8.5 18 19 18s19-6 19-18c0-14-11-19-12-26z"/>
+        <path d="M42 40h16"/>
+        <path d="M50 40V14"/>
+        <path d="M50 28c-5-6-11-7-16-4 4 5 10 6 16 4z"/>
+        <path d="M50 22c4-6 10-8 15-6-3 5-9 7-15 6z"/>
+        <path d="M46 40l-6-18M54 40l7-15"/>
+        <path d="M36 62c9 3 19 3 28 0"/>
+      {%- when 3 -%}
+        <path d="M50 22 41 9h18z"/>
+        <circle cx="50" cy="52" r="29"/>
+        <circle cx="50" cy="52" r="24"/>
+        <path d="M38 44c4-6 10-9 16-9"/>
+        <path d="M40 52c3-5 7-8 12-9"/>
+      {%- else -%}
+        <path d="M22 32c10 4 46 4 56 0-4 10-4 26 0 36-10-4-46-4-56 0 4-10 4-26 0-36z"/>
+        <path d="M22 32l-4-4M78 32l4-4M22 68l-4 4M78 68l4 4"/>
+        <path d="M34 42c10 6 22 10 32 12"/>
+        <circle cx="50" cy="50" r="2"/>
+    {%- endcase -%}
+  </g>
+</svg>

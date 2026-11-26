@@ -1,0 +1,43 @@
+{%- comment -%}
+  "We deliver in Jaipur only" notice + pincode checker.
+  mode: 'product' (information only) or 'cart' (also locks checkout until the pincode is one we deliver to).
+  Settings: Theme settings → Delivery area.
+{%- endcomment -%}
+{%- if settings.area_limit -%}
+  {%- liquid
+    assign city = settings.area_city | default: 'Jaipur'
+    assign state = settings.area_state | default: 'Rajasthan'
+    assign guard = false
+    if mode == 'cart' and settings.area_block_checkout
+      assign guard = true
+    endif
+    capture interest_url
+      render 'interest-url', product: product_title
+    endcapture
+  -%}
+  <div class="delivery-check delivery-check--{{ mode | default: 'product' }}" data-delivery-check
+    data-guard="{{ guard }}"
+    data-pincodes="{{ settings.area_pincodes | default: '302' | escape }}"
+    data-saved="{{ cart.attributes['Delivery pincode'] | escape }}"
+    data-city="{{ city | escape }}"
+    data-cart-update-url="{{ routes.cart_update_url }}"
+    data-text-ok="{{ 'area.check_ok' | t: pincode: '__PIN__' | escape }}"
+    data-text-no="{{ 'area.check_no' | t: pincode: '__PIN__', city: city | escape }}"
+    data-text-invalid="{{ 'area.check_invalid' | t | escape }}"
+    data-text-needed="{{ 'area.check_needed' | t: city: city | escape }}">
+    <p class="delivery-check__lead">
+      <span class="delivery-check__pin">{% render 'icon', name: 'pin' %}</span>
+      <span><strong>{{ 'area.badge' | t: city: city }}</strong> {{ 'area.note' | t: city: city, state: state }}</span>
+    </p>
+    <div class="delivery-check__row">
+      <label class="visually-hidden" for="DeliveryPin-{{ mode }}">{{ 'area.check_label' | t }}</label>
+      <input id="DeliveryPin-{{ mode }}" class="delivery-check__input" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="6"
+        placeholder="{{ 'area.check_placeholder' | t }}" aria-describedby="DeliveryResult-{{ mode }}" data-delivery-input>
+    </div>
+    <p class="delivery-check__result" id="DeliveryResult-{{ mode }}" role="status" aria-live="polite" data-delivery-result hidden></p>
+    <p class="delivery-check__more">
+      {{ 'area.not_here' | t: city: city }}
+      <a href="{{ interest_url | strip }}" data-interest-link>{{ 'area.let_us_know' | t }}{% render 'icon', name: 'arrow-right' %}</a>
+    </p>
+  </div>
+{%- endif -%}

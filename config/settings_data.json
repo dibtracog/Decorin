@@ -1,0 +1,15 @@
+{
+  "current": "Default",
+  "presets": {
+    "Default": {
+      "color_midnight": "#0d1330",
+      "color_gold": "#d6b16a",
+      "color_ivory": "#faf6ef",
+      "color_text": "#1c1b29",
+      "type_heading_font": "playfair_display_n4",
+      "type_body_font": "assistant_n4",
+      "page_width": 1300,
+      "brand_name": "DecorIn"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+api_version = "2026-10"
+
+[[extensions]]
+name = "DecorIn reviews"
+handle = "review-manager"
+type = "ui_extension"
+
+  # Shows on every product page in Shopify admin (Products → open a product).
+  [[extensions.targeting]]
+  module = "./src/ReviewManager.jsx"
+  target = "admin.product-details.block.render"
